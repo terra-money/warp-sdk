@@ -4,7 +4,6 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build": "yarn clean && node build.js",
-    "generate-types": "node --experimental-specifier-resolution=node --loader ts-node/esm ../../scripts/generate-types.ts warp",
     "start": "esbuild src/index.ts --bundle --platform=node --outdir=dist --outbase=src --external:jsonpath && node ./dist/index.js"
   },
   "dependencies": {
