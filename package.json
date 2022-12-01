@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@chialab/esbuild-plugin-require-resolve": "^0.17.1",
+    "@types/lodash": "^4.14.191",
     "esbuild": "^0.14.54",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.1.0"

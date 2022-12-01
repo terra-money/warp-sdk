@@ -36,7 +36,7 @@ export abstract class Wallet {
 
   public async tx(
     txOpts: CreateTxOptions,
-    handleEvent: TerraEventHandler
+    handleEvent: TerraEventHandler = () => {}
   ): Promise<TxInfo> {
     const txHash = await this.submitTx(txOpts, handleEvent);
     handleEvent({ kind: TerraEventKind.TxSubmitted, payload: { txHash } });

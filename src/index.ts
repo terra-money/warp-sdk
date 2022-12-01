@@ -83,7 +83,7 @@ const findActiveJobs = async (): Promise<warp_controller.Job[]> => {
       for (const job of jobs) {
         try {
           console.log(`Checking condition for job ${job.id}`);
-          const active = await sdk.jobActive(job.id);
+          const active = await sdk.isJobActive(job.id);
           console.log(`Condition for job ${job.id} ${active}`);
 
           if (active) {

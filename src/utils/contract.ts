@@ -42,3 +42,39 @@ export const getNetworkName = (chainId: string): NetworkName => {
   }
   return 'localterra';
 };
+
+
+import { LCDClient } from "@terra-money/terra.js";
+
+export const contractQuery = async <QueryMsg extends {}, QueryResponse>(
+  lcd: LCDClient,
+  contractAddress: string,
+  msg: QueryMsg
+): Promise<QueryResponse> => {
+  return await lcd.wasm.contractQuery<QueryResponse>(contractAddress, msg);
+};
+
+export const LUNA: NativeToken = {
+  key: "uluna",
+  type: "native",
+  denom: "uluna",
+  name: "LUNA",
+  symbol: "LUNA",
+  decimals: 6,
+  icon: "https://assets.terra.money/icon/svg/LUNA.png",
+  coinGeckoId: "terra-luna-2",
+};
+
+export type TokenBase = {
+  key: string;
+  name: string;
+  symbol: string;
+  icon: string;
+  decimals: number;
+  coinGeckoId?: string;
+};
+
+export type NativeToken = TokenBase & {
+  type: "native";
+  denom: string;
+};

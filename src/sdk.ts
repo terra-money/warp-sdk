@@ -1,24 +1,26 @@
-import { LCDClient } from '@terra-money/terra.js';
 import { warp_controller } from 'types/contracts';
-import { every, some } from 'lodash';
 import { WalletLike, Wallet, wallet } from './wallet';
-import * as jsonpath from 'jsonpath';
+import { Condition } from 'condition';
+import { contractQuery, LUNA } from 'utils';
+import { TxInfo } from '@terra-money/terra.js';
+import { TxBuilder } from 'tx';
+import Big from 'big.js';
+import { JobSequenceMsgBuilder } from 'job';
 
 export class WarpSdk {
   public wallet: Wallet;
   public contractAddress: string;
+  public condition: Condition;
 
   constructor(walletLike: WalletLike, contractAddress: string) {
     this.wallet = wallet(walletLike);
     this.contractAddress = contractAddress;
+    this.condition = new Condition(this.wallet, this.contractAddress);
   }
 
-  public async jobActive(jobId: string): Promise<boolean> {
-    const { job } = await contractQuery<
-      Extract<warp_controller.QueryMsg, { query_job: {} }>,
-      warp_controller.JobResponse
-    >(this.wallet.lcd, this.contractAddress, { query_job: { id: jobId } });
-    return this.resolveCond(job.condition);
+  public async isJobActive(jobId: string): Promise<boolean> {
+    const job = await this.job(jobId);
+    return this.condition.resolveCond(job.condition);
   }
 
   public async jobs(opts: warp_controller.QueryJobsMsg = {}): Promise<warp_controller.Job[]> {
@@ -30,213 +32,144 @@ export class WarpSdk {
     return jobs;
   }
 
-  private resolveCond = async (cond: warp_controller.Condition): Promise<boolean> => {
-    if ('and' in cond) {
-      const all = await Promise.all(cond.and.map(this.resolveCond));
-      return every(all);
-    }
+  public async job(id: string): Promise<warp_controller.Job> {
+    const { job } = await contractQuery<
+      Extract<warp_controller.QueryMsg, { query_resolve_job_condition: {} }>,
+      warp_controller.JobResponse
+    >(this.wallet.lcd, this.contractAddress, { query_resolve_job_condition: { id } });
 
-    if ('or' in cond) {
-      const all = await Promise.all(cond.or.map(this.resolveCond));
-      return some(all);
-    }
+    return job;
+  }
 
-    if ('not' in cond) {
-      return !this.resolveCond(cond.not);
-    }
-
-    return this.resolveExpr(cond.expr);
-  };
-
-  private resolveExpr = async (expr: warp_controller.Expr): Promise<boolean> => {
-    if ('string' in expr) {
-      return this.resolveExprString(expr.string);
-    }
-
-    if ('int' in expr) {
-      return this.resolveExprNum(expr.int);
-    }
-
-    if ('uint' in expr) {
-      return this.resolveExprNum(expr.uint);
-    }
-
-    if ('decimal' in expr) {
-      return this.resolveExprNum(expr.decimal);
-    }
-
-    if ('timestamp' in expr) {
-      return this.resolveExprTimestamp(expr.timestamp);
-    }
-
-    if ('block_height' in expr) {
-      return this.resolveExprBlockheight(expr.block_height);
-    }
-
-    if ('bool' in expr) {
-      return this.resolveQueryExprBoolean(expr.bool);
-    }
-
-    return false;
-  };
-
-  private resolveExprTimestamp = async (expr: warp_controller.TimeExpr): Promise<boolean> => {
-    const blockInfo = await this.wallet.lcd.tendermint.blockInfo();
-
-    return this.resolveNumOp(
-      Math.floor(new Date(blockInfo.block.header.time).getTime() / 1000),
-      Number(expr.comparator),
-      expr.op
-    );
-  };
-
-  private resolveExprBlockheight = async (expr: warp_controller.BlockExpr): Promise<boolean> => {
-    const blockInfo = await this.wallet.lcd.tendermint.blockInfo();
-
-    return this.resolveNumOp(Number(blockInfo.block.header.height), Number(expr.comparator), expr.op);
-  };
-
-  private resolveExprString = async (
-    expr: warp_controller.GenExprFor_ValueFor_StringAnd_StringOp
-  ): Promise<boolean> => {
-    if ('simple' in expr.left && 'simple' in expr.right) {
-      return this.resolveStringOp(expr.left.simple, expr.right.simple, expr.op);
-    }
-
-    if ('query' in expr.left && 'query' in expr.right) {
-      return this.resolveStringOp(
-        await this.resolveQueryExprString(expr.left.query),
-        await this.resolveQueryExprString(expr.right.query),
-        expr.op
-      );
-    }
-
-    if ('simple' in expr.left && 'query' in expr.right) {
-      return this.resolveStringOp(expr.left.simple, await this.resolveQueryExprString(expr.right.query), expr.op);
-    }
-
-    if ('query' in expr.left && 'simple' in expr.right) {
-      return this.resolveStringOp(await this.resolveQueryExprString(expr.left.query), expr.right.simple, expr.op);
-    }
-
-    return false;
-  };
-
-  private resolveExprNum = async (
-    expr:
-      | warp_controller.GenExprFor_ValueForInt128And_NumOp
-      | warp_controller.GenExprFor_ValueFor_Decimal256And_NumOp
-      | warp_controller.GenExprFor_ValueFor_Uint256And_NumOp
-  ): Promise<boolean> => {
-    if ('simple' in expr.left && 'simple' in expr.right) {
-      return this.resolveNumOp(Number(expr.left.simple), Number(expr.right.simple), expr.op);
-    }
-
-    if ('query' in expr.left && 'query' in expr.right) {
-      return this.resolveNumOp(
-        await this.resolveQueryExprInt(expr.left.query),
-        await this.resolveQueryExprInt(expr.right.query),
-        expr.op
-      );
-    }
-
-    if ('simple' in expr.left && 'query' in expr.right) {
-      return this.resolveNumOp(Number(expr.left.simple), await this.resolveQueryExprInt(expr.right.query), expr.op);
-    }
-
-    if ('query' in expr.left && 'simple' in expr.right) {
-      return this.resolveNumOp(await this.resolveQueryExprInt(expr.left.query), Number(expr.right.simple), expr.op);
-    }
-
-    return false;
-  };
-
-  private resolveQueryExprInt = async (expr: warp_controller.QueryExpr): Promise<number> => {
-    const resp = await contractQuery<
+  public async simulateQuery(query: warp_controller.QueryRequestFor_String): Promise<object> {
+    const { response } = await contractQuery<
       Extract<warp_controller.QueryMsg, { simulate_query: {} }>,
       warp_controller.SimulateResponse
-    >(this.wallet.lcd, this.contractAddress, { simulate_query: { query: expr.query } });
-    const extracted = jsonpath.query(JSON.parse(resp.response), expr.selector);
+    >(this.wallet.lcd, this.contractAddress, { simulate_query: { query } });
 
-    if (extracted[0] == null) {
-      return null;
-    } else {
-      return Number(extracted[0]);
-    }
-  };
+    return JSON.parse(response);
+  }
 
-  private resolveQueryExprString = async (expr: warp_controller.QueryExpr): Promise<string> => {
-    const resp = await contractQuery<
-      Extract<warp_controller.QueryMsg, { simulate_query: {} }>,
-      warp_controller.SimulateResponse
-    >(this.wallet.lcd, this.contractAddress, { simulate_query: { query: expr.query } });
-    const extracted = jsonpath.query(JSON.parse(resp.response), expr.selector);
+  public async account(owner: string): Promise<warp_controller.Account> {
+    const { account } = await contractQuery<
+      Extract<warp_controller.QueryMsg, { query_account: {} }>,
+      warp_controller.AccountResponse
+    >(this.wallet.lcd, this.contractAddress, { query_account: { owner } });
 
-    if (extracted[0] == null) {
-      return null;
-    } else {
-      return String(extracted[0]);
-    }
-  };
+    return account;
+  }
 
-  private resolveQueryExprBoolean = async (expr: warp_controller.QueryExpr): Promise<boolean> => {
-    const resp = await contractQuery<
-      Extract<warp_controller.QueryMsg, { simulate_query: {} }>,
-      warp_controller.SimulateResponse
-    >(this.wallet.lcd, this.contractAddress, { simulate_query: { query: expr.query } });
-    const extracted = jsonpath.query(JSON.parse(resp.response), expr.selector);
+  public async accounts(opts: warp_controller.QueryAccountsMsg): Promise<warp_controller.Account[]> {
+    const { accounts } = await contractQuery<
+      Extract<warp_controller.QueryMsg, { query_accounts: {} }>,
+      warp_controller.AccountsResponse
+    >(this.wallet.lcd, this.contractAddress, { query_accounts: opts });
 
-    if (extracted[0] == null) {
-      return false;
-    } else {
-      return Boolean(extracted[0]);
-    }
-  };
+    return accounts;
+  }
 
-  private resolveStringOp = async (left: string, right: string, op: warp_controller.StringOp): Promise<boolean> => {
-    if (left == null || right == null) {
-      return false;
-    }
+  public async config(): Promise<warp_controller.Config> {
+    const { config } = await contractQuery<
+      Extract<warp_controller.QueryMsg, { query_config: {} }>,
+      warp_controller.ConfigResponse
+    >(this.wallet.lcd, this.contractAddress, { query_config: {} });
 
-    switch (op) {
-      case 'contains':
-        return left.includes(right);
-      case 'ends_with':
-        return left.endsWith(right);
-      case 'eq':
-        return left === right;
-      case 'neq':
-        return left !== right;
-      case 'starts_with':
-        return left.startsWith(right);
-    }
-  };
+    return config;
+  }
 
-  private resolveNumOp = async (left: number, right: number, op: warp_controller.NumOp): Promise<boolean> => {
-    if (left == null || right == null) {
-      return false;
-    }
-    switch (op) {
-      case 'eq':
-        return left === right;
-      case 'neq':
-        return left !== right;
-      case 'gt':
-        return left > right;
-      case 'gte':
-        return left >= right;
-      case 'lt':
-        return left < right;
-      case 'lte':
-        return left <= right;
-    }
-  };
+  public async createJob(sender: string, msg: warp_controller.CreateJobMsg): Promise<TxInfo> {
+    const account = await this.account(sender);
+    const config = await this.config();
+
+    const txPayload = TxBuilder.new()
+      .send(account.owner, account.account, {
+        [LUNA.denom]: Big(msg.reward).mul(Big(config.creation_fee_percentage).add(100).div(100)).toString(),
+      })
+      .execute<Extract<warp_controller.ExecuteMsg, { create_job: {} }>>(sender, this.contractAddress, {
+        create_job: msg,
+      })
+      .build();
+
+    return this.wallet.tx(txPayload);
+  }
+
+  /* creates a time series of job executions in a single tx:
+  *
+  * sequence: [(job1, cond1), (job2, cond2), (job3, cond3)] will be executed as:
+  * 
+  * create (job1, cond1) 
+  * when cond1 active
+  * then execute job1
+  *       create (job2, cond2)
+  *       when cond2 active
+  *       then execute job2
+  *            create(job3, cond3)
+  *            when cond3 active
+  *            then execute job3
+  */ 
+  public async createJobSequence(sender: string, sequence: warp_controller.CreateJobMsg[]): Promise<TxInfo> {
+    const account = await this.account(sender);
+    const config = await this.config();
+
+    let jobSequenceMsgBuilder = JobSequenceMsgBuilder.new();
+    let totalReward = Big(0);
+
+    sequence.forEach((msg) => {
+      totalReward = totalReward.add(Big(msg.reward));
+      jobSequenceMsgBuilder = jobSequenceMsgBuilder.chain(msg);
+    });
+
+    const jobSequenceMsg = jobSequenceMsgBuilder.build();
+
+    const txPayload = TxBuilder.new()
+      .send(account.owner, account.account, {
+        [LUNA.denom]: Big(totalReward).mul(Big(config.creation_fee_percentage).add(100).div(100)).toString(),
+      })
+      .execute<Extract<warp_controller.ExecuteMsg, { create_job: {} }>>(sender, this.contractAddress, {
+        create_job: jobSequenceMsg,
+      })
+      .build();
+
+    return this.wallet.tx(txPayload);
+  }
+
+  public async deleteJob(sender: string, jobId: string): Promise<TxInfo> {
+    const txPayload = TxBuilder.new()
+      .execute<Extract<warp_controller.ExecuteMsg, { delete_job: {} }>>(sender, this.contractAddress, {
+        delete_job: { id: jobId },
+      })
+      .build();
+
+    return this.wallet.tx(txPayload);
+  }
+
+  public async updateJob(sender: string, msg: warp_controller.UpdateJobMsg): Promise<TxInfo> {
+    const txPayload = TxBuilder.new()
+      .execute<Extract<warp_controller.ExecuteMsg, { update_job: {} }>>(sender, this.contractAddress, {
+        update_job: msg,
+      })
+      .build();
+
+    return this.wallet.tx(txPayload);
+  }
+
+  public async executeJob(sender: string, jobId: string): Promise<TxInfo> {
+    const txPayload = TxBuilder.new()
+      .execute<Extract<warp_controller.ExecuteMsg, { execute_job: {} }>>(sender, this.contractAddress, {
+        execute_job: { id: jobId },
+      })
+      .build();
+
+    return this.wallet.tx(txPayload);
+  }
+
+  public async createAccount(sender: string): Promise<TxInfo> {
+    const txPayload = TxBuilder.new()
+      .execute<Extract<warp_controller.ExecuteMsg, { create_account: {} }>>(sender, this.contractAddress, {
+        create_account: {},
+      })
+      .build();
+
+    return this.wallet.tx(txPayload);
+  }
 }
-
-const contractQuery = async <QueryMsg extends {}, QueryResponse>(
-  lcd: LCDClient,
-  contractAddress: string,
-  msg: QueryMsg
-): Promise<QueryResponse> => {
-  return await lcd.wasm.contractQuery<QueryResponse>(contractAddress, msg);
-};
