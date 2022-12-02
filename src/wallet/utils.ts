@@ -1,4 +1,4 @@
-import { CreateTxOptions, TxInfo } from "@terra-money/terra.js";
+import { CreateTxOptions, TxInfo } from '@terra-money/terra.js';
 
 export class TerraTxError extends Error {
   txInfo: TxInfo;
@@ -6,13 +6,9 @@ export class TerraTxError extends Error {
   constructor(txInfo: TxInfo) {
     super(txInfo.raw_log);
     this.txInfo = txInfo;
-    this.name = "TerraTxError";
+    this.name = 'TerraTxError';
     this.toString = () => {
-      return `[txhash="${this.txInfo.txhash}"]\n${JSON.stringify(
-        this.message,
-        null,
-        2
-      )}`;
+      return `[txhash="${this.txInfo.txhash}"]\n${JSON.stringify(this.message, null, 2)}`;
     };
   }
 }

@@ -94,19 +94,19 @@ export class WarpSdk {
   }
 
   /* creates a time series of job executions in a single tx:
-  *
-  * sequence: [(job1, cond1), (job2, cond2), (job3, cond3)] will be executed as:
-  * 
-  * create (job1, cond1) 
-  * when cond1 active
-  * then execute job1
-  *       create (job2, cond2)
-  *       when cond2 active
-  *       then execute job2
-  *            create(job3, cond3)
-  *            when cond3 active
-  *            then execute job3
-  */ 
+   *
+   * sequence: [(job1, cond1), (job2, cond2), (job3, cond3)] will be executed as:
+   *
+   * create (job1, cond1)
+   * when cond1 active
+   * then execute job1
+   *       create (job2, cond2)
+   *       when cond2 active
+   *       then execute job2
+   *            create(job3, cond3)
+   *            when cond3 active
+   *            then execute job3
+   */
   public async createJobSequence(sender: string, sequence: warp_controller.CreateJobMsg[]): Promise<TxInfo> {
     const account = await this.account(sender);
     const config = await this.config();

@@ -1,6 +1,6 @@
-import { CreateTxOptions, LCDClient } from "@terra-money/terra.js";
-import { Wallet } from "./base";
-import { TxResult } from "./utils";
+import { CreateTxOptions, LCDClient } from '@terra-money/terra.js';
+import { Wallet } from './base';
+import { TxResult } from './utils';
 
 export type ConnectedWalletInput = {
   wallet?: ConnectedWalletPayload;
@@ -22,7 +22,7 @@ export class ConnectedWallet extends Wallet {
 
   public async submitTx(txOpts: CreateTxOptions): Promise<string> {
     if (!this.wallet || !this.wallet.availablePost) {
-      throw new Error("Wallet not connected.");
+      throw new Error('Wallet not connected.');
     }
 
     const txResult = await this.wallet.post(txOpts);

@@ -1,6 +1,6 @@
-import contracts from "../refs.json";
+import contracts from '../refs.json';
 
-type NetworkName = "mainnet" | "testnet" | "localterra";
+type NetworkName = 'mainnet' | 'testnet' | 'localterra';
 
 interface ContractDefinition {
   codeId: string;
@@ -8,19 +8,13 @@ interface ContractDefinition {
 }
 
 export interface ContractAddresses {
-  "warp-controller": ContractDefinition;
-  "warp-account": ContractDefinition;
+  'warp-controller': ContractDefinition;
+  'warp-account': ContractDefinition;
 }
 
-export const CONTRACT_ADDRESSES = contracts as unknown as Record<
-  Partial<NetworkName>,
-  Partial<ContractAddresses>
->;
+export const CONTRACT_ADDRESSES = contracts as unknown as Record<Partial<NetworkName>, Partial<ContractAddresses>>;
 
-export const getContractAddress = (
-  network: string,
-  contract: keyof ContractAddresses
-): string | undefined => {
+export const getContractAddress = (network: string, contract: keyof ContractAddresses): string | undefined => {
   const networkName = network as NetworkName;
 
   if (CONTRACT_ADDRESSES[networkName]) {
@@ -32,7 +26,6 @@ export const getContractAddress = (
   return undefined;
 };
 
-
 export const getNetworkName = (chainId: string): NetworkName => {
   if (chainId.toLocaleLowerCase().startsWith('phoenix-')) {
     return 'mainnet';
@@ -43,8 +36,7 @@ export const getNetworkName = (chainId: string): NetworkName => {
   return 'localterra';
 };
 
-
-import { LCDClient } from "@terra-money/terra.js";
+import { LCDClient } from '@terra-money/terra.js';
 
 export const contractQuery = async <QueryMsg extends {}, QueryResponse>(
   lcd: LCDClient,
@@ -55,14 +47,14 @@ export const contractQuery = async <QueryMsg extends {}, QueryResponse>(
 };
 
 export const LUNA: NativeToken = {
-  key: "uluna",
-  type: "native",
-  denom: "uluna",
-  name: "LUNA",
-  symbol: "LUNA",
+  key: 'uluna',
+  type: 'native',
+  denom: 'uluna',
+  name: 'LUNA',
+  symbol: 'LUNA',
   decimals: 6,
-  icon: "https://assets.terra.money/icon/svg/LUNA.png",
-  coinGeckoId: "terra-luna-2",
+  icon: 'https://assets.terra.money/icon/svg/LUNA.png',
+  coinGeckoId: 'terra-luna-2',
 };
 
 export type TokenBase = {
@@ -75,6 +67,6 @@ export type TokenBase = {
 };
 
 export type NativeToken = TokenBase & {
-  type: "native";
+  type: 'native';
   denom: string;
 };

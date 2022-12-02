@@ -24,7 +24,7 @@ export class JobSequenceMsgBuilder {
       ...curr,
       msgs: [...curr.msgs, next],
     };
-  }
+  };
 
   chain(msg: warp_controller.CreateJobMsg): JobSequenceMsgBuilder {
     this.sequence = [...this.sequence, msg];
@@ -42,10 +42,10 @@ export const base64encode = (input: object): string => {
 
 export function base64decode<T>(value: string): T {
   return JSON.parse(Buffer.from(value, 'base64').toString()) as T;
-};
+}
 
 export type WasmMsg = Extract<warp_controller.CosmosMsgFor_Empty, { wasm: {} }>;
-export type WasmExecuteMsg = { wasm: Extract<WasmMsg["wasm"], { execute: {} }> } ;
+export type WasmExecuteMsg = { wasm: Extract<WasmMsg['wasm'], { execute: {} }> };
 
 export const createJobMsg = (contractAddr: string, msg: warp_controller.CreateJobMsg): WasmExecuteMsg => {
   return {

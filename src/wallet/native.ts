@@ -1,5 +1,5 @@
-import { CreateTxOptions, Wallet as TerraWallet } from "@terra-money/terra.js";
-import { Wallet } from "./base";
+import { CreateTxOptions, Wallet as TerraWallet } from '@terra-money/terra.js';
+import { Wallet } from './base';
 
 export class NativeWallet extends Wallet {
   private wallet: TerraWallet;
