@@ -5,7 +5,8 @@
     "clean": "rm -rf dist",
     "build": "yarn clean && node build.js",
     "start": "esbuild src/bot.ts --bundle --platform=node --outdir=dist --outbase=src --external:jsonpath && node ./dist/bot.js",
-    "format": "prettier --write \"src/**/*.{js,ts,tsx}\""
+    "format": "prettier --write \"src/**/*.{js,ts,tsx}\"",
+    "postinstall": "husky install"
   },
   "lint-staged": {
     "./src/{**/*,*}.{ts,tsx}": [
