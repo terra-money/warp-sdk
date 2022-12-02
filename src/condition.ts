@@ -1,8 +1,8 @@
-import { warp_controller } from "types/contracts";
+import { warp_controller } from 'types/contracts';
 import { every, some } from 'lodash';
 import * as jsonpath from 'jsonpath';
-import { contractQuery } from "utils";
-import { Wallet } from "wallet";
+import { contractQuery } from 'utils';
+import { Wallet } from 'wallet';
 
 export class Condition {
   public wallet: Wallet;
@@ -79,9 +79,7 @@ export class Condition {
     return this.resolveNumOp(Number(blockInfo.block.header.height), Number(expr.comparator), expr.op);
   };
 
-  public resolveExprString = async (
-    expr: warp_controller.GenExprFor_ValueFor_StringAnd_StringOp
-  ): Promise<boolean> => {
+  public resolveExprString = async (expr: warp_controller.GenExprFor_ValueFor_StringAnd_StringOp): Promise<boolean> => {
     if ('simple' in expr.left && 'simple' in expr.right) {
       return this.resolveStringOp(expr.left.simple, expr.right.simple, expr.op);
     }
@@ -111,28 +109,77 @@ export class Condition {
       | warp_controller.GenExprFor_NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOpAnd_NumOp
       | warp_controller.GenExprFor_NumValueFor_Uint256And_NumExprOpAnd_IntFnOpAnd_NumOp
   ): Promise<boolean> => {
-    if ('simple' in expr.left && 'simple' in expr.right) {
-      return this.resolveNumOp(Number(expr.left.simple), Number(expr.right.simple), expr.op);
-    }
+    const left = await this.resolveNumValue(expr.left);
+    const right = await this.resolveNumValue(expr.right);
 
-    if ('query' in expr.left && 'query' in expr.right) {
-      return this.resolveNumOp(
-        await this.resolveQueryExprInt(expr.left.query),
-        await this.resolveQueryExprInt(expr.right.query),
-        expr.op
-      );
-    }
-
-    if ('simple' in expr.left && 'query' in expr.right) {
-      return this.resolveNumOp(Number(expr.left.simple), await this.resolveQueryExprInt(expr.right.query), expr.op);
-    }
-
-    if ('query' in expr.left && 'simple' in expr.right) {
-      return this.resolveNumOp(await this.resolveQueryExprInt(expr.left.query), Number(expr.right.simple), expr.op);
-    }
-
-    return false;
+    return this.resolveNumOp(left, right, expr.op);
   };
+
+  public resolveNumValue = async (
+    value:
+      | warp_controller.NumValueForInt128And_NumExprOpAnd_IntFnOp
+      | warp_controller.NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp
+      | warp_controller.NumValueFor_Uint256And_NumExprOpAnd_IntFnOp
+  ): Promise<number> => {
+    if ('simple' in value) {
+      return Number(value.simple);
+    }
+
+    if ('expr' in value) {
+      return this.resolveNumExpr(value.expr);
+    }
+
+    if ('fn' in value) {
+      return this.resolveNumFn(value.fn);
+    }
+
+    if ('query' in value) {
+      return this.resolveQueryExprInt(value.query);
+    }
+  };
+
+  public async resolveNumFn(
+    fn:
+      | warp_controller.NumFnValueForInt128And_NumExprOpAnd_IntFnOp
+      | warp_controller.NumFnValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp
+      | warp_controller.NumFnValueFor_Uint256And_NumExprOpAnd_IntFnOp
+  ): Promise<number> {
+    switch (fn.op) {
+      case 'abs':
+        return Math.abs(await this.resolveNumValue(fn.right));
+      case 'neg':
+        return -1 * (await this.resolveNumValue(fn.right));
+      case 'floor':
+        return Math.floor(await this.resolveNumValue(fn.right));
+      case 'sqrt':
+        return Math.sqrt(await this.resolveNumValue(fn.right));
+      case 'ceil':
+        return Math.ceil(await this.resolveNumValue(fn.right));
+    }
+  }
+
+  public async resolveNumExpr(
+    expr:
+      | warp_controller.NumExprValueForInt128And_NumExprOpAnd_IntFnOp
+      | warp_controller.NumExprValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp
+      | warp_controller.NumExprValueFor_Uint256And_NumExprOpAnd_IntFnOp
+  ): Promise<number> {
+    const left = await this.resolveNumValue(expr.left);
+    const right = await this.resolveNumValue(expr.right);
+
+    switch (expr.op) {
+      case 'add':
+        return left + right;
+      case 'sub':
+        return left - right;
+      case 'div':
+        return left / right;
+      case 'mul':
+        return left * right;
+      case 'mod':
+        return left % right;
+    }
+  }
 
   public resolveQueryExprInt = async (expr: warp_controller.QueryExpr): Promise<number> => {
     const resp = await contractQuery<
@@ -199,7 +246,7 @@ export class Condition {
     if (left == null || right == null) {
       return false;
     }
-    
+
     switch (op) {
       case 'eq':
         return left === right;
