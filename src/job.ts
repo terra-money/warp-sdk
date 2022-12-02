@@ -58,3 +58,16 @@ export const createJobMsg = (contractAddr: string, msg: warp_controller.CreateJo
     },
   };
 };
+
+export type CreateJobMsg = Omit<warp_controller.CreateJobMsg, 'msgs'> & {
+  msgs: warp_controller.CosmosMsgFor_Empty[];
+};
+
+export const jsonifyMsgs = (msg: CreateJobMsg): warp_controller.CreateJobMsg => {
+  const { msgs, ...rest } = msg;
+
+  return {
+    ...rest,
+    msgs: msgs.map((msg) => JSON.stringify(msg)),
+  };
+};

@@ -5,7 +5,7 @@ import { contractQuery, LUNA } from 'utils';
 import { TxInfo } from '@terra-money/terra.js';
 import { TxBuilder } from 'tx';
 import Big from 'big.js';
-import { JobSequenceMsgBuilder } from 'job';
+import { CreateJobMsg, JobSequenceMsgBuilder, jsonifyMsgs } from 'job';
 
 export class WarpSdk {
   public wallet: Wallet;
@@ -77,7 +77,7 @@ export class WarpSdk {
     return config;
   }
 
-  public async createJob(sender: string, msg: warp_controller.CreateJobMsg): Promise<TxInfo> {
+  public async createJob(sender: string, msg: CreateJobMsg): Promise<TxInfo> {
     await this.createAccountIfNotExists(sender);
 
     const account = await this.account(sender);
@@ -88,7 +88,7 @@ export class WarpSdk {
         [LUNA.denom]: Big(msg.reward).mul(Big(config.creation_fee_percentage).add(100).div(100)).toString(),
       })
       .execute<Extract<warp_controller.ExecuteMsg, { create_job: {} }>>(sender, this.contractAddress, {
-        create_job: msg,
+        create_job: jsonifyMsgs(msg),
       })
       .build();
 
@@ -109,7 +109,7 @@ export class WarpSdk {
    *            when cond3 active
    *            then execute job3
    */
-  public async createJobSequence(sender: string, sequence: warp_controller.CreateJobMsg[]): Promise<TxInfo> {
+  public async createJobSequence(sender: string, sequence: CreateJobMsg[]): Promise<TxInfo> {
     await this.createAccountIfNotExists(sender);
 
     const account = await this.account(sender);
@@ -118,7 +118,8 @@ export class WarpSdk {
     let jobSequenceMsgBuilder = JobSequenceMsgBuilder.new();
     let totalReward = Big(0);
 
-    sequence.forEach((msg) => {
+    sequence.forEach((input) => {
+      const msg = jsonifyMsgs(input);
       totalReward = totalReward.add(Big(msg.reward));
       jobSequenceMsgBuilder = jobSequenceMsgBuilder.chain(msg);
     });
