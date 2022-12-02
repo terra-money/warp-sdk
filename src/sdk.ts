@@ -78,6 +78,8 @@ export class WarpSdk {
   }
 
   public async createJob(sender: string, msg: warp_controller.CreateJobMsg): Promise<TxInfo> {
+    await this.createAccountIfNotExists(sender);
+
     const account = await this.account(sender);
     const config = await this.config();
 
@@ -108,6 +110,8 @@ export class WarpSdk {
    *            then execute job3
    */
   public async createJobSequence(sender: string, sequence: warp_controller.CreateJobMsg[]): Promise<TxInfo> {
+    await this.createAccountIfNotExists(sender);
+
     const account = await this.account(sender);
     const config = await this.config();
 
@@ -131,6 +135,17 @@ export class WarpSdk {
       .build();
 
     return this.wallet.tx(txPayload);
+  }
+
+  public async createAccountIfNotExists(sender: string): Promise<warp_controller.Account> {
+    try {
+      const account = await this.account(sender);
+      return account;
+    } catch (err) {
+      // account not exists
+      await this.createAccount(sender);
+      return this.account(sender);
+    }
   }
 
   public async deleteJob(sender: string, jobId: string): Promise<TxInfo> {
