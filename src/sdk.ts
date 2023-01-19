@@ -202,6 +202,36 @@ export class WarpSdk {
     return this.wallet.tx(txPayload);
   }
 
+  public async submitTemplate(sender: string, msg: warp_controller.SubmitTemplateMsg): Promise<TxInfo> {
+    const txPayload = TxBuilder.new()
+      .execute<Extract<warp_controller.ExecuteMsg, { submit_template: {} }>>(sender, this.contractAddress, {
+        submit_template: msg,
+      })
+      .build();
+
+    return this.wallet.tx(txPayload);
+  }
+
+  public async deleteTemplate(sender: string, templateId: string): Promise<TxInfo> {
+    const txPayload = TxBuilder.new()
+      .execute<Extract<warp_controller.ExecuteMsg, { delete_template: {} }>>(sender, this.contractAddress, {
+        delete_template: { id: templateId },
+      })
+      .build();
+
+    return this.wallet.tx(txPayload);
+  }
+
+  public async editTemplate(sender: string, msg: warp_controller.EditTemplateMsg): Promise<TxInfo> {
+    const txPayload = TxBuilder.new()
+      .execute<Extract<warp_controller.ExecuteMsg, { edit_template: {} }>>(sender, this.contractAddress, {
+        edit_template: msg,
+      })
+      .build();
+
+    return this.wallet.tx(txPayload);
+  }
+
   public async createAccount(sender: string): Promise<TxInfo> {
     const txPayload = TxBuilder.new()
       .execute<Extract<warp_controller.ExecuteMsg, { create_account: {} }>>(sender, this.contractAddress, {
