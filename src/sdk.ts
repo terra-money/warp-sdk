@@ -20,7 +20,7 @@ export class WarpSdk {
 
   public async isJobActive(jobId: string): Promise<boolean> {
     const job = await this.job(jobId);
-    return this.condition.resolveCond(job.condition);
+    return this.condition.resolveCond(job.condition, job.vars);
   }
 
   public async jobs(opts: warp_controller.QueryJobsMsg = {}): Promise<warp_controller.Job[]> {
