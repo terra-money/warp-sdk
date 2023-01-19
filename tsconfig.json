@@ -9,9 +9,9 @@
     "module": "ESNext",
     "outDir": "dist",
     "rootDir": "src",
-    "lib": ["ES2022", "dom"],
+    "lib": ["ES2022"],
     "baseUrl": "src"
   },
-  "include": ["./src"],
+  "include": ["./src", "./scripts"],
   "exclude": ["node_modules"]
 }

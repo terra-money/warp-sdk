@@ -1,17 +1,26 @@
 {
   "name": "@warp-protocol/sdk",
   "version": "0.1.0",
+  "type": "module",
   "scripts": {
     "clean": "rm -rf dist",
     "build": "yarn clean && node build.js",
     "start": "esbuild src/bot.ts --bundle --platform=node --outdir=dist --outbase=src --external:jsonpath && node ./dist/bot.js",
     "format": "prettier --write \"src/**/*.{js,ts,tsx}\"",
+    "generate-types": "node --experimental-specifier-resolution=node --loader ts-node/esm ./scripts/generate-types.ts warp-protocol",
     "postinstall": "husky install"
   },
   "lint-staged": {
     "./src/{**/*,*}.{ts,tsx}": [
       "prettier --write"
     ]
+  },
+  "generate-types": {
+    "contracts": [
+      "warp-controller",
+      "warp-account"
+    ],
+    "output": "src/types/contracts"
   },
   "dependencies": {
     "@terra-money/terra.js": "^3.1.6",
@@ -26,6 +35,7 @@
     "typescript": "^4.8.2"
   },
   "devDependencies": {
+    "json-schema-to-typescript": "^11.0.2",
     "@chialab/esbuild-plugin-require-resolve": "^0.17.1",
     "@types/lodash": "^4.14.191",
     "esbuild": "^0.14.54",
