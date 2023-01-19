@@ -1,17 +1,14 @@
-export class DeclarationIterator {
-  str: string;
-  idx: number;
+class DeclarationIterator {
+  str;
+  idx;
 
-  constructor(str: string) {
+  constructor(str) {
     this.str = str;
     this.idx = 0;
   }
 
   hasNext() {
-    return (
-      this.idx <= this.str.length &&
-      this.str.substring(this.idx).search('export ') !== -1
-    );
+    return this.idx <= this.str.length && this.str.substring(this.idx).search('export ') !== -1;
   }
 
   async next() {
@@ -20,15 +17,12 @@ export class DeclarationIterator {
     }
 
     const start = this.idx + this.str.substring(this.idx).search('export ');
-    const isInterface = this.str
-      .substring(start)
-      .startsWith('export interface');
+    const isInterface = this.str.substring(start).startsWith('export interface');
 
     const firstParenPos = start + this.str.substring(start).search('{');
     const firstAssignPos = start + this.str.substring(start).search('=');
     const firstSemiColPos = start + this.str.substring(start).search(';');
-    const isComplexType =
-      firstSemiColPos > firstParenPos && firstAssignPos < firstParenPos;
+    const isComplexType = firstSemiColPos > firstParenPos && firstAssignPos < firstParenPos;
     const isComplex = isInterface || isComplexType;
 
     const namePos = isInterface
@@ -64,3 +58,7 @@ export class DeclarationIterator {
     }
   }
 }
+
+module.exports = {
+  DeclarationIterator,
+};

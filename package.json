@@ -1,13 +1,12 @@
 {
   "name": "@warp-protocol/sdk",
   "version": "0.1.0",
-  "type": "module",
   "scripts": {
     "clean": "rm -rf dist",
     "build": "yarn clean && node build.js",
     "start": "esbuild src/bot.ts --bundle --platform=node --outdir=dist --outbase=src --external:jsonpath && node ./dist/bot.js",
     "format": "prettier --write \"src/**/*.{js,ts,tsx}\"",
-    "generate-types": "node --experimental-specifier-resolution=node --loader ts-node/esm ./scripts/generate-types.ts warp-protocol",
+    "generate-types": "node --experimental-specifier-resolution=node --loader ts-node/esm ./scripts/generate-types.js warp-protocol",
     "postinstall": "husky install"
   },
   "lint-staged": {
