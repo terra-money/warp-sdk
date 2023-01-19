@@ -2,8 +2,8 @@ import { warp_controller } from 'types/contracts';
 import { every, some } from 'lodash';
 import * as jsonpath from 'jsonpath';
 import { contractQuery } from 'utils';
-import axios from 'axios';
 import { Wallet } from 'wallet';
+import { extractVariableName, resolveExternalVariable, variableName } from 'variables';
 
 export class Condition {
   public wallet: Wallet;
@@ -186,7 +186,7 @@ export class Condition {
   }
 
   public variable(ref: string, vars: warp_controller.Variable[]): warp_controller.Variable {
-    const name = extractName(ref);
+    const name = extractVariableName(ref);
     const v = vars.find((v) => variableName(v) === name);
     return v as warp_controller.Variable;
   }
@@ -203,7 +203,7 @@ export class Condition {
     }
 
     if ('external' in variable) {
-      return cast(await this.resolveExternalVariable(variable.external));
+      return cast(await resolveExternalVariable(variable.external));
     }
 
     if ('query' in variable) {
@@ -222,34 +222,6 @@ export class Condition {
       return null;
     } else {
       return String(extracted[0]);
-    }
-  }
-
-  public async resolveExternalVariable(external: warp_controller.ExternalVariable): Promise<string> {
-    const { init_fn } = external;
-    const { body, method, selector, url } = init_fn;
-
-    const options = {
-      method: method ? method.toUpperCase() : 'GET',
-      url,
-      data: body,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    };
-
-    try {
-      const resp = await axios.request(options);
-      const extracted = jsonpath.query(JSON.parse(resp.data), selector);
-
-      if (extracted[0] == null) {
-        return null;
-      } else {
-        return String(extracted[0]);
-      }
-    } catch (error) {
-      console.error(`Error resolving external variable: ${error.message}`);
-      return null;
     }
   }
 
@@ -293,20 +265,3 @@ export class Condition {
     }
   };
 }
-
-const extractName = (str: string) => {
-  const parts = str.split('.');
-  return parts[parts.length - 1];
-};
-
-export const variableName = (v: warp_controller.Variable): string => {
-  if ('static' in v) {
-    return v.static.name;
-  }
-
-  if ('external' in v) {
-    return v.external.name;
-  }
-
-  return v.query.name;
-};

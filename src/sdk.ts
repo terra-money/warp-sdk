@@ -6,6 +6,7 @@ import { TxInfo } from '@terra-money/terra.js';
 import { TxBuilder } from 'tx';
 import Big from 'big.js';
 import { CreateJobMsg, JobSequenceMsgBuilder, jsonifyMsgs } from 'job';
+import { resolveExternalInputs } from 'variables';
 
 export class WarpSdk {
   public wallet: Wallet;
@@ -170,9 +171,13 @@ export class WarpSdk {
   }
 
   public async executeJob(sender: string, jobId: string): Promise<TxInfo> {
+    const job = await this.job(jobId);
+
+    const externalInputs = await resolveExternalInputs(job.vars);
+
     const txPayload = TxBuilder.new()
       .execute<Extract<warp_controller.ExecuteMsg, { execute_job: {} }>>(sender, this.contractAddress, {
-        execute_job: { id: jobId },
+        execute_job: { id: jobId, external_inputs: externalInputs },
       })
       .build();
 
