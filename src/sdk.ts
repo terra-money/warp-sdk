@@ -35,11 +35,29 @@ export class WarpSdk {
 
   public async job(id: string): Promise<warp_controller.Job> {
     const { job } = await contractQuery<
-      Extract<warp_controller.QueryMsg, { query_resolve_job_condition: {} }>,
+      Extract<warp_controller.QueryMsg, { query_job: {} }>,
       warp_controller.JobResponse
-    >(this.wallet.lcd, this.contractAddress, { query_resolve_job_condition: { id } });
+    >(this.wallet.lcd, this.contractAddress, { query_job: { id } });
 
     return job;
+  }
+
+  public async templates(opts: warp_controller.QueryTemplatesMsg = {}): Promise<warp_controller.Template[]> {
+    const { templates } = await contractQuery<
+      Extract<warp_controller.QueryMsg, { query_templates: {} }>,
+      warp_controller.TemplatesResponse
+    >(this.wallet.lcd, this.contractAddress, { query_templates: opts });
+
+    return templates;
+  }
+
+  public async template(id: string): Promise<warp_controller.Template> {
+    const { template } = await contractQuery<
+      Extract<warp_controller.QueryMsg, { query_template: {} }>,
+      warp_controller.TemplateResponse
+    >(this.wallet.lcd, this.contractAddress, { query_template: { id } });
+
+    return template;
   }
 
   public async simulateQuery(query: warp_controller.QueryRequestFor_String): Promise<object> {
