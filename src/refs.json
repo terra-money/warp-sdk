@@ -9,11 +9,11 @@
   },
   "testnet": {
     "warp-account": {
-      "codeId": "5822"
+      "codeId": "6622"
     },
     "warp-controller": {
-      "codeId": "5823",
-      "address": "terra16z50gpsl9fz0t8shpha3phy29jfwdjrgjvu88eu3leqpkwzvwhfst5zpl6"
+      "codeId": "6623",
+      "address": "terra1s7fp6fzmsm3nyta46a6gl0jm8d5zehjh07j0amhj4vhn385pn2ssq8y24c"
     }
   },
   "mainnet": {
