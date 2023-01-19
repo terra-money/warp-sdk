@@ -2,6 +2,7 @@ import { warp_controller } from 'types/contracts';
 import { every, some } from 'lodash';
 import * as jsonpath from 'jsonpath';
 import { contractQuery } from 'utils';
+import { Big } from 'big.js';
 import { Wallet } from 'wallet';
 import { extractVariableName, resolveExternalVariable, variableName } from 'variables';
 
@@ -68,8 +69,8 @@ export class Condition {
     const blockInfo = await this.wallet.lcd.tendermint.blockInfo();
 
     return this.resolveNumOp(
-      Math.floor(new Date(blockInfo.block.header.time).getTime() / 1000),
-      Number(expr.comparator),
+      Big(Math.floor(new Date(blockInfo.block.header.time).getTime() / 1000)),
+      Big(expr.comparator),
       expr.op
     );
   };
@@ -77,7 +78,7 @@ export class Condition {
   public resolveExprBlockheight = async (expr: warp_controller.BlockExpr): Promise<boolean> => {
     const blockInfo = await this.wallet.lcd.tendermint.blockInfo();
 
-    return this.resolveNumOp(Number(blockInfo.block.header.height), Number(expr.comparator), expr.op);
+    return this.resolveNumOp(Big(blockInfo.block.header.height), Big(expr.comparator), expr.op);
   };
 
   public resolveExprString = async (
@@ -122,9 +123,9 @@ export class Condition {
       | warp_controller.NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp
       | warp_controller.NumValueFor_Uint256And_NumExprOpAnd_IntFnOp,
     vars: warp_controller.Variable[]
-  ): Promise<number> => {
+  ): Promise<Big> => {
     if ('simple' in value) {
-      return Number(value.simple);
+      return Big(value.simple);
     }
 
     if ('expr' in value) {
@@ -136,7 +137,7 @@ export class Condition {
     }
 
     if ('ref' in value) {
-      return this.resolveVariable(this.variable(value.ref, vars), (v) => Number(v));
+      return this.resolveVariable(this.variable(value.ref, vars), (v) => Big(v));
     }
   };
 
@@ -146,18 +147,19 @@ export class Condition {
       | warp_controller.NumFnValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp
       | warp_controller.NumFnValueFor_Uint256And_NumExprOpAnd_IntFnOp,
     vars: warp_controller.Variable[]
-  ): Promise<number> {
+  ): Promise<Big> {
+    const val = await this.resolveNumValue(fn.right, vars);
     switch (fn.op) {
       case 'abs':
-        return Math.abs(await this.resolveNumValue(fn.right, vars));
+        return val.abs();
       case 'neg':
-        return -1 * (await this.resolveNumValue(fn.right, vars));
+        return val.neg();
       case 'floor':
-        return Math.floor(await this.resolveNumValue(fn.right, vars));
+        return val.round(0, 0);
       case 'sqrt':
-        return Math.sqrt(await this.resolveNumValue(fn.right, vars));
+        return val.sqrt();
       case 'ceil':
-        return Math.ceil(await this.resolveNumValue(fn.right, vars));
+        return val.round(0, 1);
     }
   }
 
@@ -167,21 +169,21 @@ export class Condition {
       | warp_controller.NumExprValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp
       | warp_controller.NumExprValueFor_Uint256And_NumExprOpAnd_IntFnOp,
     vars: warp_controller.Variable[]
-  ): Promise<number> {
+  ): Promise<Big> {
     const left = await this.resolveNumValue(expr.left, vars);
     const right = await this.resolveNumValue(expr.right, vars);
 
     switch (expr.op) {
       case 'add':
-        return left + right;
+        return left.add(right);
       case 'sub':
-        return left - right;
+        return left.sub(right);
       case 'div':
-        return left / right;
+        return left.div(right);
       case 'mul':
-        return left * right;
+        return left.mul(right);
       case 'mod':
-        return left % right;
+        return left.mod(right);
     }
   }
 
@@ -244,24 +246,24 @@ export class Condition {
     }
   };
 
-  public resolveNumOp = async (left: number, right: number, op: warp_controller.NumOp): Promise<boolean> => {
+  public resolveNumOp = async (left: Big, right: Big, op: warp_controller.NumOp): Promise<boolean> => {
     if (left == null || right == null) {
       return false;
     }
 
     switch (op) {
       case 'eq':
-        return left === right;
+        return left.eq(right);
       case 'neq':
-        return left !== right;
+        return !left.eq(right);
       case 'gt':
-        return left > right;
+        return left.gt(right);
       case 'gte':
-        return left >= right;
+        return left.gte(right);
       case 'lt':
-        return left < right;
+        return left.lt(right);
       case 'lte':
-        return left <= right;
+        return left.lte(right);
     }
   };
 }

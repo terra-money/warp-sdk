@@ -34,11 +34,12 @@
     "typescript": "^4.8.2"
   },
   "devDependencies": {
-    "json-schema-to-typescript": "^11.0.2",
     "@chialab/esbuild-plugin-require-resolve": "^0.17.1",
+    "@types/big.js": "^6.1.6",
     "@types/lodash": "^4.14.191",
     "esbuild": "^0.14.54",
     "husky": "^8.0.2",
+    "json-schema-to-typescript": "^11.0.2",
     "lint-staged": "^13.0.4",
     "prettier": "^2.8.0",
     "ts-node": "^10.9.1",
