@@ -203,10 +203,19 @@ export class WarpSdk {
   }
 
   public async submitTemplate(sender: string, msg: warp_controller.SubmitTemplateMsg): Promise<TxInfo> {
+    const config = await this.config();
+
     const txPayload = TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { submit_template: {} }>>(sender, this.contractAddress, {
-        submit_template: msg,
-      })
+      .execute<Extract<warp_controller.ExecuteMsg, { submit_template: {} }>>(
+        sender,
+        this.contractAddress,
+        {
+          submit_template: msg,
+        },
+        {
+          [LUNA.denom]: config.template_fee,
+        }
+      )
       .build();
 
     return this.wallet.tx(txPayload);

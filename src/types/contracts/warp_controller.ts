@@ -17,6 +17,7 @@ export module warp_controller {
     creation_fee_percentage: Uint64;
     minimum_reward: Uint128;
     owner: Addr;
+    template_fee: Uint128;
     warp_account_code_id: Uint64;
   }
   export interface ConfigResponse {
@@ -589,6 +590,7 @@ export module warp_controller {
     creation_fee_percentage?: Uint64 | null;
     minimum_reward?: Uint128 | null;
     owner?: string | null;
+    template_fee?: Uint128 | null;
   }
   export interface SubmitTemplateMsg {
     condition?: Condition | null;
@@ -610,6 +612,7 @@ export module warp_controller {
     creation_fee: Uint64;
     minimum_reward: Uint128;
     owner?: string | null;
+    template_fee: Uint128;
     warp_account_code_id: Uint64;
   }
   export type JobStatus = 'Pending' | 'Executed' | 'Failed' | 'Cancelled';
