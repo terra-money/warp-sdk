@@ -1,10 +1,14 @@
-name: Publish Package to npmjs
+name: Publish to npm
+
 on:
-  release:
-    types: [created]
+  push:
+    branches:
+      - main
+
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3
       # Setup .npmrc file to publish to npm
@@ -13,6 +17,6 @@ jobs:
           node-version: '16.x'
           registry-url: 'https://registry.npmjs.org'
       - run: yarn
-      - run: yarn publish
+      - run: yarn publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
