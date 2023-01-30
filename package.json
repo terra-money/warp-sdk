@@ -1,5 +1,19 @@
 {
-  "name": "@warp-protocol/sdk",
+  "name": "@terra-money/warp-sdk",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/terra-money/warp-sdk.git"
+  },
+  "description": "Sdk for interacting with Warp protocol on Terra.",
+  "main": "dist/index.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/terra-money/warp-sdk/issues"
+  },
+  "homepage": "https://github.com/terra-money/warp-sdk#readme",
   "version": "0.1.0",
   "scripts": {
     "clean": "rm -rf dist",
