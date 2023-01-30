@@ -1,6 +1,6 @@
 # warp-sdk
 
-WarpSdk is a software development kit (SDK) for using warp protocol, the automation protocol of the Terra blockchain. The SDK provides a simple way to interact with the warp protocol's contracts, allowing developers to perform operations such as creating and managing jobs, templates, and accounts.
+WarpSdk provides a Typescript API for interacting with warp protocol, the automation protocol of the Terra blockchain. The SDK provides a simple way to interact with the warp protocol's contracts, allowing developers to perform operations such as creating and managing jobs, templates, and accounts.
 
 ## Installation
 
@@ -26,14 +26,16 @@ console.log(`Job is ${isActive ? "active" : "inactive"}.`)
 ## Methods
 
 **isJobActive(jobId: string): Promise<boolean>:** Check if a job is active by its ID.
+
 ```typescript
 const warpSdk = new WarpSdk(wallet, contractAddress);
 const jobId = 'jobId';
-const isActive = await WarpSdk.isJobActive(jobId);
+const isActive = await warpSdk.isJobActive(jobId);
 console.log(isActive);
 ```
 
 **jobs(opts: QueryJobsMsg = {}): Promise<Job[]>:** List jobs with optional filters.
+
 ```typescript
 const warpSdk = new WarpSdk(wallet, contractAddress);
 const allJobs = await warpSdk.jobs();
@@ -41,14 +43,16 @@ console.log(allJobs);
 ```
 
 **job(id: string): Promise<Job>:** Get a job by its ID.
+
 ```typescript
 const warpSdk = new WarpSdk(wallet, contractAddress);
 const jobId = 'jobId';
-const jobDetails = await WarpSdk.job(jobId);
+const jobDetails = await warpSdk.job(jobId);
 console.log(jobDetails);
 ```
 
 **templates(opts: QueryTemplatesMsg = {}): Promise<Template[]>:** List templates with optional filters.
+
 ```typescript
 const warpSdk = new WarpSdk(wallet, contractAddress);
 const allTemplates = await warpSdk.templates();
@@ -56,6 +60,7 @@ console.log(allTemplates);
 ```
 
 **template(id: string): Promise<Template>:** Get a template by its ID.
+
 ```typescript
 const warpSdk = new WarpSdk(wallet, contractAddress);
 const templateId = 'templateId';
@@ -64,6 +69,7 @@ console.log(templateDetails);
 ```
 
 **simulateQuery(query: QueryRequestFor_String): Promise<object>:** Simulate a query.
+
 ```typescript
 const warpSdk = new WarpSdk(wallet, contractAddress);
 const query = { ... };
@@ -72,14 +78,16 @@ console.log(queryResult);
 ```
 
 **account(owner: string): Promise<Account>:** Get an account by its owner.
+
 ```typescript
 const warpSdk = new WarpSdk(wallet, contractAddress);
 const accountId = 'accountId';
-const accountDetails = await WarpSdk.account(accountId);
+const accountDetails = await warpSdk.account(accountId);
 console.log(accountDetails);
 ```
 
 **accounts(opts: QueryAccountsMsg): Promise<Account[]>:** List accounts with optional filters.
+
 ```typescript
 const warpSdk = new WarpSdk(wallet, contractAddress);
 const allAccounts = await warpSdk.accounts();
@@ -87,6 +95,7 @@ console.log(allAccounts);
 ```
 
 **config(): Promise<Config>:** Get the config of the Warp Protocol.
+
 ```typescript
 const warpSdk = new WarpSdk(wallet, contractAddress);
 const configInfo = await warpSdk.config();
@@ -94,6 +103,7 @@ console.log(configInfo);
 ```
 
 **createJob(sender: string, msg: CreateJobMsg): Promise<TxInfo>:** Create a job.
+
 ```typescript
 const warpSdk = new WarpSdk(wallet, contractAddress);
 
@@ -124,6 +134,7 @@ console.log(job);
 ```
 
 **createJobSequence(sender: string, sequence: CreateJobMsg[]): Promise<TxInfo>:** Create a sequence of jobs.
+
 ```typescript
 const warpSdk = new WarpSdk(wallet, contractAddress);
 
@@ -175,6 +186,7 @@ console.log(jobSequence);
 ```
 
 **deleteJob(sender: string, jobId: string): Promise<TxInfo>:** Delete a job.
+
 ```typescript
 const warpSdk = new WarpSdk(wallet, contractAddress);
 const sender = 'sender address';
@@ -185,36 +197,40 @@ console.log(response);
 ```
 
 **updateJob(sender: string, msg: UpdateJobMsg): Promise<TxInfo>:** Update a job.
+
 ```typescript
 const warpSdk = new WarpSdk(wallet, contractAddress);
 const sender = 'sender address';
 
-const jobId = 'abc123';
-const updateData = { name: 'Updated Job Name' };
-const response = await warpSdk.updateJob(jobId, updateData);
+const msg = { name: 'Updated Job Name', id: 'abc123' };
+const response = await warpSdk.updateJob(sender, msg);
 console.log(response);
 ```
 
 **executeJob(sender: string, jobId: string): Promise<TxInfo>:** Execute a job.
+
 ```typescript
 const warpSdk = new WarpSdk(wallet, contractAddress);
 const sender = 'sender address';
 
 const jobId = 'abc123';
-const response = await warpSdk.executeJob(jobId);
+const response = await warpSdk.executeJob(sender, jobId);
 console.log(response);
 ```
 
 **submitTemplate(sender: string, msg: SubmitTemplateMsg): Promise<TxInfo>:** Submit a template.
+
 ```typescript
 const warpSdk = new WarpSdk(wallet, contractAddress);
+const sender = 'sender address';
 
-const template = { name: 'Template 1', formatted_str: 'this is a template', vars: []};
-const response = await sdk.submitTemplate(template);
+const msg = { name: 'Template 1', formatted_str: 'this is a template', vars: []};
+const response = await sdk.submitTemplate(sender, msg);
 console.log(response);
 ```
 
 **deleteTemplate(sender: string, templateId: string): Promise<TxInfo>:** Delete a template.
+
 ```typescript
 const warpSdk = new WarpSdk(wallet, contractAddress);
 const sender = 'sender address';
@@ -225,16 +241,18 @@ console.log(response);
 ```
 
 **editTemplate(sender: string, msg: EditTemplateMsg): Promise<TxInfo>:** Edit a template.
+
 ```typescript
 const warpSdk = new WarpSdk(wallet, contractAddress);
+const sender = 'sender address';
 
-const templateId = 'template_id';
-const updates = { name: 'Updated Template' };
-const response = await warpSdk.editTemplate(templateId, updates);
+const msg = { name: 'Updated Template', id: 'template_id' };
+const response = await warpSdk.editTemplate(sender, msg);
 console.log(response);
 ```
 
 **createAccount(sender: string): Promise<TxInfo>**
+
 ```typescript
 const warpSdk = new WarpSdk(wallet, contractAddress);
 
