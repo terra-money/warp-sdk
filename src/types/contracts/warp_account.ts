@@ -302,7 +302,7 @@ export module warp_account {
   export type Decimal256 = string;
   export type DecimalFnOp = 'abs' | 'neg' | 'floor' | 'sqrt' | 'ceil';
   export type TimeOp = 'lt' | 'gt';
-  export type JobStatus = 'Pending' | 'Executed' | 'Failed' | 'Cancelled';
+  export type JobStatus = 'Pending' | 'Executed' | 'Failed' | 'Cancelled' | 'Evicted';
   export type Variable =
     | {
         static: StaticVariable;
@@ -450,6 +450,7 @@ export module warp_account {
     name: string;
     owner: Addr;
     recurring: boolean;
+    requeue_on_evict: boolean;
     reward: Uint128;
     status: JobStatus;
     vars: Variable[];
