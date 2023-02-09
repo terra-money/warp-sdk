@@ -17,6 +17,7 @@ jobs:
           node-version: '16.x'
           registry-url: 'https://registry.npmjs.org'
       - run: yarn
-      - run: yarn publish --access public
+      - name: version & publish
+        uses: geeman201/conventional-changelog-npm-publish/@v14
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
