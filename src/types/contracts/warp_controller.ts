@@ -305,14 +305,10 @@ export module warp_controller {
       }
     | {
         fn: NumFnValueFor_Uint256And_NumExprOpAnd_IntFnOp;
-      }
-    | {
-        env: NumEnvValue;
       };
   export type Uint256 = string;
   export type NumExprOp = 'add' | 'sub' | 'div' | 'mul' | 'mod';
   export type IntFnOp = 'abs' | 'neg';
-  export type NumEnvValue = 'time' | 'block_height';
   export type NumOp = 'eq' | 'neq' | 'lt' | 'gt' | 'gte' | 'lte';
   export type NumValueForInt128And_NumExprOpAnd_IntFnOp =
     | {
@@ -326,9 +322,6 @@ export module warp_controller {
       }
     | {
         fn: NumFnValueForInt128And_NumExprOpAnd_IntFnOp;
-      }
-    | {
-        env: NumEnvValue;
       };
   export type NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp =
     | {
@@ -342,9 +335,6 @@ export module warp_controller {
       }
     | {
         fn: NumFnValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
-      }
-    | {
-        env: NumEnvValue;
       };
   export type Decimal256 = string;
   export type DecimalFnOp = 'abs' | 'neg' | 'floor' | 'sqrt' | 'ceil';
