@@ -14,7 +14,7 @@
     "url": "https://github.com/terra-money/warp-sdk/issues"
   },
   "homepage": "https://github.com/terra-money/warp-sdk#readme",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "scripts": {
     "clean": "rm -rf dist",
     "build": "yarn clean && node build.js",
