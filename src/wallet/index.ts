@@ -6,14 +6,14 @@ export type WalletLike =
   | {
       connectedWallet: ConnectedWalletInput;
     }
-  | { wallet: TerraWallet };
+  | TerraWallet;
 
 export const wallet = (walletLike: WalletLike) => {
   if ('connectedWallet' in walletLike) {
     return new ConnectedWallet(walletLike.connectedWallet);
   }
 
-  return new NativeWallet(walletLike.wallet);
+  return new NativeWallet(walletLike);
 };
 
 export * from './base';

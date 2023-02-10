@@ -31,7 +31,7 @@ const options = {
   contractAddress: getContractAddress(getNetworkName(lcd.config.chainID), 'warp-controller'),
 };
 
-const sdk = new WarpSdk({ wallet }, options.contractAddress);
+const sdk = new WarpSdk(wallet, options.contractAddress);
 
 export const tryExecute = async (
   wallet: Wallet,
