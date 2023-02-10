@@ -139,6 +139,18 @@ export class Condition {
     if ('ref' in value) {
       return this.resolveVariable(this.variable(value.ref, vars), (v) => Big(v));
     }
+
+    if ('env' in value) {
+      const blockInfo = await this.wallet.lcd.tendermint.blockInfo();
+
+      if (value.env === 'block_height') {
+        return Big(blockInfo.block.header.height);
+      }
+
+      if (value.env === 'time') {
+        return Big(Math.floor(new Date(blockInfo.block.header.time).getTime() / 1000));
+      }
+    }
   };
 
   public async resolveNumFn(
