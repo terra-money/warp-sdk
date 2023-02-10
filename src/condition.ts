@@ -190,7 +190,12 @@ export class Condition {
   public variable(ref: string, vars: warp_controller.Variable[]): warp_controller.Variable {
     const name = extractVariableName(ref);
     const v = vars.find((v) => variableName(v) === name);
-    return v as warp_controller.Variable;
+
+    if (!v) {
+      throw Error(`Unknown variable reference: ${name}.`);
+    }
+
+    return v;
   }
 
   public resolveExprBool(ref: string, vars: warp_controller.Variable[]): Promise<boolean> {
