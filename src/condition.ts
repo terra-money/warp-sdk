@@ -101,7 +101,7 @@ export class Condition {
 
     if ('ref' in value) {
       return this.resolveVariable(this.variable(value.ref, vars), (v) => {
-        if (v.startsWith('"')) {
+        if (v.startsWith('"') && v.endsWith('"')) {
           return String(v.substring(1, v.length - 1))
         } else {
           return String(v);
@@ -144,7 +144,7 @@ export class Condition {
 
     if ('ref' in value) {
       return this.resolveVariable(this.variable(value.ref, vars), (v) => {
-        if (v.startsWith('"')) {
+        if (v.startsWith('"') && v.endsWith('"')) {
           return Big(v.substring(1, v.length - 1));
         } else {
           return Big(v);
