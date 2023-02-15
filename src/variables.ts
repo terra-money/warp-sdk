@@ -33,7 +33,7 @@ export const resolveExternalVariable = async (external: warp_controller.External
   };
 
   try {
-    const resp = await axios.request(options);
+    const resp = await axios.request({ ...options, responseType: 'json' });
     const extracted = jsonpath.query(JSON.parse(resp.data), selector);
 
     if (extracted[0] == null) {

@@ -191,13 +191,7 @@ export class WarpSdk {
   public async executeJob(sender: string, jobId: string): Promise<TxInfo> {
     const job = await this.job(jobId);
 
-    const externalInputs = await resolveExternalInputs(job.vars);
-
-    const txPayload = TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { execute_job: {} }>>(sender, this.contractAddress, {
-        execute_job: { id: jobId, external_inputs: externalInputs },
-      })
-      .build();
+    const txPayload = await executeJobTxPayload(sender, job);
 
     return this.wallet.tx(txPayload);
   }
@@ -250,4 +244,14 @@ export class WarpSdk {
 
     return this.wallet.tx(txPayload);
   }
+}
+
+async function executeJobTxPayload(sender: string, job: warp_controller.Job) {
+  const externalInputs = await resolveExternalInputs(job.vars);
+
+  return TxBuilder.new()
+    .execute<Extract<warp_controller.ExecuteMsg, { execute_job: {} }>>(sender, this.contractAddress, {
+      execute_job: { id: job.id, external_inputs: externalInputs },
+    })
+    .build();
 }
