@@ -188,6 +188,18 @@ export class WarpSdk {
     return this.wallet.tx(txPayload);
   }
 
+  public async evictJob(sender: string, jobId: string): Promise<TxInfo> {
+    const txPayload = TxBuilder.new()
+      .execute<Extract<warp_controller.ExecuteMsg, { evict_job: {} }>>(sender, this.contractAddress, {
+        evict_job: {
+          id: jobId,
+        },
+      })
+      .build();
+
+    return this.wallet.tx(txPayload);
+  }
+
   public async executeJob(sender: string, jobId: string): Promise<TxInfo> {
     const job = await this.job(jobId);
 

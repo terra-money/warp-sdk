@@ -218,6 +218,17 @@ const response = await warpSdk.executeJob(sender, jobId);
 console.log(response);
 ```
 
+evictJob(sender: string, jobId: string): Promise<TxInfo>: Evict a job.
+
+```typescript
+const warpSdk = new WarpSdk(wallet, contractAddress);
+const sender = 'sender address';
+
+const jobId = 'abc123';
+const response = await warpSdk.evictJob(sender, jobId);
+console.log(response);
+```
+
 submitTemplate(sender: string, msg: SubmitTemplateMsg): Promise<TxInfo>: Submit a template.
 
 ```typescript
