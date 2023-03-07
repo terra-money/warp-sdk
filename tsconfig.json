@@ -4,7 +4,6 @@
     "target": "ESNext",
     "lib": ["dom", "dom.iterable", "esnext"],
     "declaration": true,
-    // "strict": true,
     "moduleResolution": "node",
     "jsx": "react",
     "skipLibCheck": true,

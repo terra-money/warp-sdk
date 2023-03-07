@@ -16,7 +16,10 @@ jobs:
         with:
           node-version: '16.x'
           registry-url: 'https://registry.npmjs.org'
-      - run: yarn
+      - name: Install dependencies
+        run: yarn
+      - name: Build
+        run: yarn build
       - name: version & publish
         uses: geeman201/conventional-changelog-npm-publish/@v14
         env:
