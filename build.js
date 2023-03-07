@@ -1,18 +1,15 @@
-// import requireResolvePlugin from '@chialab/esbuild-plugin-require-resolve';
-
-require('esbuild')
+const esbuild = require('esbuild');
+const { nodeExternalsPlugin } = require('esbuild-node-externals');
+esbuild
   .build({
-    entryPoints: ['src/index.ts'],
+    entryPoints: ['./src/index.ts'],
+    outfile: 'dist/index.js',
     bundle: true,
     minify: true,
-    sourcemap: true,
+    treeShaking: true,
     platform: 'node',
-    target: 'es2022',
-    outdir: 'dist',
-    outbase: 'src',
-    // external: ["jsonpath"],
-    // plugins: [
-    //   requireResolvePlugin(),
-    // ],
+    format: 'cjs',
+    target: 'node14',
+    plugins: [nodeExternalsPlugin()],
   })
   .catch(() => process.exit(1));

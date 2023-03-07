@@ -17,7 +17,7 @@
   "version": "0.1.13",
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "yarn clean && node build.js",
+    "build": "yarn clean && node build.js && tsc",
     "start": "esbuild src/bot.ts --bundle --platform=node --outdir=dist --outbase=src --external:jsonpath && node ./dist/bot.js",
     "format": "prettier --write \"src/**/*.{js,ts,tsx}\"",
     "generate-types": "node --experimental-specifier-resolution=node --loader ts-node/esm ./scripts/generate-types.js warp-protocol",
@@ -54,6 +54,7 @@
     "@types/big.js": "^6.1.6",
     "@types/lodash": "^4.14.191",
     "esbuild": "^0.14.54",
+    "esbuild-node-externals": "^1.6.0",
     "husky": "^8.0.2",
     "json-schema-to-typescript": "^11.0.2",
     "lint-staged": "^13.0.4",
