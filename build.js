@@ -10,6 +10,7 @@ esbuild
     platform: 'node',
     format: 'cjs',
     target: 'node14',
+    external: ['jsonpath'],
     plugins: [nodeExternalsPlugin()],
   })
   .catch(() => process.exit(1));
