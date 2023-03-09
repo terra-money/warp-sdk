@@ -1,4 +1,4 @@
-import { warp_controller } from 'types/contracts';
+import { warp_account, warp_controller } from 'types/contracts';
 import { WalletLike, Wallet, wallet } from './wallet';
 import { Condition } from 'condition';
 import { contractQuery, LUNA } from 'utils';
@@ -251,6 +251,42 @@ export class WarpSdk {
     const txPayload = TxBuilder.new()
       .execute<Extract<warp_controller.ExecuteMsg, { create_account: {} }>>(sender, this.contractAddress, {
         create_account: {},
+      })
+      .build();
+
+    return this.wallet.tx(txPayload);
+  }
+
+  public async depositLunaToWarpAccount(
+    sender: string,
+    warpAccount: string,
+    amount: warp_controller.Uint128
+  ): Promise<TxInfo> {
+    const txPayload = TxBuilder.new()
+      .send(sender, warpAccount, { [LUNA.denom]: amount })
+      .build();
+
+    return this.wallet.tx(txPayload);
+  }
+
+  public async withdrawLunaFromWarpAccount(
+    owner: string,
+    receiver: string,
+    amount: warp_controller.Uint128
+  ): Promise<TxInfo> {
+    const { account } = await this.account(owner);
+    const txPayload = TxBuilder.new()
+      .execute<warp_account.ExecuteMsg>(owner, account, {
+        msgs: [
+          {
+            bank: {
+              send: {
+                amount: [{ denom: LUNA.denom, amount: amount.toString() }],
+                to_address: receiver,
+              },
+            },
+          },
+        ],
       })
       .build();
 
