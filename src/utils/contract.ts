@@ -46,27 +46,17 @@ export const contractQuery = async <QueryMsg extends {}, QueryResponse>(
   return await lcd.wasm.contractQuery<QueryResponse>(contractAddress, msg);
 };
 
-export const LUNA: NativeToken = {
-  key: 'uluna',
-  type: 'native',
-  denom: 'uluna',
-  name: 'LUNA',
-  symbol: 'LUNA',
-  decimals: 6,
-  icon: 'https://assets.terra.money/icon/svg/LUNA.png',
-  coinGeckoId: 'terra-luna-2',
+export type TransferMsg = {
+  transfer: {
+    recipient: string;
+    amount: string;
+  };
 };
 
-export type TokenBase = {
-  key: string;
-  name: string;
-  symbol: string;
-  icon: string;
-  decimals: number;
-  coinGeckoId?: string;
+export const base64encode = (input: object): string => {
+  return Buffer.from(JSON.stringify(JSON.parse(JSON.stringify(input)))).toString('base64');
 };
 
-export type NativeToken = TokenBase & {
-  type: 'native';
-  denom: string;
-};
+export function base64decode<T>(value: string): T {
+  return JSON.parse(Buffer.from(value, 'base64').toString()) as T;
+}
