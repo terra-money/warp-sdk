@@ -257,7 +257,9 @@ export class WarpSdk {
     return this.wallet.tx(txPayload);
   }
 
-  public async depositAccount(sender: string, account: string, token: Token, amount: string): Promise<TxInfo> {
+  // deposit token (supports native, ibc and cw20 token type) from sender to warp account
+  // warp account can be owned by anyone
+  public async depositToAccount(sender: string, account: string, token: Token, amount: string): Promise<TxInfo> {
     let txPayload: CreateTxOptions;
     if (token.type === 'cw20') {
       txPayload = TxBuilder.new()
@@ -277,8 +279,10 @@ export class WarpSdk {
     return this.wallet.tx(txPayload);
   }
 
-  public async withdrawAccount(owner: string, receiver: string, token: Token, amount: string): Promise<TxInfo> {
-    const { account } = await this.account(owner);
+  // withdraw token (supports native, ibc and cw20 token type) from sender's warp account to receiver
+  // receiver can be anyone
+  public async withdrawFromAccount(sender: string, receiver: string, token: Token, amount: string): Promise<TxInfo> {
+    const { account } = await this.account(sender);
     let txPayload: CreateTxOptions;
     if (token.type === 'cw20') {
       const transferMsg = {
@@ -289,7 +293,7 @@ export class WarpSdk {
       };
 
       txPayload = TxBuilder.new()
-        .execute<warp_account.ExecuteMsg>(owner, account, {
+        .execute<warp_account.ExecuteMsg>(sender, account, {
           msgs: [
             {
               wasm: {
@@ -305,7 +309,7 @@ export class WarpSdk {
         .build();
     } else {
       txPayload = TxBuilder.new()
-        .execute<warp_account.ExecuteMsg>(owner, account, {
+        .execute<warp_account.ExecuteMsg>(sender, account, {
           msgs: [
             {
               bank: {
