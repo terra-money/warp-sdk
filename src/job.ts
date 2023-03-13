@@ -1,4 +1,5 @@
 import { warp_controller } from 'types/contracts';
+import { base64encode } from 'utils';
 
 export class JobSequenceMsgBuilder {
   static new() {
@@ -34,14 +35,6 @@ export class JobSequenceMsgBuilder {
   build(): warp_controller.CreateJobMsg {
     return this.chainSequence(0);
   }
-}
-
-export const base64encode = (input: object): string => {
-  return Buffer.from(JSON.stringify(JSON.parse(JSON.stringify(input)))).toString('base64');
-};
-
-export function base64decode<T>(value: string): T {
-  return JSON.parse(Buffer.from(value, 'base64').toString()) as T;
 }
 
 export type WasmMsg = Extract<warp_controller.CosmosMsgFor_Empty, { wasm: {} }>;
