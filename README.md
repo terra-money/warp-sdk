@@ -23,6 +23,29 @@ const jobId = "abc123...";
 const isActive = await warpSdk.isJobActive(jobId)
 console.log(`Job is ${isActive ? "active" : "inactive"}.`)
 ```
+
+## Tips
+Whenever you work with `CosmosMsg` (e.g. when you create a job, you need to specify a list of `CosmosMsg` to execute for this job), make sure to encode it with `base64encode` in sdk. There's also `base64decode` in sdk for you to decode `CosmosMsg` when you get `job.msgs`.
+
+```typescript
+import { base64encode } from '@terra-money/warp-sdk';
+const msg = {
+  bank: {
+    send: {
+      amount: [{ denom: 'uluna', amount: '100000' }],
+      to_address: 'receiver address',
+    },
+  },
+};
+const base64EncodedMsg = base64encode(msg);
+const createJobMsg = {
+  ....,
+  msgs: [base64EncodedMsg],
+};
+const job = await warpSdk.createJob('sender address', msg);
+console.log(job);
+```
+
 ## Methods
 
 isJobActive(jobId: string): Promise<boolean>: Check if a job is active by its ID.

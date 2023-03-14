@@ -1,5 +1,4 @@
 import { warp_controller } from 'types/contracts';
-import { base64encode } from 'utils';
 
 export class JobSequenceMsgBuilder {
   static new() {
@@ -36,31 +35,3 @@ export class JobSequenceMsgBuilder {
     return this.chainSequence(0);
   }
 }
-
-export type WasmMsg = Extract<warp_controller.CosmosMsgFor_Empty, { wasm: {} }>;
-export type WasmExecuteMsg = { wasm: Extract<WasmMsg['wasm'], { execute: {} }> };
-
-export const createJobMsg = (contractAddr: string, msg: warp_controller.CreateJobMsg): WasmExecuteMsg => {
-  return {
-    wasm: {
-      execute: {
-        contract_addr: contractAddr,
-        msg: base64encode(msg),
-        funds: [],
-      },
-    },
-  };
-};
-
-export type CreateJobMsg = Omit<warp_controller.CreateJobMsg, 'msgs'> & {
-  msgs: warp_controller.CosmosMsgFor_Empty[];
-};
-
-export const jsonifyMsgs = (msg: CreateJobMsg): warp_controller.CreateJobMsg => {
-  const { msgs, ...rest } = msg;
-
-  return {
-    ...rest,
-    msgs: msgs.map((msg) => JSON.stringify(msg)),
-  };
-};
