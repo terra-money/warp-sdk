@@ -107,9 +107,18 @@ createJob(sender: string, msg: CreateJobMsg): Promise<TxInfo>: Create a job.
 ```typescript
 const warpSdk = new WarpSdk(wallet, contractAddress);
 
+const cosmosMsg = {
+  bank: {
+    send: {
+      amount: [{ denom: 'uluna', amount: '100000' }],
+      to_address: 'receiver address',
+    },
+  },
+};
+
 const msg = {
   ....,
-  msgs: [...],
+  msgs: [JSON.stringify(cosmosMsg)],
   reward: '1000000',
   condition: {
     and: [{
