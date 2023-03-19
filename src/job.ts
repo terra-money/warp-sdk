@@ -1,4 +1,4 @@
-import { warp_controller } from 'types/contracts';
+import { warp_controller } from './types/contracts';
 
 export class JobSequenceMsgBuilder {
   static new() {

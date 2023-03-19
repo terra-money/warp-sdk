@@ -14,7 +14,7 @@ import {
   Wallet,
 } from '@terra-money/terra.js';
 import { WarpSdk } from './sdk';
-import { warp_controller } from 'types/contracts';
+import { warp_controller } from './types/contracts';
 
 dotenv.config();
 

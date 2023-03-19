@@ -1,12 +1,12 @@
-import { warp_account, warp_controller } from 'types/contracts';
+import { warp_account, warp_controller } from './types/contracts';
 import { WalletLike, Wallet, wallet } from './wallet';
-import { Condition } from 'condition';
-import { base64encode, contractQuery, LUNA, Token, TransferMsg } from 'utils';
+import { Condition } from './condition';
+import { base64encode, contractQuery, LUNA, Token, TransferMsg } from './utils';
 import { CreateTxOptions, TxInfo } from '@terra-money/terra.js';
-import { TxBuilder } from 'tx';
+import { TxBuilder } from './tx';
 import Big from 'big.js';
-import { JobSequenceMsgBuilder } from 'job';
-import { resolveExternalInputs } from 'variables';
+import { JobSequenceMsgBuilder } from './job';
+import { resolveExternalInputs } from './variables';
 
 export class WarpSdk {
   public wallet: Wallet;

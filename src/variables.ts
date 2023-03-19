@@ -1,4 +1,4 @@
-import { warp_controller } from 'types';
+import { warp_controller } from './types';
 import * as jsonpath from 'jsonpath';
 import axios from 'axios';
 

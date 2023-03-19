@@ -1,10 +1,10 @@
-import { warp_controller } from 'types/contracts';
+import { warp_controller } from './types/contracts';
 import { every, some } from 'lodash';
 import * as jsonpath from 'jsonpath';
-import { contractQuery } from 'utils';
+import { contractQuery } from './utils';
 import { Big } from 'big.js';
-import { Wallet } from 'wallet';
-import { extractVariableName, resolveExternalVariable, variableName } from 'variables';
+import { Wallet } from './wallet';
+import { extractVariableName, resolveExternalVariable, variableName } from './variables';
 
 export class Condition {
   public wallet: Wallet;
