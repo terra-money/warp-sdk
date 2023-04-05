@@ -35,3 +35,76 @@ export class JobSequenceMsgBuilder {
     return this.chainSequence(0);
   }
 }
+
+export class CreateJobMsgBuilder {
+  private _name: string | undefined;
+  private _recurring: boolean | undefined;
+  private _requeue_on_evict: boolean | undefined;
+  private _reward: warp_controller.Uint128 | undefined;
+  private _msgs: warp_controller.CosmosMsgFor_Empty[] = [];
+  private _vars: warp_controller.Variable[] = [];
+  private _condition: warp_controller.Condition | undefined;
+
+  static new(): CreateJobMsgBuilder {
+    return new CreateJobMsgBuilder();
+  }
+
+  name(name: string): CreateJobMsgBuilder {
+    this._name = name;
+    return this;
+  }
+
+  recurring(recurring: boolean): CreateJobMsgBuilder {
+    this._recurring = recurring;
+    return this;
+  }
+
+  requeueOnEvict(requeue_on_evict: boolean): CreateJobMsgBuilder {
+    this._requeue_on_evict = requeue_on_evict;
+    return this;
+  }
+
+  reward(reward: warp_controller.Uint128): CreateJobMsgBuilder {
+    this._reward = reward;
+    return this;
+  }
+
+  msg(msg: warp_controller.CosmosMsgFor_Empty): CreateJobMsgBuilder {
+    this._msgs.push(msg);
+    return this;
+  }
+
+  cond(condition: warp_controller.Condition): CreateJobMsgBuilder {
+    this._condition = condition;
+    return this;
+  }
+
+  var(variable: warp_controller.Variable): CreateJobMsgBuilder {
+    this._vars.push(variable);
+    return this;
+  }
+
+  build(): warp_controller.CreateJobMsg {
+    if (!this._name || !this._recurring || !this._requeue_on_evict || !this._reward) {
+      throw new Error('All required fields must be provided');
+    }
+
+    if (!this._condition) {
+      throw new Error('Condition must be provided');
+    }
+
+    const createJobMsg: warp_controller.CreateJobMsg = {
+      name: this._name,
+      recurring: this._recurring,
+      requeue_on_evict: this._requeue_on_evict,
+      reward: this._reward,
+      condition: this._condition,
+      msgs: this._msgs.map((m) => JSON.stringify(m)),
+      vars: this._vars,
+    };
+
+    return createJobMsg;
+  }
+}
+
+export default CreateJobMsgBuilder;
