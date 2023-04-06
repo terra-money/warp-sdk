@@ -5,7 +5,7 @@ import { base64encode, contractQuery, LUNA, Token, TransferMsg } from './utils';
 import { CreateTxOptions, TxInfo } from '@terra-money/terra.js';
 import { TxBuilder } from './tx';
 import Big from 'big.js';
-import { JobSequenceMsgBuilder } from './job';
+import { JobSequenceMsgComposer } from './composers';
 import { resolveExternalInputs } from './variables';
 
 export class WarpSdk {
@@ -134,15 +134,15 @@ export class WarpSdk {
     const account = await this.account(sender);
     const config = await this.config();
 
-    let jobSequenceMsgBuilder = JobSequenceMsgBuilder.new();
+    let jobSequenceMsgComposer = JobSequenceMsgComposer.new();
     let totalReward = Big(0);
 
     sequence.forEach((msg) => {
       totalReward = totalReward.add(Big(msg.reward));
-      jobSequenceMsgBuilder = jobSequenceMsgBuilder.chain(msg);
+      jobSequenceMsgComposer = jobSequenceMsgComposer.chain(msg);
     });
 
-    const jobSequenceMsg = jobSequenceMsgBuilder.build();
+    const jobSequenceMsg = jobSequenceMsgComposer.compose();
 
     const txPayload = TxBuilder.new()
       .send(account.owner, account.account, {
