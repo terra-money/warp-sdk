@@ -23,6 +23,46 @@ const jobId = "abc123...";
 const isActive = await warpSdk.isJobActive(jobId)
 console.log(`Job is ${isActive ? "active" : "inactive"}.`)
 ```
+
+## Composers
+
+Warp sdk provides a fluent API for building more complex payloads such as creating job and templates.
+
+Here is an example of an harvest rewards job used by eris-protocol built using composers.
+```typescript
+import { uint, cond, fn, msg, variable, job } from '@terra-money/warp-sdk';
+
+// ...
+
+const sdk = new WarpSdk(wallet, options.contractAddress);
+
+const sender = 'terra1qry8zdwge8ufchefvuhtz4yh70rc9dxlcuvp34';
+
+const nextExecution = variable
+  .static()
+  .kind('uint')
+  .name('next_execution')
+  .value('1680704557')
+  .onSuccess(fn.uint(uint.expr(uint.simple('86400'), 'add', uint.env('time'))))
+  .onError(fn.uint(uint.expr(uint.simple('3600'), 'add', uint.env('time'))))
+  .compose();
+
+const condition = cond.uint(uint.env('time'), 'gt', uint.ref(nextExecution));
+
+const createJobMsg = job
+  .create()
+  .name('eris-harvest')
+  .recurring(true)
+  .requeueOnEvict(true)
+  .reward('50000')
+  .cond(condition)
+  .var(nextExecution)
+  .msg(msg.execute('terra10788fkzah89xrdm27zkj5yvhj9x3494lxawzm5qq3vvxcqz2yzaqyd3enk', { harvest: {} }))
+  .compose();
+
+sdk.createJob(sender, createJobMsg);
+```
+
 ## Methods
 
 isJobActive(jobId: string): Promise<boolean>: Check if a job is active by its ID.
