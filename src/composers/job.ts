@@ -106,3 +106,9 @@ export class CreateJobMsgComposer {
     return createJobMsg;
   }
 }
+
+export class JobComposer {
+  create(): CreateJobMsgComposer {
+    return new CreateJobMsgComposer();
+  }
+}

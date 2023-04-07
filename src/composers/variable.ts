@@ -166,15 +166,15 @@ class QueryVariableComposer {
 }
 
 export class VariableComposer {
-  static static(): StaticVariableComposer {
+  static(): StaticVariableComposer {
     return new StaticVariableComposer();
   }
 
-  static external(): ExternalVariableComposer {
+  external(): ExternalVariableComposer {
     return new ExternalVariableComposer();
   }
 
-  static query(): QueryVariableComposer {
+  query(): QueryVariableComposer {
     return new QueryVariableComposer();
   }
 }

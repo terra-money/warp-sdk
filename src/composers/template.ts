@@ -62,3 +62,9 @@ export class SubmitTemplateMsgComposer {
     return submitTemplateMsg;
   }
 }
+
+export class TemplateComposer {
+  submit(): SubmitTemplateMsgComposer {
+    return new SubmitTemplateMsgComposer();
+  }
+}
