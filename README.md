@@ -30,7 +30,7 @@ Warp sdk provides a fluent API for building more complex payloads such as creati
 
 Here is an example of an harvest rewards job used by eris-protocol built using composers.
 ```typescript
-import { uint, cond, fn, msg, variable, job } from '@terra-money/warp-sdk';
+import { uint, cond, fn, msg, variable, job, ts } from '@terra-money/warp-sdk';
 
 // ...
 

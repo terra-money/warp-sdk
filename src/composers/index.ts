@@ -11,6 +11,7 @@ import { MessageComposer } from './msg';
 import { TemplateComposer } from './template';
 import { VariableComposer } from './variable';
 import { TimestampComposer } from './timestamp';
+import { QueryComposer } from './query';
 
 export * from './condition';
 export * from './job';
@@ -29,3 +30,4 @@ export const template = new TemplateComposer();
 export const job = new JobComposer();
 export const variable = new VariableComposer();
 export const ts = new TimestampComposer();
+export const query = new QueryComposer();
