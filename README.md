@@ -42,9 +42,9 @@ const nextExecution = variable
   .static()
   .kind('uint')
   .name('next_execution')
-  .value('1680704557')
-  .onSuccess(fn.uint(uint.expr(uint.simple('86400'), 'add', uint.env('time'))))
-  .onError(fn.uint(uint.expr(uint.simple('3600'), 'add', uint.env('time'))))
+  .value(ts.date(new Date('2023-04-10T12:30:00.000Z')))
+  .onSuccess(fn.uint(uint.expr(uint.simple(ts.days(1)), 'add', uint.env('time'))))
+  .onError(fn.uint(uint.expr(uint.simple(ts.hours(1)), 'add', uint.env('time'))))
   .compose();
 
 const condition = cond.uint(uint.env('time'), 'gt', uint.ref(nextExecution));
@@ -60,7 +60,9 @@ const createJobMsg = job
   .msg(msg.execute('terra10788fkzah89xrdm27zkj5yvhj9x3494lxawzm5qq3vvxcqz2yzaqyd3enk', { harvest: {} }))
   .compose();
 
-sdk.createJob(sender, createJobMsg);
+sdk.createJob(sender, createJobMsg).then((response) => {
+  console.log(response);
+});
 ```
 
 ## Methods
