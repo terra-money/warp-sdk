@@ -10,6 +10,7 @@ import { JobComposer } from './job';
 import { MessageComposer } from './msg';
 import { TemplateComposer } from './template';
 import { VariableComposer } from './variable';
+import { TimestampComposer } from './timestamp';
 
 export * from './condition';
 export * from './job';
@@ -27,3 +28,4 @@ export const msg = new MessageComposer();
 export const template = new TemplateComposer();
 export const job = new JobComposer();
 export const variable = new VariableComposer();
+export const ts = new TimestampComposer();
