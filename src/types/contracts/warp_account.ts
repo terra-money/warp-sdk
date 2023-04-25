@@ -210,8 +210,24 @@ export module warp_account {
      */
     revision: number;
   }
+  export type Fund =
+    | {
+        cw20: Cw20Fund;
+      }
+    | {
+        cw721: Cw721Fund;
+      };
   export interface InstantiateMsg {
+    funds?: Fund[] | null;
     owner: string;
+  }
+  export interface Cw20Fund {
+    amount: Uint128;
+    contract_addr: string;
+  }
+  export interface Cw721Fund {
+    contract_addr: string;
+    token_id: string;
   }
   export type Condition =
     | {

@@ -17,6 +17,7 @@ export module warp_controller {
     a_min: Uint128;
     cancellation_fee_percentage: Uint64;
     creation_fee_percentage: Uint64;
+    fee_collector: Addr;
     minimum_reward: Uint128;
     owner: Addr;
     q_max: Uint64;
@@ -485,6 +486,13 @@ export module warp_controller {
           contract_addr: string;
         };
       };
+  export type Fund =
+    | {
+        cw20: Cw20Fund;
+      }
+    | {
+        cw721: Cw721Fund;
+      };
   export type TemplateKind = 'query' | 'msg';
   export interface CreateJobMsg {
     condition: Condition;
@@ -606,12 +614,23 @@ export module warp_controller {
   export interface EvictJobMsg {
     id: Uint64;
   }
-  export interface CreateAccountMsg {}
+  export interface CreateAccountMsg {
+    funds?: Fund[] | null;
+  }
+  export interface Cw20Fund {
+    amount: Uint128;
+    contract_addr: string;
+  }
+  export interface Cw721Fund {
+    contract_addr: string;
+    token_id: string;
+  }
   export interface UpdateConfigMsg {
     a_max?: Uint128 | null;
     a_min?: Uint128 | null;
     cancellation_fee_percentage?: Uint64 | null;
     creation_fee_percentage?: Uint64 | null;
+    fee_collector?: string | null;
     minimum_reward?: Uint128 | null;
     owner?: string | null;
     q_max?: Uint64 | null;
@@ -639,6 +658,7 @@ export module warp_controller {
     a_min: Uint128;
     cancellation_fee: Uint64;
     creation_fee: Uint64;
+    fee_collector?: string | null;
     minimum_reward: Uint128;
     owner?: string | null;
     q_max: Uint64;
