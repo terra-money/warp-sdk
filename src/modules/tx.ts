@@ -6,6 +6,7 @@ import Big from 'big.js';
 import { JobSequenceMsgComposer } from '../composers';
 import { resolveExternalInputs } from '../variables';
 import { WarpSdk } from '../sdk';
+import { AccountFund } from '../types';
 
 export class TxModule {
   private warpSdk: WarpSdk;
@@ -78,6 +79,16 @@ export class TxModule {
       .build();
   }
 
+  public async withdrawAsset(sender: string, assetInfo: warp_controller.AssetInfo): Promise<CreateTxOptions> {
+    return TxBuilder.new()
+      .execute<Extract<warp_controller.ExecuteMsg, { withdraw_asset: {} }>>(sender, this.warpSdk.contractAddress, {
+        withdraw_asset: {
+          asset_info: assetInfo,
+        },
+      })
+      .build();
+  }
+
   public async executeJob(sender: string, jobId: string): Promise<CreateTxOptions> {
     const job = await this.warpSdk.job(jobId);
 
@@ -123,11 +134,24 @@ export class TxModule {
       .build();
   }
 
-  public async createAccount(sender: string): Promise<CreateTxOptions> {
+  public async createAccount(sender: string, funds: AccountFund[] = []): Promise<CreateTxOptions> {
+    const nativeFunds = funds
+      .filter((f) => 'native' in f)
+      .map((f) => 'native' in f && f.native) as warp_controller.Coin[];
+
+    const cwFunds = funds.filter((f) => !('native' in f)) as warp_controller.Fund[];
+
     return TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { create_account: {} }>>(sender, this.warpSdk.contractAddress, {
-        create_account: {},
-      })
+      .execute<Extract<warp_controller.ExecuteMsg, { create_account: {} }>>(
+        sender,
+        this.warpSdk.contractAddress,
+        {
+          create_account: {
+            funds: cwFunds,
+          },
+        },
+        nativeFunds.reduce((acc, curr) => ({ ...acc, [curr.denom]: curr.amount }), {})
+      )
       .build();
   }
 
