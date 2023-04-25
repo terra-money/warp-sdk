@@ -203,6 +203,18 @@ export class WarpSdk {
     return this.wallet.tx(txPayload);
   }
 
+  public async withdrawAsset(sender: string, assetInfo: warp_controller.AssetInfo): Promise<TxInfo> {
+    const txPayload = TxBuilder.new()
+      .execute<Extract<warp_controller.ExecuteMsg, { withdraw_asset: {} }>>(sender, this.contractAddress, {
+        withdraw_asset: {
+          asset_info: assetInfo,
+        },
+      })
+      .build();
+
+    return this.wallet.tx(txPayload);
+  }
+
   public async executeJob(sender: string, jobId: string): Promise<TxInfo> {
     const job = await this.job(jobId);
 

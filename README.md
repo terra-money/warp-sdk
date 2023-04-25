@@ -280,6 +280,16 @@ const response = await warpSdk.evictJob(sender, jobId);
 console.log(response);
 ```
 
+withdrawAsset(sender: string, assetInfo: AssetInfo): Promise<TxInfo>: Withdraws an asset from account - supports native, cw20, cw721.
+
+```typescript
+const warpSdk = new WarpSdk(wallet, contractAddress);
+const sender = 'sender address';
+
+const response = await warpSdk.withdrawAsset(sender, { native: 'uluna' });
+console.log(response);
+```
+
 submitTemplate(sender: string, msg: SubmitTemplateMsg): Promise<TxInfo>: Submit a template.
 
 ```typescript
