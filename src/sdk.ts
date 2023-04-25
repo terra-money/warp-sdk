@@ -8,6 +8,7 @@ import Big from 'big.js';
 import { JobSequenceMsgComposer } from './composers';
 import { resolveExternalInputs } from './variables';
 import { TxModule } from './modules';
+import { AccountFund } from './types';
 
 export class WarpSdk {
   public wallet: Wallet;
@@ -255,11 +256,24 @@ export class WarpSdk {
     return this.wallet.tx(txPayload);
   }
 
-  public async createAccount(sender: string): Promise<TxInfo> {
+  public async createAccount(sender: string, funds: AccountFund[] = []): Promise<TxInfo> {
+    const nativeFunds = funds
+      .filter((f) => 'native' in f)
+      .map((f) => 'native' in f && f.native) as warp_controller.Coin[];
+
+    const cwFunds = funds.filter((f) => !('native' in f)) as warp_controller.Fund[];
+
     const txPayload = TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { create_account: {} }>>(sender, this.contractAddress, {
-        create_account: {},
-      })
+      .execute<Extract<warp_controller.ExecuteMsg, { create_account: {} }>>(
+        sender,
+        this.contractAddress,
+        {
+          create_account: {
+            funds: cwFunds,
+          },
+        },
+        nativeFunds.reduce((acc, curr) => ({ ...acc, [curr.denom]: curr.amount }), {})
+      )
       .build();
 
     return this.wallet.tx(txPayload);
