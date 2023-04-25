@@ -184,6 +184,11 @@ export module warp_account {
   export type GovMsg = {
     vote: {
       proposal_id: number;
+      /**
+       * The vote option.
+       *
+       * This should be called "option" for consistency with Cosmos SDK. Sorry for that. See <https://github.com/CosmWasm/cosmwasm/issues/1571>.
+       */
       vote: VoteOption;
     };
   };

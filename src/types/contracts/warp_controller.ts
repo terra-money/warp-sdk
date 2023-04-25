@@ -197,6 +197,11 @@ export module warp_controller {
   export type GovMsg = {
     vote: {
       proposal_id: number;
+      /**
+       * The vote option.
+       *
+       * This should be called "option" for consistency with Cosmos SDK. Sorry for that. See <https://github.com/CosmWasm/cosmwasm/issues/1571>.
+       */
       vote: VoteOption;
     };
   };
@@ -238,6 +243,9 @@ export module warp_controller {
       }
     | {
         create_account: CreateAccountMsg;
+      }
+    | {
+        withdraw_asset: WithdrawAssetMsg;
       }
     | {
         update_config: UpdateConfigMsg;
@@ -493,6 +501,20 @@ export module warp_controller {
     | {
         cw721: Cw721Fund;
       };
+  export type AssetInfo =
+    | {
+        native: string;
+      }
+    | {
+        cw20: Addr;
+      }
+    | {
+        /**
+         * @minItems 2
+         * @maxItems 2
+         */
+        cw721: [Addr, string];
+      };
   export type TemplateKind = 'query' | 'msg';
   export interface CreateJobMsg {
     condition: Condition;
@@ -624,6 +646,9 @@ export module warp_controller {
   export interface Cw721Fund {
     contract_addr: string;
     token_id: string;
+  }
+  export interface WithdrawAssetMsg {
+    asset_info: AssetInfo;
   }
   export interface UpdateConfigMsg {
     a_max?: Uint128 | null;
