@@ -7,16 +7,19 @@ import { TxBuilder } from './tx';
 import Big from 'big.js';
 import { JobSequenceMsgComposer } from './composers';
 import { resolveExternalInputs } from './variables';
+import { TxModule } from 'modules';
 
 export class WarpSdk {
   public wallet: Wallet;
   public contractAddress: string;
   public condition: Condition;
+  public tx: TxModule;
 
   constructor(walletLike: WalletLike, contractAddress: string) {
     this.wallet = wallet(walletLike);
     this.contractAddress = contractAddress;
     this.condition = new Condition(this.wallet, this.contractAddress);
+    this.tx = new TxModule(this);
   }
 
   public async isJobActive(jobId: string): Promise<boolean> {
