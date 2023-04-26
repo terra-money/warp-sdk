@@ -8,7 +8,7 @@ import Big from 'big.js';
 import { JobSequenceMsgComposer } from './composers';
 import { resolveExternalInputs } from './variables';
 import { TxModule } from './modules';
-import { AccountFund } from './types';
+import { AccountFund, ApproveMsg, IncreaseAllowanceMsg } from './types';
 
 export class WarpSdk {
   public wallet: Wallet;
@@ -275,7 +275,29 @@ export class WarpSdk {
 
     const cwFunds = funds.filter((f) => !('native' in f)) as warp_controller.Fund[];
 
-    const txPayload = TxBuilder.new()
+    let txBuilder = TxBuilder.new();
+
+    for (const cwFund of cwFunds) {
+      if ('cw20' in cwFund) {
+        txBuilder = txBuilder.execute<IncreaseAllowanceMsg>(sender, cwFund.cw20.contract_addr, {
+          increase_allowance: {
+            spender: this.contractAddress,
+            amount: cwFund.cw20.amount,
+          },
+        });
+      }
+
+      if ('cw721' in cwFund) {
+        txBuilder = txBuilder.execute<ApproveMsg>(sender, cwFund.cw721.contract_addr, {
+          approve: {
+            spender: this.contractAddress,
+            token_id: cwFund.cw721.token_id,
+          },
+        });
+      }
+    }
+
+    const txPayload = txBuilder
       .execute<Extract<warp_controller.ExecuteMsg, { create_account: {} }>>(
         sender,
         this.contractAddress,
