@@ -2,12 +2,13 @@ import { warp_account, warp_controller } from './types/contracts';
 import { WalletLike, Wallet, wallet } from './wallet';
 import { Condition } from './condition';
 import { base64encode, contractQuery, LUNA, Token, TransferMsg } from './utils';
-import { CreateTxOptions, TxInfo } from '@terra-money/terra.js';
+import { CreateTxOptions, Fee, TxInfo } from '@terra-money/terra.js';
 import { TxBuilder } from './tx';
 import Big from 'big.js';
 import { JobSequenceMsgComposer } from './composers';
 import { resolveExternalInputs } from './variables';
 import { TxModule } from './modules';
+import { cosmosMsgToCreateTxMsg } from './utils';
 
 export class WarpSdk {
   public wallet: Wallet;
@@ -97,6 +98,24 @@ export class WarpSdk {
     >(this.wallet.lcd, this.contractAddress, { query_config: {} });
 
     return config;
+  }
+
+  public async estimateFee(sender: string, job: warp_controller.Job): Promise<Fee> {
+    const accountInfo = await this.wallet.lcd.auth.accountInfo(sender);
+
+    try {
+      const fee = await this.wallet.lcd.tx.estimateFee(
+        [{ sequenceNumber: accountInfo.getSequenceNumber(), publicKey: accountInfo.getPublicKey() }],
+        {
+          msgs: job.msgs.map((msg) =>
+            cosmosMsgToCreateTxMsg(job.owner, JSON.parse(msg) as warp_controller.CosmosMsgFor_Empty)
+          ),
+        }
+      );
+      return fee;
+    } catch (err) {
+      throw new Error('Estimate fee not possible for this job.');
+    }
   }
 
   public async createJob(sender: string, msg: warp_controller.CreateJobMsg): Promise<TxInfo> {
