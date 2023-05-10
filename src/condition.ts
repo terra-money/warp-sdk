@@ -1,6 +1,6 @@
 import { warp_controller } from './types/contracts';
 import { every, some } from 'lodash';
-import * as jsonpath from 'jsonpath';
+import jsonpath from 'jsonpath';
 import { contractQuery } from './utils';
 import { Big } from 'big.js';
 import { Wallet } from './wallet';
@@ -240,7 +240,7 @@ export class Condition {
     if (extracted[0] == null) {
       return null;
     } else {
-      return String(extracted[0]);
+      return JSON.stringify(extracted[0]);
     }
   }
 
