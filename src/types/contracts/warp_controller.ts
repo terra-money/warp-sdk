@@ -17,6 +17,7 @@ export module warp_controller {
     a_min: Uint128;
     cancellation_fee_percentage: Uint64;
     creation_fee_percentage: Uint64;
+    fee_collector: Addr;
     minimum_reward: Uint128;
     owner: Addr;
     q_max: Uint64;
@@ -359,7 +360,7 @@ export module warp_controller {
     | {
         query: QueryVariable;
       };
-  export type VariableKind = 'string' | 'uint' | 'int' | 'decimal' | 'timestamp' | 'bool' | 'amount' | 'asset';
+  export type VariableKind = 'string' | 'uint' | 'int' | 'decimal' | 'timestamp' | 'bool' | 'amount' | 'asset' | 'json';
   export type UpdateFnValue =
     | {
         uint: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
@@ -612,6 +613,7 @@ export module warp_controller {
     a_min?: Uint128 | null;
     cancellation_fee_percentage?: Uint64 | null;
     creation_fee_percentage?: Uint64 | null;
+    fee_collector?: string | null;
     minimum_reward?: Uint128 | null;
     owner?: string | null;
     q_max?: Uint64 | null;
@@ -639,6 +641,7 @@ export module warp_controller {
     a_min: Uint128;
     cancellation_fee: Uint64;
     creation_fee: Uint64;
+    fee_collector?: string | null;
     minimum_reward: Uint128;
     owner?: string | null;
     q_max: Uint64;

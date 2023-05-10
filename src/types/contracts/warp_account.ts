@@ -323,7 +323,7 @@ export module warp_account {
     | {
         query: QueryVariable;
       };
-  export type VariableKind = 'string' | 'uint' | 'int' | 'decimal' | 'timestamp' | 'bool' | 'amount' | 'asset';
+  export type VariableKind = 'string' | 'uint' | 'int' | 'decimal' | 'timestamp' | 'bool' | 'amount' | 'asset' | 'json';
   export type UpdateFnValue =
     | {
         uint: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
