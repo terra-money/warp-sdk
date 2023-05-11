@@ -10,7 +10,6 @@ describe('resolveExternalVariable', () => {
       init_fn: {
         method: 'get',
         url: 'https://jsonplaceholder.typicode.com/posts',
-        body: undefined,
         selector: '$[0]',
       },
     };

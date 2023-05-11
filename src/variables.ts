@@ -21,15 +21,15 @@ export const variableName = (v: warp_controller.Variable): string => {
 
 export const resolveExternalVariable = async (external: warp_controller.ExternalVariable): Promise<string> => {
   const { init_fn } = external;
-  const { body, method, selector, url } = init_fn;
+  const { body = null, method = 'get', selector, url, headers = {} } = init_fn;
 
   const options: AxiosRequestConfig = {
-    method: method ? method.toUpperCase() : 'GET',
+    method: method.toUpperCase(),
     url,
-    data: body,
+    data: body ? JSON.parse(body) : undefined,
     headers: {
-      'Content-Type': 'application/json',
       'Accept-Encoding': 'identity',
+      ...headers,
     },
   };
 
