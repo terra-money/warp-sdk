@@ -540,7 +540,9 @@ export module warp_account {
   }
   export interface ExternalExpr {
     body?: string | null;
-    headers?: string[] | null;
+    headers?: {
+      [k: string]: string;
+    } | null;
     method?: Method | null;
     selector: string;
     url: string;
