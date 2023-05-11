@@ -1,3 +1,4 @@
+import { variableName } from '../variables';
 import { warp_controller } from '../types';
 
 class StaticVariableComposer {
@@ -176,5 +177,9 @@ export class VariableComposer {
 
   query(): QueryVariableComposer {
     return new QueryVariableComposer();
+  }
+
+  ref(v: warp_controller.Variable): string {
+    return `$warp.variable.${variableName(v)}`;
   }
 }
