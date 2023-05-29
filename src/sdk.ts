@@ -118,6 +118,14 @@ export class WarpSdk {
     }
   }
 
+  public async isJobProfitable(sender: string, job: warp_controller.Job): Promise<boolean> {
+    const fee = await this.estimateFee(sender, job);
+    const adjustmentFactor = 1.2;
+    const adjustedFee = Big(fee.amount.get('uluna').amount.toString()).mul(adjustmentFactor);
+
+    return Big(job.reward).gt(adjustedFee);
+  }
+
   public async createJob(sender: string, msg: warp_controller.CreateJobMsg): Promise<TxInfo> {
     await this.createAccountIfNotExists(sender);
 

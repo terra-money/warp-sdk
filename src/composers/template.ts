@@ -43,10 +43,10 @@ export class SubmitTemplateMsgComposer {
   }
 
   compose(): warp_controller.SubmitTemplateMsg {
-    if (!this._kind) {
+    if (this._kind === undefined) {
       throw new Error('Kind must be provided');
     }
-    if (!this._name) {
+    if (this._name === undefined) {
       throw new Error('Name must be provided');
     }
 

@@ -85,11 +85,16 @@ export class CreateJobMsgComposer {
   }
 
   compose(): warp_controller.CreateJobMsg {
-    if (!this._name || !this._recurring || !this._requeue_on_evict || !this._reward) {
+    if (
+      this._name === undefined ||
+      this._recurring === undefined ||
+      this._requeue_on_evict === undefined ||
+      this._reward === undefined
+    ) {
       throw new Error('All required fields must be provided');
     }
 
-    if (!this._condition) {
+    if (this._condition === undefined) {
       throw new Error('Condition must be provided');
     }
 

@@ -1,6 +1,6 @@
 import { warp_controller } from './types';
-import * as jsonpath from 'jsonpath';
-import axios from 'axios';
+import jsonpath from 'jsonpath';
+import axios, { AxiosRequestConfig } from 'axios';
 
 export const extractVariableName = (str: string) => {
   const parts = str.split('.');
@@ -21,25 +21,26 @@ export const variableName = (v: warp_controller.Variable): string => {
 
 export const resolveExternalVariable = async (external: warp_controller.ExternalVariable): Promise<string> => {
   const { init_fn } = external;
-  const { body, method, selector, url } = init_fn;
+  const { body = null, method = 'get', selector, url, headers = {} } = init_fn;
 
-  const options = {
-    method: method ? method.toUpperCase() : 'GET',
+  const options: AxiosRequestConfig = {
+    method: method.toUpperCase(),
     url,
-    data: body,
+    data: body ? JSON.parse(body) : undefined,
     headers: {
-      'Content-Type': 'application/json',
+      'Accept-Encoding': 'identity',
+      ...headers,
     },
   };
 
   try {
     const resp = await axios.request({ ...options, responseType: 'json' });
-    const extracted = jsonpath.query(JSON.parse(resp.data), selector);
+    const extracted = jsonpath.query(resp.data, selector);
 
     if (extracted[0] == null) {
       return null;
     } else {
-      return String(extracted[0]);
+      return JSON.stringify(extracted[0]);
     }
   } catch (error) {
     console.error(`Error resolving external variable: ${error.message}`);
