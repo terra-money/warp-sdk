@@ -1,10 +1,11 @@
 import { warp_controller } from './types';
 import jsonpath from 'jsonpath';
+import { isObject } from 'lodash';
 import axios, { AxiosRequestConfig } from 'axios';
 
 export const extractVariableName = (str: string) => {
-  const parts = str.split('.');
-  return parts[parts.length - 1];
+  const prefix = '$warp.variable.';
+  return str.substring(prefix.length);
 };
 
 export const variableName = (v: warp_controller.Variable): string => {
@@ -40,7 +41,13 @@ export const resolveExternalVariable = async (external: warp_controller.External
     if (extracted[0] == null) {
       return null;
     } else {
-      return JSON.stringify(extracted[0]);
+      const v = extracted[0];
+
+      if (isObject(v)) {
+        return JSON.stringify(v);
+      } else {
+        return String(v);
+      }
     }
   } catch (error) {
     console.error(`Error resolving external variable: ${error.message}`);

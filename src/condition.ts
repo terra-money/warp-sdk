@@ -240,7 +240,7 @@ export class Condition {
     if (extracted[0] == null) {
       return null;
     } else {
-      return JSON.stringify(extracted[0]);
+      return String(extracted[0]);
     }
   }
 
