@@ -14,6 +14,13 @@ export module warp_account {
     owner: Addr;
     warp_addr: Addr;
   }
+  export type ExecuteMsg =
+    | {
+        generic: GenericMsg;
+      }
+    | {
+        withdraw_assets: WithdrawAssetsMsg;
+      };
   export type CosmosMsgFor_Empty =
     | {
         bank: BankMsg;
@@ -193,7 +200,21 @@ export module warp_account {
     };
   };
   export type VoteOption = 'yes' | 'no' | 'abstain' | 'no_with_veto';
-  export interface ExecuteMsg {
+  export type AssetInfo =
+    | {
+        native: string;
+      }
+    | {
+        cw20: Addr;
+      }
+    | {
+        /**
+         * @minItems 2
+         * @maxItems 2
+         */
+        cw721: [Addr, string];
+      };
+  export interface GenericMsg {
     msgs: CosmosMsgFor_Empty[];
   }
   export interface Coin {
@@ -214,6 +235,9 @@ export module warp_account {
      * the version that the client is currently on (eg. after reseting the chain this could increment 1 as height drops to 0)
      */
     revision: number;
+  }
+  export interface WithdrawAssetsMsg {
+    asset_infos: AssetInfo[];
   }
   export type Fund =
     | {

@@ -245,9 +245,6 @@ export module warp_controller {
         create_account: CreateAccountMsg;
       }
     | {
-        withdraw_asset: WithdrawAssetMsg;
-      }
-    | {
         update_config: UpdateConfigMsg;
       }
     | {
@@ -501,20 +498,6 @@ export module warp_controller {
     | {
         cw721: Cw721Fund;
       };
-  export type AssetInfo =
-    | {
-        native: string;
-      }
-    | {
-        cw20: Addr;
-      }
-    | {
-        /**
-         * @minItems 2
-         * @maxItems 2
-         */
-        cw721: [Addr, string];
-      };
   export interface CreateJobMsg {
     condition: Condition;
     description: string;
@@ -651,9 +634,6 @@ export module warp_controller {
   export interface Cw721Fund {
     contract_addr: string;
     token_id: string;
-  }
-  export interface WithdrawAssetMsg {
-    asset_info: AssetInfo;
   }
   export interface UpdateConfigMsg {
     a_max?: Uint128 | null;
