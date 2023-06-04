@@ -292,6 +292,18 @@ export class WarpSdk {
     return this.wallet.tx(txPayload);
   }
 
+  public async withdrawAssets(sender: string, msg: warp_account.WithdrawAssetsMsg): Promise<TxInfo> {
+    const { account } = await this.account(sender);
+
+    const tx = TxBuilder.new()
+      .execute<Extract<warp_account.ExecuteMsg, { withdraw_assets: {} }>>(sender, account, {
+        withdraw_assets: msg,
+      })
+      .build();
+
+    return this.wallet.tx(tx);
+  }
+
   // deposit token (supports native, ibc and cw20 token type) from sender to warp account
   // warp account can be owned by anyone
   public async depositToAccount(sender: string, account: string, token: Token, amount: string): Promise<TxInfo> {
@@ -329,32 +341,36 @@ export class WarpSdk {
 
       txPayload = TxBuilder.new()
         .execute<warp_account.ExecuteMsg>(sender, account, {
-          msgs: [
-            {
-              wasm: {
-                execute: {
-                  contract_addr: token.token,
-                  msg: base64encode(transferMsg),
-                  funds: [],
+          generic: {
+            msgs: [
+              {
+                wasm: {
+                  execute: {
+                    contract_addr: token.token,
+                    msg: base64encode(transferMsg),
+                    funds: [],
+                  },
                 },
               },
-            },
-          ],
+            ],
+          },
         })
         .build();
     } else {
       txPayload = TxBuilder.new()
         .execute<warp_account.ExecuteMsg>(sender, account, {
-          msgs: [
-            {
-              bank: {
-                send: {
-                  amount: [{ amount, denom: token.denom }],
-                  to_address: receiver,
+          generic: {
+            msgs: [
+              {
+                bank: {
+                  send: {
+                    amount: [{ amount, denom: token.denom }],
+                    to_address: receiver,
+                  },
                 },
               },
-            },
-          ],
+            ],
+          },
         })
         .build();
     }

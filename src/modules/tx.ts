@@ -157,6 +157,18 @@ export class TxModule {
     return txPayload;
   }
 
+  public async withdrawAssets(sender: string, msg: warp_account.WithdrawAssetsMsg): Promise<CreateTxOptions> {
+    const { account } = await this.warpSdk.account(sender);
+
+    const txPayload = TxBuilder.new()
+      .execute<Extract<warp_account.ExecuteMsg, { withdraw_assets: {} }>>(sender, account, {
+        withdraw_assets: msg,
+      })
+      .build();
+
+    return txPayload;
+  }
+
   public async withdrawFromAccount(
     sender: string,
     receiver: string,
@@ -176,32 +188,36 @@ export class TxModule {
 
       txPayload = TxBuilder.new()
         .execute<warp_account.ExecuteMsg>(sender, account, {
-          msgs: [
-            {
-              wasm: {
-                execute: {
-                  contract_addr: token.token,
-                  msg: base64encode(transferMsg),
-                  funds: [],
+          generic: {
+            msgs: [
+              {
+                wasm: {
+                  execute: {
+                    contract_addr: token.token,
+                    msg: base64encode(transferMsg),
+                    funds: [],
+                  },
                 },
               },
-            },
-          ],
+            ],
+          },
         })
         .build();
     } else {
       txPayload = TxBuilder.new()
         .execute<warp_account.ExecuteMsg>(sender, account, {
-          msgs: [
-            {
-              bank: {
-                send: {
-                  amount: [{ amount, denom: token.denom }],
-                  to_address: receiver,
+          generic: {
+            msgs: [
+              {
+                bank: {
+                  send: {
+                    amount: [{ amount, denom: token.denom }],
+                    to_address: receiver,
+                  },
                 },
               },
-            },
-          ],
+            ],
+          },
         })
         .build();
     }
