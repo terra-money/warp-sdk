@@ -12,14 +12,16 @@ import { cosmosMsgToCreateTxMsg } from './utils';
 
 export class WarpSdk {
   public wallet: Wallet;
-  public contractAddress: string;
+  public controllerContract: string;
+  public resolverContract: string;
   public condition: Condition;
   public tx: TxModule;
 
-  constructor(walletLike: WalletLike, contractAddress: string) {
+  constructor(walletLike: WalletLike, controllerContract: string, resolverContract: string) {
     this.wallet = wallet(walletLike);
-    this.contractAddress = contractAddress;
-    this.condition = new Condition(this.wallet, this.contractAddress);
+    this.controllerContract = controllerContract;
+    this.resolverContract = resolverContract;
+    this.condition = new Condition(this.wallet, this.controllerContract);
     this.tx = new TxModule(this);
   }
 
@@ -32,7 +34,7 @@ export class WarpSdk {
     const { jobs } = await contractQuery<
       Extract<warp_controller.QueryMsg, { query_jobs: {} }>,
       warp_controller.JobsResponse
-    >(this.wallet.lcd, this.contractAddress, { query_jobs: opts });
+    >(this.wallet.lcd, this.controllerContract, { query_jobs: opts });
 
     return jobs;
   }
@@ -41,7 +43,7 @@ export class WarpSdk {
     const { job } = await contractQuery<
       Extract<warp_controller.QueryMsg, { query_job: {} }>,
       warp_controller.JobResponse
-    >(this.wallet.lcd, this.contractAddress, { query_job: { id } });
+    >(this.wallet.lcd, this.controllerContract, { query_job: { id } });
 
     return job;
   }
@@ -50,7 +52,7 @@ export class WarpSdk {
     const { templates } = await contractQuery<
       Extract<warp_resolver.QueryMsg, { query_templates: {} }>,
       warp_resolver.TemplatesResponse
-    >(this.wallet.lcd, this.contractAddress, { query_templates: opts });
+    >(this.wallet.lcd, this.resolverContract, { query_templates: opts });
 
     return templates;
   }
@@ -59,7 +61,7 @@ export class WarpSdk {
     const { template } = await contractQuery<
       Extract<warp_resolver.QueryMsg, { query_template: {} }>,
       warp_resolver.TemplateResponse
-    >(this.wallet.lcd, this.contractAddress, { query_template: { id } });
+    >(this.wallet.lcd, this.resolverContract, { query_template: { id } });
 
     return template;
   }
@@ -68,7 +70,7 @@ export class WarpSdk {
     const { response } = await contractQuery<
       Extract<warp_controller.QueryMsg, { simulate_query: {} }>,
       warp_controller.SimulateResponse
-    >(this.wallet.lcd, this.contractAddress, { simulate_query: { query } });
+    >(this.wallet.lcd, this.controllerContract, { simulate_query: { query } });
 
     return JSON.parse(response);
   }
@@ -77,7 +79,7 @@ export class WarpSdk {
     const { account } = await contractQuery<
       Extract<warp_controller.QueryMsg, { query_account: {} }>,
       warp_controller.AccountResponse
-    >(this.wallet.lcd, this.contractAddress, { query_account: { owner } });
+    >(this.wallet.lcd, this.controllerContract, { query_account: { owner } });
 
     return account;
   }
@@ -86,7 +88,7 @@ export class WarpSdk {
     const { accounts } = await contractQuery<
       Extract<warp_controller.QueryMsg, { query_accounts: {} }>,
       warp_controller.AccountsResponse
-    >(this.wallet.lcd, this.contractAddress, { query_accounts: opts });
+    >(this.wallet.lcd, this.controllerContract, { query_accounts: opts });
 
     return accounts;
   }
@@ -95,12 +97,12 @@ export class WarpSdk {
     const { config: controllerConfig } = await contractQuery<
       Extract<warp_controller.QueryMsg, { query_config: {} }>,
       warp_controller.ConfigResponse
-    >(this.wallet.lcd, this.contractAddress, { query_config: {} });
+    >(this.wallet.lcd, this.controllerContract, { query_config: {} });
 
     const { config: resolverConfig } = await contractQuery<
       Extract<warp_resolver.QueryMsg, { query_config: {} }>,
       warp_resolver.ConfigResponse
-    >(this.wallet.lcd, this.contractAddress, { query_config: {} });
+    >(this.wallet.lcd, this.resolverContract, { query_config: {} });
 
     return { ...controllerConfig, template_fee: resolverConfig.template_fee };
   }
@@ -141,7 +143,7 @@ export class WarpSdk {
       .send(account.owner, account.account, {
         [LUNA.denom]: Big(msg.reward).mul(Big(config.creation_fee_percentage).add(100).div(100)).toString(),
       })
-      .execute<Extract<warp_controller.ExecuteMsg, { create_job: {} }>>(sender, this.contractAddress, {
+      .execute<Extract<warp_controller.ExecuteMsg, { create_job: {} }>>(sender, this.controllerContract, {
         create_job: msg,
       })
       .build();
@@ -183,7 +185,7 @@ export class WarpSdk {
       .send(account.owner, account.account, {
         [LUNA.denom]: Big(totalReward).mul(Big(config.creation_fee_percentage).add(100).div(100)).toString(),
       })
-      .execute<Extract<warp_controller.ExecuteMsg, { create_job: {} }>>(sender, this.contractAddress, {
+      .execute<Extract<warp_controller.ExecuteMsg, { create_job: {} }>>(sender, this.controllerContract, {
         create_job: jobSequenceMsg,
       })
       .build();
@@ -204,7 +206,7 @@ export class WarpSdk {
 
   public async deleteJob(sender: string, jobId: string): Promise<TxInfo> {
     const txPayload = TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { delete_job: {} }>>(sender, this.contractAddress, {
+      .execute<Extract<warp_controller.ExecuteMsg, { delete_job: {} }>>(sender, this.controllerContract, {
         delete_job: { id: jobId },
       })
       .build();
@@ -214,7 +216,7 @@ export class WarpSdk {
 
   public async updateJob(sender: string, msg: warp_controller.UpdateJobMsg): Promise<TxInfo> {
     const txPayload = TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { update_job: {} }>>(sender, this.contractAddress, {
+      .execute<Extract<warp_controller.ExecuteMsg, { update_job: {} }>>(sender, this.controllerContract, {
         update_job: msg,
       })
       .build();
@@ -224,7 +226,7 @@ export class WarpSdk {
 
   public async evictJob(sender: string, jobId: string): Promise<TxInfo> {
     const txPayload = TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { evict_job: {} }>>(sender, this.contractAddress, {
+      .execute<Extract<warp_controller.ExecuteMsg, { evict_job: {} }>>(sender, this.controllerContract, {
         evict_job: {
           id: jobId,
         },
@@ -240,7 +242,7 @@ export class WarpSdk {
     const externalInputs = await resolveExternalInputs(job.vars);
 
     const txPayload = TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { execute_job: {} }>>(sender, this.contractAddress, {
+      .execute<Extract<warp_controller.ExecuteMsg, { execute_job: {} }>>(sender, this.controllerContract, {
         execute_job: { id: job.id, external_inputs: externalInputs },
       })
       .build();
@@ -254,7 +256,7 @@ export class WarpSdk {
     const txPayload = TxBuilder.new()
       .execute<Extract<warp_resolver.ExecuteMsg, { submit_template: {} }>>(
         sender,
-        this.contractAddress,
+        this.resolverContract,
         {
           submit_template: msg,
         },
@@ -269,7 +271,7 @@ export class WarpSdk {
 
   public async deleteTemplate(sender: string, templateId: string): Promise<TxInfo> {
     const txPayload = TxBuilder.new()
-      .execute<Extract<warp_resolver.ExecuteMsg, { delete_template: {} }>>(sender, this.contractAddress, {
+      .execute<Extract<warp_resolver.ExecuteMsg, { delete_template: {} }>>(sender, this.resolverContract, {
         delete_template: { id: templateId },
       })
       .build();
@@ -279,7 +281,7 @@ export class WarpSdk {
 
   public async editTemplate(sender: string, msg: warp_resolver.EditTemplateMsg): Promise<TxInfo> {
     const txPayload = TxBuilder.new()
-      .execute<Extract<warp_resolver.ExecuteMsg, { edit_template: {} }>>(sender, this.contractAddress, {
+      .execute<Extract<warp_resolver.ExecuteMsg, { edit_template: {} }>>(sender, this.resolverContract, {
         edit_template: msg,
       })
       .build();
@@ -289,7 +291,7 @@ export class WarpSdk {
 
   public async createAccount(sender: string): Promise<TxInfo> {
     const txPayload = TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { create_account: {} }>>(sender, this.contractAddress, {
+      .execute<Extract<warp_controller.ExecuteMsg, { create_account: {} }>>(sender, this.controllerContract, {
         create_account: {},
       })
       .build();
