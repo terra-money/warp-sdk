@@ -1,4 +1,4 @@
-import { warp_account, warp_controller } from '../types/contracts';
+import { warp_account, warp_controller, warp_resolver } from '../types/contracts';
 import { base64encode, LUNA, Token, TransferMsg } from '../utils';
 import { CreateTxOptions } from '@terra-money/terra.js';
 import { TxBuilder } from '../tx';
@@ -90,11 +90,11 @@ export class TxModule {
       .build();
   }
 
-  public async submitTemplate(sender: string, msg: warp_controller.SubmitTemplateMsg): Promise<CreateTxOptions> {
+  public async submitTemplate(sender: string, msg: warp_resolver.SubmitTemplateMsg): Promise<CreateTxOptions> {
     const config = await this.warpSdk.config();
 
     return TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { submit_template: {} }>>(
+      .execute<Extract<warp_resolver.ExecuteMsg, { submit_template: {} }>>(
         sender,
         this.warpSdk.contractAddress,
         {
@@ -109,15 +109,15 @@ export class TxModule {
 
   public async deleteTemplate(sender: string, templateId: string): Promise<CreateTxOptions> {
     return TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { delete_template: {} }>>(sender, this.warpSdk.contractAddress, {
+      .execute<Extract<warp_resolver.ExecuteMsg, { delete_template: {} }>>(sender, this.warpSdk.contractAddress, {
         delete_template: { id: templateId },
       })
       .build();
   }
 
-  public async editTemplate(sender: string, msg: warp_controller.EditTemplateMsg): Promise<CreateTxOptions> {
+  public async editTemplate(sender: string, msg: warp_resolver.EditTemplateMsg): Promise<CreateTxOptions> {
     return TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { edit_template: {} }>>(sender, this.warpSdk.contractAddress, {
+      .execute<Extract<warp_resolver.ExecuteMsg, { edit_template: {} }>>(sender, this.warpSdk.contractAddress, {
         edit_template: msg,
       })
       .build();

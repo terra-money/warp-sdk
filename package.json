@@ -33,7 +33,8 @@
   "generate-types": {
     "contracts": [
       "warp-controller",
-      "warp-account"
+      "warp-account",
+      "warp-resolver"
     ],
     "output": "src/types/contracts"
   },

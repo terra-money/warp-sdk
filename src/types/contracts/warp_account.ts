@@ -498,6 +498,7 @@ export module warp_account {
     job: Job;
   }
   export interface Job {
+    assets_to_withdraw: AssetInfo[];
     condition: Condition;
     description: string;
     id: Uint64;

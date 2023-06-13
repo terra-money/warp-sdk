@@ -1,4 +1,4 @@
-import { warp_account, warp_controller } from './types/contracts';
+import { warp_account, warp_controller, warp_resolver } from './types/contracts';
 import { WalletLike, Wallet, wallet } from './wallet';
 import { Condition } from './condition';
 import { base64encode, contractQuery, LUNA, Token, TransferMsg } from './utils';
@@ -46,19 +46,19 @@ export class WarpSdk {
     return job;
   }
 
-  public async templates(opts: warp_controller.QueryTemplatesMsg = {}): Promise<warp_controller.Template[]> {
+  public async templates(opts: warp_resolver.QueryTemplatesMsg = {}): Promise<warp_resolver.Template[]> {
     const { templates } = await contractQuery<
-      Extract<warp_controller.QueryMsg, { query_templates: {} }>,
-      warp_controller.TemplatesResponse
+      Extract<warp_resolver.QueryMsg, { query_templates: {} }>,
+      warp_resolver.TemplatesResponse
     >(this.wallet.lcd, this.contractAddress, { query_templates: opts });
 
     return templates;
   }
 
-  public async template(id: string): Promise<warp_controller.Template> {
+  public async template(id: string): Promise<warp_resolver.Template> {
     const { template } = await contractQuery<
-      Extract<warp_controller.QueryMsg, { query_template: {} }>,
-      warp_controller.TemplateResponse
+      Extract<warp_resolver.QueryMsg, { query_template: {} }>,
+      warp_resolver.TemplateResponse
     >(this.wallet.lcd, this.contractAddress, { query_template: { id } });
 
     return template;
@@ -91,13 +91,18 @@ export class WarpSdk {
     return accounts;
   }
 
-  public async config(): Promise<warp_controller.Config> {
-    const { config } = await contractQuery<
+  public async config(): Promise<warp_controller.Config & warp_resolver.Config> {
+    const { config: controllerConfig } = await contractQuery<
       Extract<warp_controller.QueryMsg, { query_config: {} }>,
       warp_controller.ConfigResponse
     >(this.wallet.lcd, this.contractAddress, { query_config: {} });
 
-    return config;
+    const { config: resolverConfig } = await contractQuery<
+      Extract<warp_resolver.QueryMsg, { query_config: {} }>,
+      warp_resolver.ConfigResponse
+    >(this.wallet.lcd, this.contractAddress, { query_config: {} });
+
+    return { ...controllerConfig, template_fee: resolverConfig.template_fee };
   }
 
   public async estimateFee(sender: string, job: warp_controller.Job): Promise<Fee> {
@@ -243,11 +248,11 @@ export class WarpSdk {
     return this.wallet.tx(txPayload);
   }
 
-  public async submitTemplate(sender: string, msg: warp_controller.SubmitTemplateMsg): Promise<TxInfo> {
+  public async submitTemplate(sender: string, msg: warp_resolver.SubmitTemplateMsg): Promise<TxInfo> {
     const config = await this.config();
 
     const txPayload = TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { submit_template: {} }>>(
+      .execute<Extract<warp_resolver.ExecuteMsg, { submit_template: {} }>>(
         sender,
         this.contractAddress,
         {
@@ -264,7 +269,7 @@ export class WarpSdk {
 
   public async deleteTemplate(sender: string, templateId: string): Promise<TxInfo> {
     const txPayload = TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { delete_template: {} }>>(sender, this.contractAddress, {
+      .execute<Extract<warp_resolver.ExecuteMsg, { delete_template: {} }>>(sender, this.contractAddress, {
         delete_template: { id: templateId },
       })
       .build();
@@ -272,9 +277,9 @@ export class WarpSdk {
     return this.wallet.tx(txPayload);
   }
 
-  public async editTemplate(sender: string, msg: warp_controller.EditTemplateMsg): Promise<TxInfo> {
+  public async editTemplate(sender: string, msg: warp_resolver.EditTemplateMsg): Promise<TxInfo> {
     const txPayload = TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { edit_template: {} }>>(sender, this.contractAddress, {
+      .execute<Extract<warp_resolver.ExecuteMsg, { edit_template: {} }>>(sender, this.contractAddress, {
         edit_template: msg,
       })
       .build();
