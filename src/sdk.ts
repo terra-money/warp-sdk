@@ -289,10 +289,12 @@ export class WarpSdk {
     return this.wallet.tx(txPayload);
   }
 
-  public async createAccount(sender: string): Promise<TxInfo> {
+  public async createAccount(sender: string, funds?: warp_controller.Fund[]): Promise<TxInfo> {
     const txPayload = TxBuilder.new()
       .execute<Extract<warp_controller.ExecuteMsg, { create_account: {} }>>(sender, this.controllerContract, {
-        create_account: {},
+        create_account: {
+          funds,
+        },
       })
       .build();
 

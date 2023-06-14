@@ -22,7 +22,7 @@ export class TxModule {
       .send(account.owner, account.account, {
         [LUNA.denom]: Big(msg.reward).mul(Big(config.creation_fee_percentage).add(100).div(100)).toString(),
       })
-      .execute<Extract<warp_controller.ExecuteMsg, { create_job: {} }>>(sender, this.warpSdk.contractAddress, {
+      .execute<Extract<warp_controller.ExecuteMsg, { create_job: {} }>>(sender, this.warpSdk.controllerContract, {
         create_job: msg,
       })
       .build();
@@ -46,7 +46,7 @@ export class TxModule {
       .send(account.owner, account.account, {
         [LUNA.denom]: Big(totalReward).mul(Big(config.creation_fee_percentage).add(100).div(100)).toString(),
       })
-      .execute<Extract<warp_controller.ExecuteMsg, { create_job: {} }>>(sender, this.warpSdk.contractAddress, {
+      .execute<Extract<warp_controller.ExecuteMsg, { create_job: {} }>>(sender, this.warpSdk.controllerContract, {
         create_job: jobSequenceMsg,
       })
       .build();
@@ -54,7 +54,7 @@ export class TxModule {
 
   public async deleteJob(sender: string, jobId: string): Promise<CreateTxOptions> {
     return TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { delete_job: {} }>>(sender, this.warpSdk.contractAddress, {
+      .execute<Extract<warp_controller.ExecuteMsg, { delete_job: {} }>>(sender, this.warpSdk.controllerContract, {
         delete_job: { id: jobId },
       })
       .build();
@@ -62,7 +62,7 @@ export class TxModule {
 
   public async updateJob(sender: string, msg: warp_controller.UpdateJobMsg): Promise<CreateTxOptions> {
     return TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { update_job: {} }>>(sender, this.warpSdk.contractAddress, {
+      .execute<Extract<warp_controller.ExecuteMsg, { update_job: {} }>>(sender, this.warpSdk.controllerContract, {
         update_job: msg,
       })
       .build();
@@ -70,7 +70,7 @@ export class TxModule {
 
   public async evictJob(sender: string, jobId: string): Promise<CreateTxOptions> {
     return TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { evict_job: {} }>>(sender, this.warpSdk.contractAddress, {
+      .execute<Extract<warp_controller.ExecuteMsg, { evict_job: {} }>>(sender, this.warpSdk.controllerContract, {
         evict_job: {
           id: jobId,
         },
@@ -84,7 +84,7 @@ export class TxModule {
     const externalInputs = await resolveExternalInputs(job.vars);
 
     return TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { execute_job: {} }>>(sender, this.warpSdk.contractAddress, {
+      .execute<Extract<warp_controller.ExecuteMsg, { execute_job: {} }>>(sender, this.warpSdk.controllerContract, {
         execute_job: { id: job.id, external_inputs: externalInputs },
       })
       .build();
@@ -96,7 +96,7 @@ export class TxModule {
     return TxBuilder.new()
       .execute<Extract<warp_resolver.ExecuteMsg, { submit_template: {} }>>(
         sender,
-        this.warpSdk.contractAddress,
+        this.warpSdk.resolverContract,
         {
           submit_template: msg,
         },
@@ -109,7 +109,7 @@ export class TxModule {
 
   public async deleteTemplate(sender: string, templateId: string): Promise<CreateTxOptions> {
     return TxBuilder.new()
-      .execute<Extract<warp_resolver.ExecuteMsg, { delete_template: {} }>>(sender, this.warpSdk.contractAddress, {
+      .execute<Extract<warp_resolver.ExecuteMsg, { delete_template: {} }>>(sender, this.warpSdk.resolverContract, {
         delete_template: { id: templateId },
       })
       .build();
@@ -117,16 +117,18 @@ export class TxModule {
 
   public async editTemplate(sender: string, msg: warp_resolver.EditTemplateMsg): Promise<CreateTxOptions> {
     return TxBuilder.new()
-      .execute<Extract<warp_resolver.ExecuteMsg, { edit_template: {} }>>(sender, this.warpSdk.contractAddress, {
+      .execute<Extract<warp_resolver.ExecuteMsg, { edit_template: {} }>>(sender, this.warpSdk.resolverContract, {
         edit_template: msg,
       })
       .build();
   }
 
-  public async createAccount(sender: string): Promise<CreateTxOptions> {
+  public async createAccount(sender: string, funds?: warp_controller.Fund[]): Promise<CreateTxOptions> {
     return TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { create_account: {} }>>(sender, this.warpSdk.contractAddress, {
-        create_account: {},
+      .execute<Extract<warp_controller.ExecuteMsg, { create_account: {} }>>(sender, this.warpSdk.controllerContract, {
+        create_account: {
+          funds,
+        },
       })
       .build();
   }

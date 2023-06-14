@@ -43,6 +43,7 @@ export class CreateJobMsgComposer {
   private _reward: warp_controller.Uint128 | undefined;
   private _description: string;
   private _labels: string[];
+  private _assetsToWithdraw: warp_controller.AssetInfo[] | undefined;
   private _msgs: warp_controller.CosmosMsgFor_Empty[] = [];
   private _vars: warp_controller.Variable[] = [];
   private _condition: warp_controller.Condition | undefined;
@@ -78,6 +79,11 @@ export class CreateJobMsgComposer {
 
   labels(labels: string[]): CreateJobMsgComposer {
     this._labels = labels;
+    return this;
+  }
+
+  assetsToWithdraw(assetsToWithdraw: warp_controller.AssetInfo[]): CreateJobMsgComposer {
+    this._assetsToWithdraw = assetsToWithdraw;
     return this;
   }
 
@@ -122,6 +128,7 @@ export class CreateJobMsgComposer {
       condition: this._condition,
       msgs: this._msgs.map((m) => JSON.stringify(m)),
       vars: this._vars,
+      assets_to_withdraw: this._assetsToWithdraw,
     };
 
     return createJobMsg;
