@@ -28,10 +28,11 @@ const wallet = new Wallet(lcd, new MnemonicKey({ mnemonic: env.MNEMONIC_KEY }));
 const options = {
   lcd,
   wallet,
-  contractAddress: getContractAddress(getNetworkName(lcd.config.chainID), 'warp-controller'),
+  controllerAddress: getContractAddress(getNetworkName(lcd.config.chainID), 'warp-controller'),
+  resolverAddress: getContractAddress(getNetworkName(lcd.config.chainID), 'warp-resolver'),
 };
 
-const sdk = new WarpSdk(wallet, options.contractAddress);
+const sdk = new WarpSdk(wallet, options.controllerAddress, options.resolverAddress);
 
 export const tryExecute = async (
   wallet: Wallet,
@@ -61,7 +62,7 @@ function executeMsg<T extends {}>(sender: string, contract: string, msg: T, coin
 
 const executeJobMsgs = (jobs: warp_controller.Job[]) => {
   return jobs.map((job) =>
-    executeMsg<Extract<warp_controller.ExecuteMsg, { execute_job }>>(wallet.key.accAddress, options.contractAddress, {
+    executeMsg<Extract<warp_controller.ExecuteMsg, { execute_job }>>(wallet.key.accAddress, options.controllerAddress, {
       execute_job: { id: job.id },
     })
   );

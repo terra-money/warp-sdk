@@ -14,6 +14,13 @@ export module warp_account {
     owner: Addr;
     warp_addr: Addr;
   }
+  export type ExecuteMsg =
+    | {
+        generic: GenericMsg;
+      }
+    | {
+        withdraw_assets: WithdrawAssetsMsg;
+      };
   export type CosmosMsgFor_Empty =
     | {
         bank: BankMsg;
@@ -184,11 +191,30 @@ export module warp_account {
   export type GovMsg = {
     vote: {
       proposal_id: number;
+      /**
+       * The vote option.
+       *
+       * This should be called "option" for consistency with Cosmos SDK. Sorry for that. See <https://github.com/CosmWasm/cosmwasm/issues/1571>.
+       */
       vote: VoteOption;
     };
   };
   export type VoteOption = 'yes' | 'no' | 'abstain' | 'no_with_veto';
-  export interface ExecuteMsg {
+  export type AssetInfo =
+    | {
+        native: string;
+      }
+    | {
+        cw20: Addr;
+      }
+    | {
+        /**
+         * @minItems 2
+         * @maxItems 2
+         */
+        cw721: [Addr, string];
+      };
+  export interface GenericMsg {
     msgs: CosmosMsgFor_Empty[];
   }
   export interface Coin {
@@ -210,8 +236,27 @@ export module warp_account {
      */
     revision: number;
   }
+  export interface WithdrawAssetsMsg {
+    asset_infos: AssetInfo[];
+  }
+  export type Fund =
+    | {
+        cw20: Cw20Fund;
+      }
+    | {
+        cw721: Cw721Fund;
+      };
   export interface InstantiateMsg {
+    funds?: Fund[] | null;
     owner: string;
+  }
+  export interface Cw20Fund {
+    amount: Uint128;
+    contract_addr: string;
+  }
+  export interface Cw721Fund {
+    contract_addr: string;
+    token_id: string;
   }
   export type Condition =
     | {
@@ -323,7 +368,7 @@ export module warp_account {
     | {
         query: QueryVariable;
       };
-  export type VariableKind = 'string' | 'uint' | 'int' | 'decimal' | 'timestamp' | 'bool' | 'amount' | 'asset';
+  export type VariableKind = 'string' | 'uint' | 'int' | 'decimal' | 'timestamp' | 'bool' | 'amount' | 'asset' | 'json';
   export type UpdateFnValue =
     | {
         uint: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
@@ -453,8 +498,11 @@ export module warp_account {
     job: Job;
   }
   export interface Job {
+    assets_to_withdraw: AssetInfo[];
     condition: Condition;
+    description: string;
     id: Uint64;
+    labels: string[];
     last_update_time: Uint64;
     msgs: string[];
     name: string;
@@ -540,7 +588,9 @@ export module warp_account {
   }
   export interface ExternalExpr {
     body?: string | null;
-    headers?: string[] | null;
+    headers?: {
+      [k: string]: string;
+    } | null;
     method?: Method | null;
     selector: string;
     url: string;

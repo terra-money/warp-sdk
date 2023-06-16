@@ -1,6 +1,6 @@
 import { warp_controller } from './types/contracts';
 import { every, some } from 'lodash';
-import * as jsonpath from 'jsonpath';
+import jsonpath from 'jsonpath';
 import { contractQuery } from './utils';
 import { Big } from 'big.js';
 import { Wallet } from './wallet';

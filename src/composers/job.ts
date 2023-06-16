@@ -41,6 +41,9 @@ export class CreateJobMsgComposer {
   private _recurring: boolean | undefined;
   private _requeue_on_evict: boolean | undefined;
   private _reward: warp_controller.Uint128 | undefined;
+  private _description: string;
+  private _labels: string[];
+  private _assetsToWithdraw: warp_controller.AssetInfo[] | undefined;
   private _msgs: warp_controller.CosmosMsgFor_Empty[] = [];
   private _vars: warp_controller.Variable[] = [];
   private _condition: warp_controller.Condition | undefined;
@@ -69,6 +72,21 @@ export class CreateJobMsgComposer {
     return this;
   }
 
+  description(description: string): CreateJobMsgComposer {
+    this._description = description;
+    return this;
+  }
+
+  labels(labels: string[]): CreateJobMsgComposer {
+    this._labels = labels;
+    return this;
+  }
+
+  assetsToWithdraw(assetsToWithdraw: warp_controller.AssetInfo[]): CreateJobMsgComposer {
+    this._assetsToWithdraw = assetsToWithdraw;
+    return this;
+  }
+
   msg(msg: warp_controller.CosmosMsgFor_Empty): CreateJobMsgComposer {
     this._msgs.push(msg);
     return this;
@@ -85,11 +103,18 @@ export class CreateJobMsgComposer {
   }
 
   compose(): warp_controller.CreateJobMsg {
-    if (!this._name || !this._recurring || !this._requeue_on_evict || !this._reward) {
+    if (
+      this._name === undefined ||
+      this._recurring === undefined ||
+      this._requeue_on_evict === undefined ||
+      this._reward === undefined ||
+      this._description === undefined ||
+      this._labels === undefined
+    ) {
       throw new Error('All required fields must be provided');
     }
 
-    if (!this._condition) {
+    if (this._condition === undefined) {
       throw new Error('Condition must be provided');
     }
 
@@ -98,9 +123,12 @@ export class CreateJobMsgComposer {
       recurring: this._recurring,
       requeue_on_evict: this._requeue_on_evict,
       reward: this._reward,
+      description: this._description,
+      labels: this._labels,
       condition: this._condition,
       msgs: this._msgs.map((m) => JSON.stringify(m)),
       vars: this._vars,
+      assets_to_withdraw: this._assetsToWithdraw,
     };
 
     return createJobMsg;
