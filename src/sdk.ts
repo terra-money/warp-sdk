@@ -290,15 +290,29 @@ export class WarpSdk {
   }
 
   public async createAccount(sender: string, funds?: warp_controller.Fund[]): Promise<TxInfo> {
-    const txPayload = TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { create_account: {} }>>(sender, this.controllerContract, {
+    const txPayload = TxBuilder.new().execute<Extract<warp_controller.ExecuteMsg, { create_account: {} }>>(
+      sender,
+      this.controllerContract,
+      {
         create_account: {
           funds,
         },
-      })
-      .build();
-
-    return this.wallet.tx(txPayload);
+      }
+    );
+    funds
+      .filter((fund) => Object.keys(fund).includes('cw20'))
+      .forEach((fund) => {
+        txPayload.execute(sender, fund['cw20'].contract_addr, {
+          increase_allowance: {
+            spender: this.controllerContract,
+            amount: fund['cw20'].amount,
+            expires: {
+              never: {},
+            },
+          },
+        });
+      });
+    return this.wallet.tx(txPayload.build());
   }
 
   public async withdrawAssets(sender: string, msg: warp_account.WithdrawAssetsMsg): Promise<TxInfo> {
