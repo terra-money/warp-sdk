@@ -1,9 +1,8 @@
-import { warp_controller } from '../types';
+import { warp_controller, warp_resolver } from '../types';
 
 export class SubmitTemplateMsgComposer {
   private _condition: warp_controller.Condition | undefined;
   private _formattedStr: string = '';
-  private _kind: warp_controller.TemplateKind;
   private _msgs: warp_controller.CosmosMsgFor_Empty[] = [];
   private _name: string = '';
   private _vars: warp_controller.Variable[] = [];
@@ -22,11 +21,6 @@ export class SubmitTemplateMsgComposer {
     return this;
   }
 
-  kind(kind: warp_controller.TemplateKind): SubmitTemplateMsgComposer {
-    this._kind = kind;
-    return this;
-  }
-
   name(name: string): SubmitTemplateMsgComposer {
     this._name = name;
     return this;
@@ -42,18 +36,14 @@ export class SubmitTemplateMsgComposer {
     return this;
   }
 
-  compose(): warp_controller.SubmitTemplateMsg {
-    if (this._kind === undefined) {
-      throw new Error('Kind must be provided');
-    }
+  compose(): warp_resolver.SubmitTemplateMsg {
     if (this._name === undefined) {
       throw new Error('Name must be provided');
     }
 
-    const submitTemplateMsg: warp_controller.SubmitTemplateMsg = {
+    const submitTemplateMsg: warp_resolver.SubmitTemplateMsg = {
       condition: this._condition,
       formatted_str: this._formattedStr,
-      kind: this._kind,
       msg: JSON.stringify(this._msgs),
       name: this._name,
       vars: this._vars,
