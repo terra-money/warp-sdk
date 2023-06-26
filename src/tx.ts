@@ -5,7 +5,9 @@ import {
   MsgSend,
   MsgSubmitProposal,
   MsgVote,
-} from '@terra-money/terra.js';
+  LCDClientConfig,
+  CreateTxOptions,
+} from '@terra-money/feather.js';
 
 type Msg = MsgExecuteContract | MsgSubmitProposal | MsgVote | MsgSend;
 
@@ -25,9 +27,14 @@ export enum VoteOption {
 
 export class TxBuilder {
   private msgs: Msg[] = [];
+  private chainConfig: LCDClientConfig;
 
-  static new() {
-    return new TxBuilder();
+  static new(chainConfig: LCDClientConfig) {
+    return new TxBuilder(chainConfig);
+  }
+
+  constructor(chainConfig: LCDClientConfig) {
+    this.chainConfig = chainConfig;
   }
 
   execute<T extends {}>(sender: string, contract: string, msg: T, coins?: Coins.Input) {
@@ -103,8 +110,8 @@ export class TxBuilder {
     return this;
   }
 
-  build() {
-    return { msgs: this.msgs };
+  build(): CreateTxOptions {
+    return { msgs: this.msgs, chainID: this.chainConfig.chainID };
   }
 }
 

@@ -688,22 +688,13 @@
   dependencies:
     "@sinonjs/commons" "^2.0.0"
 
-"@terra-money/legacy.proto@npm:@terra-money/terra.proto@^0.1.7":
-  version "0.1.7"
-  resolved "https://registry.npmjs.org/@terra-money/terra.proto/-/terra.proto-0.1.7.tgz"
-  integrity sha512-NXD7f6pQCulvo6+mv6MAPzhOkUzRjgYVuHZE/apih+lVnPG5hDBU0rRYnOGGofwvKT5/jQoOENnFn/gioWWnyQ==
-  dependencies:
-    google-protobuf "^3.17.3"
-    long "^4.0.0"
-    protobufjs "~6.11.2"
-
-"@terra-money/terra.js@^3.1.6":
-  version "3.1.7"
-  resolved "https://registry.npmjs.org/@terra-money/terra.js/-/terra.js-3.1.7.tgz"
-  integrity sha512-z7NwVI1gh0846pgQJaPHya6SRKLd/dHWR5UwWG6T2Pf24I2EjCo8YY5Fay30pCvHTYA2NBFgnWfXEZ/31TfB1Q==
+"@terra-money/feather.js@^1.0.6":
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/@terra-money/feather.js/-/feather.js-1.0.6.tgz#9870265577f841bbbe278a1ce97d85aad39425b3"
+  integrity sha512-X1jldkXOAgtuFJZNQM7YXfMgGt/Cdy4qMB86v1YprjjqxAe468gVyzYDfrMk9O3QK3DkyZw0iO4m3+a1vmcZlw==
   dependencies:
     "@terra-money/legacy.proto" "npm:@terra-money/terra.proto@^0.1.7"
-    "@terra-money/terra.proto" "^2.1.0"
+    "@terra-money/terra.proto" "3.0.5"
     axios "^0.27.2"
     bech32 "^2.0.0"
     bip32 "^2.0.6"
@@ -717,10 +708,19 @@
     utf-8-validate "^5.0.5"
     ws "^7.5.9"
 
-"@terra-money/terra.proto@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.npmjs.org/@terra-money/terra.proto/-/terra.proto-2.1.0.tgz"
-  integrity sha512-rhaMslv3Rkr+QsTQEZs64FKA4QlfO0DfQHaR6yct/EovenMkibDEQ63dEL6yJA6LCaEQGYhyVB9JO9pTUA8ybw==
+"@terra-money/legacy.proto@npm:@terra-money/terra.proto@^0.1.7":
+  version "0.1.7"
+  resolved "https://registry.npmjs.org/@terra-money/terra.proto/-/terra.proto-0.1.7.tgz"
+  integrity sha512-NXD7f6pQCulvo6+mv6MAPzhOkUzRjgYVuHZE/apih+lVnPG5hDBU0rRYnOGGofwvKT5/jQoOENnFn/gioWWnyQ==
+  dependencies:
+    google-protobuf "^3.17.3"
+    long "^4.0.0"
+    protobufjs "~6.11.2"
+
+"@terra-money/terra.proto@3.0.5":
+  version "3.0.5"
+  resolved "https://registry.yarnpkg.com/@terra-money/terra.proto/-/terra.proto-3.0.5.tgz#96f17410a044459412491959b615c52faa2eb338"
+  integrity sha512-8tvT41qte2mpiNoHq2dMmV7soMxwf4ckuJ+F2pMrb7iVcqaBo30/dIfyTdFm5mEH5i5P6cTJggm+UlIZBSPhwQ==
   dependencies:
     "@improbable-eng/grpc-web" "^0.14.1"
     google-protobuf "^3.17.3"

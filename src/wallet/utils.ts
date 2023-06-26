@@ -1,4 +1,4 @@
-import { CreateTxOptions, TxInfo } from '@terra-money/terra.js';
+import { CreateTxOptions, TxInfo } from '@terra-money/feather.js';
 
 export class TerraTxError extends Error {
   txInfo: TxInfo;

@@ -12,16 +12,23 @@ import {
   MsgExecuteContract,
   WaitTxBroadcastResult,
   Wallet,
-} from '@terra-money/terra.js';
+} from '@terra-money/feather.js';
 import { WarpSdk } from './sdk';
 import { warp_controller } from './types/contracts';
 
 dotenv.config();
 
 const lcd = new LCDClient({
-  URL: env.LCD_ENDPOINT,
-  chainID: env.CHAIN_ID,
+  [env.CHAIN_ID]: {
+    lcd: env.LCD_ENDPOINT,
+    chainID: env.CHAIN_ID,
+    gasAdjustment: 1.75,
+    gasPrices: { uluna: 0.15 },
+    prefix: 'terra',
+  },
 });
+
+const lcdClientConfig = lcd.config[env.CHAIN_ID];
 
 const wallet = new Wallet(lcd, new MnemonicKey({ mnemonic: env.MNEMONIC_KEY }));
 
@@ -40,12 +47,13 @@ export const tryExecute = async (
 ): Promise<WaitTxBroadcastResult | string> => {
   const txOptions: CreateTxOptions = {
     msgs: msgs,
+    chainID: lcdClientConfig.chainID,
   };
 
   try {
     const tx = await wallet.createAndSignTx(txOptions);
 
-    return await wallet.lcd.tx.broadcast(tx);
+    return await wallet.lcd.tx.broadcast(tx, lcdClientConfig.chainID);
   } catch (error) {
     console.log({ error });
 
@@ -61,6 +69,7 @@ function executeMsg<T extends {}>(sender: string, contract: string, msg: T, coin
 }
 
 const executeJobMsgs = (jobs: warp_controller.Job[]) => {
+  console.log({ walletAddress: wallet.key.accAddress(lcdClientConfig.prefix) });
   return jobs.map((job) =>
     executeMsg<Extract<warp_controller.ExecuteMsg, { execute_job }>>(wallet.key.accAddress, options.controllerAddress, {
       execute_job: { id: job.id },

@@ -1,12 +1,15 @@
-import { CreateTxOptions, LCDClient, TxInfo } from '@terra-money/terra.js';
+import { CreateTxOptions, LCDClient, TxInfo } from '@terra-money/feather.js';
 import { TerraEventHandler, TerraEventKind } from '../events';
 import { TerraTxError } from './utils';
+import { LCDClientConfig } from '@terra-money/feather.js';
 
 export abstract class Wallet {
   public lcd: LCDClient;
+  public chainConfig: LCDClientConfig;
 
-  constructor(lcd: LCDClient) {
+  constructor(lcd: LCDClient, chainConfig: LCDClientConfig) {
     this.lcd = lcd;
+    this.chainConfig = chainConfig;
   }
 
   public abstract submitTx(txOpts: CreateTxOptions, handleEvent: TerraEventHandler): Promise<string>;
@@ -14,7 +17,7 @@ export abstract class Wallet {
   public async finalizeTx(txHash: string): Promise<TxInfo> {
     while (true) {
       try {
-        const txInfo = await this.lcd.tx.txInfo(txHash);
+        const txInfo = await this.lcd.tx.txInfo(txHash, this.chainConfig.chainID);
 
         if (txInfo.code !== 0) {
           throw new TerraTxError(txInfo);

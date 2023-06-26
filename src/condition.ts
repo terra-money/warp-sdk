@@ -66,7 +66,7 @@ export class Condition {
   };
 
   public resolveExprTimestamp = async (expr: warp_controller.TimeExpr): Promise<boolean> => {
-    const blockInfo = await this.wallet.lcd.tendermint.blockInfo();
+    const blockInfo = await this.wallet.lcd.tendermint.blockInfo(this.wallet.chainConfig.chainID);
 
     return this.resolveNumOp(
       Big(Math.floor(new Date(blockInfo.block.header.time).getTime() / 1000)),
@@ -76,7 +76,7 @@ export class Condition {
   };
 
   public resolveExprBlockheight = async (expr: warp_controller.BlockExpr): Promise<boolean> => {
-    const blockInfo = await this.wallet.lcd.tendermint.blockInfo();
+    const blockInfo = await this.wallet.lcd.tendermint.blockInfo(this.wallet.chainConfig.chainID);
 
     return this.resolveNumOp(Big(blockInfo.block.header.height), Big(expr.comparator), expr.op);
   };
@@ -141,7 +141,7 @@ export class Condition {
     }
 
     if ('env' in value) {
-      const blockInfo = await this.wallet.lcd.tendermint.blockInfo();
+      const blockInfo = await this.wallet.lcd.tendermint.blockInfo(this.wallet.chainConfig.chainID);
 
       if (value.env === 'block_height') {
         return Big(blockInfo.block.header.height);

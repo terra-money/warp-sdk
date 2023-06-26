@@ -1,4 +1,6 @@
 import contracts from '../refs.json';
+import { LCDClient } from '@terra-money/feather.js';
+import { env } from 'process';
 
 type NetworkName = 'mainnet' | 'testnet' | 'localterra';
 
@@ -37,7 +39,9 @@ export const getNetworkName = (chainId: string): NetworkName => {
   return 'localterra';
 };
 
-import { LCDClient } from '@terra-money/terra.js';
+export const mainChainId = (lcd: LCDClient): string => {
+  return lcd.config[env.CHAIN_ID].chainID;
+};
 
 export const contractQuery = async <QueryMsg extends {}, QueryResponse>(
   lcd: LCDClient,
