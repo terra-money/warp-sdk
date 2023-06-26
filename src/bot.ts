@@ -35,11 +35,11 @@ const wallet = new Wallet(lcd, new MnemonicKey({ mnemonic: env.MNEMONIC_KEY }));
 const options = {
   lcd,
   wallet,
-  controllerAddress: getContractAddress(getNetworkName(lcd.config.chainID), 'warp-controller'),
-  resolverAddress: getContractAddress(getNetworkName(lcd.config.chainID), 'warp-resolver'),
+  controllerAddress: getContractAddress(getNetworkName(lcd.config[env.CHAIN_ID].chainID), 'warp-controller'),
+  resolverAddress: getContractAddress(getNetworkName(lcd.config[env.CHAIN_ID].chainID), 'warp-resolver'),
 };
 
-const sdk = new WarpSdk(wallet, options.controllerAddress, options.resolverAddress);
+const sdk = new WarpSdk(wallet, lcd.config[env.CHAIN_ID], options.controllerAddress, options.resolverAddress);
 
 export const tryExecute = async (
   wallet: Wallet,
@@ -69,11 +69,14 @@ function executeMsg<T extends {}>(sender: string, contract: string, msg: T, coin
 }
 
 const executeJobMsgs = (jobs: warp_controller.Job[]) => {
-  console.log({ walletAddress: wallet.key.accAddress(lcdClientConfig.prefix) });
   return jobs.map((job) =>
-    executeMsg<Extract<warp_controller.ExecuteMsg, { execute_job }>>(wallet.key.accAddress, options.controllerAddress, {
-      execute_job: { id: job.id },
-    })
+    executeMsg<Extract<warp_controller.ExecuteMsg, { execute_job }>>(
+      wallet.key.accAddress(lcdClientConfig.prefix),
+      options.controllerAddress,
+      {
+        execute_job: { id: job.id },
+      }
+    )
   );
 };
 

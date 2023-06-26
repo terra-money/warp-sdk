@@ -20,9 +20,9 @@ export class WarpSdk {
 
   constructor(
     walletLike: WalletLike,
+    chainConfig: LCDClientConfig,
     controllerContract: string,
-    resolverContract: string,
-    chainConfig: LCDClientConfig
+    resolverContract: string
   ) {
     this.wallet = wallet(walletLike, chainConfig);
     this.controllerContract = controllerContract;
