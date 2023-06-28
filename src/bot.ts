@@ -22,9 +22,9 @@ const lcd = new LCDClient({
   [env.CHAIN_ID]: {
     lcd: env.LCD_ENDPOINT,
     chainID: env.CHAIN_ID,
-    gasAdjustment: 1.75,
-    gasPrices: { uluna: 0.15 },
-    prefix: 'terra',
+    gasAdjustment: parseFloat(env.GAS_ADJUSTMENT),
+    gasPrices: { [env.GAS_PRICE_DENOM]: parseFloat(env.GAS_PRICE) },
+    prefix: env.PREFIX,
   },
 });
 

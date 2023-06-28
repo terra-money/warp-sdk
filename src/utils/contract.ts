@@ -1,6 +1,9 @@
-import contracts from '../refs.json';
 import { LCDClient } from '@terra-money/feather.js';
 import { env } from 'process';
+import path from 'path';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 type NetworkName = 'mainnet' | 'testnet' | 'localterra';
 
@@ -14,6 +17,8 @@ export interface ContractAddresses {
   'warp-account': ContractDefinition;
   'warp-resolver': ContractDefinition;
 }
+
+const contracts = require(path.resolve(__dirname, `../src/refs.${env.CHAIN_NAME.toLowerCase()}.json`));
 
 export const CONTRACT_ADDRESSES = contracts as unknown as Record<Partial<NetworkName>, Partial<ContractAddresses>>;
 
@@ -29,6 +34,7 @@ export const getContractAddress = (network: string, contract: keyof ContractAddr
   return undefined;
 };
 
+// TODO: add mainnet and testnet for neutron
 export const getNetworkName = (chainId: string): NetworkName => {
   if (chainId.toLocaleLowerCase().startsWith('phoenix-')) {
     return 'mainnet';
