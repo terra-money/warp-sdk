@@ -31,6 +31,7 @@ export const getContractAddress = (network: string, contract: keyof ContractAddr
       return definition.address;
     }
   }
+
   return undefined;
 };
 

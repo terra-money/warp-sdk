@@ -688,10 +688,10 @@
   dependencies:
     "@sinonjs/commons" "^2.0.0"
 
-"@terra-money/feather.js@^1.0.6":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@terra-money/feather.js/-/feather.js-1.0.6.tgz#9870265577f841bbbe278a1ce97d85aad39425b3"
-  integrity sha512-X1jldkXOAgtuFJZNQM7YXfMgGt/Cdy4qMB86v1YprjjqxAe468gVyzYDfrMk9O3QK3DkyZw0iO4m3+a1vmcZlw==
+"@terra-money/feather.js@^1.0.7-beta.4":
+  version "1.0.7-beta.4"
+  resolved "https://registry.yarnpkg.com/@terra-money/feather.js/-/feather.js-1.0.7-beta.4.tgz#ed5bb26ae7b7ccf80c3802f716f4e2d99e7c5ff3"
+  integrity sha512-V0zc2he5L2WaV57JZ3jQAgcnKEGGe0qU1Vf2wvP2+68wpM4LkH6kPc9uarmMg/9hoDaNoDAQiFNw5MoBxLxTgg==
   dependencies:
     "@terra-money/legacy.proto" "npm:@terra-money/terra.proto@^0.1.7"
     "@terra-money/terra.proto" "3.0.5"
