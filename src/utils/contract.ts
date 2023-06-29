@@ -1,9 +1,6 @@
 import { LCDClient } from '@terra-money/feather.js';
 import { env } from 'process';
 import path from 'path';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 type NetworkName = 'mainnet' | 'testnet' | 'localterra';
 
@@ -18,15 +15,30 @@ export interface ContractAddresses {
   'warp-resolver': ContractDefinition;
 }
 
-const contracts = require(path.resolve(__dirname, `../src/refs.${env.CHAIN_NAME.toLowerCase()}.json`));
+type Chain = 'terra' | 'neutron';
 
-export const CONTRACT_ADDRESSES = contracts as unknown as Record<Partial<NetworkName>, Partial<ContractAddresses>>;
+const SUPPORTED_CHAINS: Chain[] = ['terra', 'neutron'];
 
-export const getContractAddress = (network: string, contract: keyof ContractAddresses): string | undefined => {
+const getChainFromChainId = (chainId: string): Chain => {
+  switch (chainId) {
+    case 'pisco-1':
+    case 'phoenix-1':
+    case 'localterra':
+      return 'terra';
+  }
+};
+
+const supportedChainsRefs = SUPPORTED_CHAINS.map((c) => ({
+  [c]: require(path.resolve(__dirname, `../src/refs.${c.toLowerCase()}.json`)),
+}));
+
+export const getContractAddress = (chainId: string, contract: keyof ContractAddresses): string | undefined => {
+  const network = getNetworkName(chainId);
+  const chain = getChainFromChainId(chainId);
   const networkName = network as NetworkName;
 
-  if (CONTRACT_ADDRESSES[networkName]) {
-    const definition = CONTRACT_ADDRESSES[networkName][contract];
+  if (supportedChainsRefs[chain][networkName]) {
+    const definition = supportedChainsRefs[chain][networkName][contract];
     if (definition !== undefined) {
       return definition.address;
     }

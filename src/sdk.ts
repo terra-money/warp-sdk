@@ -1,15 +1,7 @@
 import { warp_account, warp_controller, warp_resolver } from './types/contracts';
 import { WalletLike, Wallet, wallet } from './wallet';
 import { Condition } from './condition';
-import {
-  base64encode,
-  contractQuery,
-  getContractAddress,
-  getNetworkName,
-  nativeTokenDenom,
-  Token,
-  TransferMsg,
-} from './utils';
+import { base64encode, contractQuery, getContractAddress, nativeTokenDenom, Token, TransferMsg } from './utils';
 import { CreateTxOptions, Fee, TxInfo, LCDClientConfig } from '@terra-money/feather.js';
 import { TxBuilder } from './tx';
 import Big from 'big.js';
@@ -29,8 +21,8 @@ export class WarpSdk {
   constructor(walletLike: WalletLike, chainConfig: LCDClientConfig) {
     this.wallet = wallet(walletLike, chainConfig);
     this.chainConfig = chainConfig;
-    (this.controllerContract = getContractAddress(getNetworkName(this.chainConfig.chainID), 'warp-controller')),
-      (this.resolverContract = getContractAddress(getNetworkName(this.chainConfig.chainID), 'warp-resolver')),
+    (this.controllerContract = getContractAddress(this.chainConfig.chainID, 'warp-controller')),
+      (this.resolverContract = getContractAddress(this.chainConfig.chainID, 'warp-resolver')),
       (this.condition = new Condition(this.wallet, this.controllerContract));
     this.tx = new TxModule(this);
   }

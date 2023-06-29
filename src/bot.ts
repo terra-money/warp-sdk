@@ -3,7 +3,6 @@ export { TerraTxError } from './wallet/utils';
 import axios from 'axios';
 import dotenv from 'dotenv';
 import { env } from 'process';
-import { getContractAddress, getNetworkName } from './utils';
 import {
   Coins,
   CreateTxOptions,
