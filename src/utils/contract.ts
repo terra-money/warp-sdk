@@ -25,12 +25,18 @@ const getChainFromChainId = (chainId: string): Chain => {
     case 'phoenix-1':
     case 'localterra':
       return 'terra';
+    default:
+      return 'terra';
   }
 };
 
-const supportedChainsRefs = SUPPORTED_CHAINS.map((c) => ({
-  [c]: require(path.resolve(__dirname, `../src/refs.${c.toLowerCase()}.json`)),
-}));
+const supportedChainsRefs = SUPPORTED_CHAINS.reduce(
+  (acc, c) => ({
+    ...acc,
+    [c]: require(path.resolve(__dirname, `../src/refs.${c.toLowerCase()}.json`)),
+  }),
+  {}
+);
 
 export const getContractAddress = (chainId: string, contract: keyof ContractAddresses): string | undefined => {
   const network = getNetworkName(chainId);
