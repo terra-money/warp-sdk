@@ -9,7 +9,6 @@ export type ConnectedWalletInput = {
 
 export type ConnectedWalletPayload = {
   post: (tx: CreateTxOptions) => Promise<TxResult>;
-  availablePost: boolean;
 };
 
 export class ConnectedWallet extends Wallet {
@@ -21,7 +20,7 @@ export class ConnectedWallet extends Wallet {
   }
 
   public async submitTx(txOpts: CreateTxOptions): Promise<string> {
-    if (!this.wallet || !this.wallet.availablePost) {
+    if (!this.wallet) {
       throw new Error('Wallet not connected.');
     }
 
