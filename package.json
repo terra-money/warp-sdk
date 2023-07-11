@@ -6,6 +6,7 @@
   },
   "description": "Sdk for interacting with Warp protocol on Terra.",
   "main": "dist/index.js",
+  "browser": "dist/index.browser.js",
   "publishConfig": {
     "access": "public"
   },
@@ -17,7 +18,9 @@
   "version": "0.1.30",
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "yarn clean && node build.js && tsc",
+    "build": "yarn clean && yarn build:node && yarn build:browser",
+    "build:node": "node build.js && tsc",
+    "build:browser": "BUILD_TARGET=browser node build.js",
     "start": "esbuild src/bot.ts --bundle --platform=node --outdir=dist --outbase=src --external:jsonpath && node ./dist/bot.js",
     "format": "prettier --write \"src/**/*.{js,ts,tsx}\"",
     "generate-types": "node --experimental-specifier-resolution=node --loader ts-node/esm ./scripts/generate-types.js warp-protocol",

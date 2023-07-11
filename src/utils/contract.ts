@@ -1,6 +1,7 @@
 import { LCDClient } from '@terra-money/feather.js';
 import { env } from 'process';
-import path from 'path';
+import refsTerra from '../../src/refs.terra.json';
+import refsNeutron from '../../src/refs.neutron.json';
 
 type NetworkName = 'mainnet' | 'testnet' | 'localterra';
 
@@ -30,13 +31,10 @@ const getChainFromChainId = (chainId: string): Chain => {
   }
 };
 
-const supportedChainsRefs = SUPPORTED_CHAINS.reduce(
-  (acc, c) => ({
-    ...acc,
-    [c]: require(path.resolve(__dirname, `../src/refs.${c.toLowerCase()}.json`)),
-  }),
-  {}
-);
+const supportedChainsRefs = {
+  terra: refsTerra,
+  neutron: refsNeutron,
+};
 
 export const getContractAddress = (chainId: string, contract: keyof ContractAddresses): string | undefined => {
   const network = getNetworkName(chainId);
