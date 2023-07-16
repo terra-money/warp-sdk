@@ -5,14 +5,15 @@ import { contractQuery } from './utils';
 import { Big } from 'big.js';
 import { Wallet } from './wallet';
 import { extractVariableName, resolveExternalVariable, variableName } from './variables';
+import { ContractAddresses } from 'modules/chain';
 
 export class Condition {
   public wallet: Wallet;
-  public contractAddress: string;
+  public contracts: ContractAddresses;
 
-  constructor(wallet: Wallet, contractAddress: string) {
+  constructor(wallet: Wallet, contracts: ContractAddresses) {
     this.wallet = wallet;
-    this.contractAddress = contractAddress;
+    this.contracts = contracts;
   }
 
   public resolveCond = async (cond: warp_controller.Condition, vars: warp_controller.Variable[]): Promise<boolean> => {
@@ -234,7 +235,7 @@ export class Condition {
     const resp = await contractQuery<
       Extract<warp_controller.QueryMsg, { simulate_query: {} }>,
       warp_controller.SimulateResponse
-    >(this.wallet.lcd, this.contractAddress, { simulate_query: { query: query.init_fn.query } });
+    >(this.wallet.lcd, this.contracts.controller, { simulate_query: { query: query.init_fn.query } });
     const extracted = jsonpath.query(JSON.parse(resp.response), query.init_fn.selector);
 
     if (extracted[0] == null) {

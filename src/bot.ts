@@ -64,7 +64,7 @@ const executeJobMsgs = (jobs: warp_controller.Job[]) => {
   return jobs.map((job) =>
     executeMsg<Extract<warp_controller.ExecuteMsg, { execute_job }>>(
       wallet.key.accAddress(lcdClientConfig.prefix),
-      sdk.controllerContract,
+      sdk.chain.contracts.controller,
       {
         execute_job: { id: job.id },
       }
