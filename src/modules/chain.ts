@@ -50,9 +50,9 @@ export interface ContractAddresses {
 }
 
 export class ChainModule {
-  config: LCDClientConfig;
-  metadata: ChainMetadata;
-  contracts: ContractAddresses;
+  public config: LCDClientConfig;
+  public metadata: ChainMetadata;
+  public contracts: ContractAddresses;
 
   constructor(config: LCDClientConfig) {
     this.config = config;
@@ -66,7 +66,7 @@ export class ChainModule {
     };
   }
 
-  chainMetadata(chainName: ChainName): ChainMetadata {
+  public chainMetadata(chainName: ChainName): ChainMetadata {
     const found = SUPPORTED_CHAINS.find((chain) => chain.name === chainName);
 
     if (!found) {
@@ -76,11 +76,11 @@ export class ChainModule {
     return found;
   }
 
-  supportedChains(): ChainMetadata[] {
+  public supportedChains(): ChainMetadata[] {
     return SUPPORTED_CHAINS;
   }
 
-  chainMetadataFromChainId(chainId: string): ChainMetadata {
+  public chainMetadataFromChainId(chainId: string): ChainMetadata {
     for (let chain of SUPPORTED_CHAINS) {
       if (chain.testnet === chainId || chain.mainnet === chainId) {
         return chain;
@@ -90,18 +90,18 @@ export class ChainModule {
     throw new Error(`Unsupported Chain ID: ${chainId}`);
   }
 
-  networkNameFromChainId(chainId: string): NetworkName {
+  public networkNameFromChainId(chainId: string): NetworkName {
     const chainMetadata = this.chainMetadataFromChainId(chainId);
     return chainMetadata.testnet === chainId ? 'testnet' : 'mainnet';
   }
 
-  contractsFromChainId(chainId: string = this.config.chainID): NetworkConfig {
+  public contractsFromChainId(chainId: string = this.config.chainID): NetworkConfig {
     const chainMetadata = this.chainMetadataFromChainId(chainId);
     const network = this.networkNameFromChainId(chainId);
     return chainMetadata.refs[network];
   }
 
-  contractAddress(contract: keyof ContractAddresses, chainId: string = this.config.chainID): string {
+  public contractAddress(contract: keyof ContractAddresses, chainId: string = this.config.chainID): string {
     const contractDefs = this.contractsFromChainId(chainId);
 
     switch (contract) {
