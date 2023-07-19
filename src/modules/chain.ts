@@ -37,12 +37,12 @@ export const TERRA_CHAIN: ChainMetadata = {
 
 export const INJECTIVE_CHAIN: ChainMetadata = {
   name: 'injective',
-  testnet: 'injective-testnet',
-  mainnet: 'injective-mainnet',
+  testnet: 'injective-888',
+  mainnet: 'injective-1',
   refs: refsInjective,
 };
 
-const SUPPORTED_CHAINS: ChainMetadata[] = [TERRA_CHAIN, INJECTIVE_CHAIN];
+export const SUPPORTED_CHAINS: ChainMetadata[] = [TERRA_CHAIN, INJECTIVE_CHAIN];
 
 export interface ContractAddresses {
   controller: string;
