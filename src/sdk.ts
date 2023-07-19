@@ -7,9 +7,8 @@ import { TxBuilder } from './tx';
 import Big from 'big.js';
 import { JobSequenceMsgComposer } from './composers';
 import { resolveExternalInputs } from './variables';
-import { TxModule } from './modules';
+import { TxModule, ChainModule } from './modules';
 import { cosmosMsgToCreateTxMsg } from './utils';
-import { ChainModule } from 'modules/chain';
 
 export class WarpSdk {
   public wallet: Wallet;
