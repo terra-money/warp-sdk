@@ -2,11 +2,11 @@
   "testnet": {
     "warp-controller": {
       "codeId": "9264",
-      "address": "terra1fqcfh8vpqsl7l5yjjtq5wwu6sv989txncq5fa756tv7lywqexraq5vnjvt"
+      "address": "inj1kqx3aqep5udv3ftgr0yrqt8rlm0n64mqrlspkk"
     },
     "warp-resolver": {
       "codeId": "9263",
-      "address": "terra1lxfx6n792aw3hg47tchmyuhv5t30f334gus67pc250qx5zljadws65elnf"
+      "address": "inj1z8wsnjqy5psq7sxx4zpy4t49nq0r8l2w08uxzu"
     }
   },
   "mainnet": {
