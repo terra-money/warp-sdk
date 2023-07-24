@@ -124,6 +124,10 @@ export class WarpSdk {
     }
   }
 
+  public async nativeTokenDenom(): Promise<string> {
+    return nativeTokenDenom(this.wallet.lcd, this.chain.config.chainID);
+  }
+
   public async isJobProfitable(sender: string, job: warp_controller.Job): Promise<boolean> {
     const fee = await this.estimateFee(sender, job);
     const adjustmentFactor = 1.2;
