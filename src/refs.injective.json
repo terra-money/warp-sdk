@@ -12,11 +12,11 @@
   "mainnet": {
     "warp-controller": {
       "codeId": "1617",
-      "address": "terra1mg93d4g69tsf3x6sa9nkmkzc9wl38gdrygu0sewwcwj6l2a4089sdd7fgj"
+      "address": "inj1kqx3aqep5udv3ftgr0yrqt8rlm0n64mqrlspkk"
     },
     "warp-resolver": {
       "codeId": "1616",
-      "address": "terra13taf05fedehdfsguu0v24ssmrs9xfzn6wewwkxxlsdy2qmudhwfsvvgdm5"
+      "address": "inj1z8wsnjqy5psq7sxx4zpy4t49nq0r8l2w08uxzu"
     }
   }
 }

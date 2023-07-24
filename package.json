@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "@terra-money/feather.js": "^1.0.7-beta.4",
+    "@terra-money/feather.js-injective": "npm:@terra-money/feather.js@1.0.9-injective.0",
     "@types/jsonpath": "^0.2.0",
     "@types/node": "^16.11.56",
     "axios": "^1.1.2",
