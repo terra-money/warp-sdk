@@ -11,27 +11,46 @@ import {
   MsgExecuteContract,
   WaitTxBroadcastResult,
   Wallet,
-} from '@terra-money/feather.js';
+  LCDClientConfig,
+} from '@terra-money/feather.js-injective';
 import { WarpSdk } from './sdk';
 import { warp_controller } from './types/contracts';
 
 dotenv.config();
 
-const lcd = new LCDClient({
-  [env.CHAIN_ID]: {
-    lcd: env.LCD_ENDPOINT,
-    chainID: env.CHAIN_ID,
-    gasAdjustment: parseFloat(env.GAS_ADJUSTMENT),
-    gasPrices: { [env.GAS_PRICE_DENOM]: parseFloat(env.GAS_PRICE) },
-    prefix: env.PREFIX,
+const mainnetConfig: Record<string, LCDClientConfig> = {
+  'injective-1': {
+    chainID: 'injective-1',
+    lcd: 'https://lcd.injective.network',
+    gasAdjustment: 1.75,
+    gasPrices: {
+      INJ: 0.05,
+    },
+    prefix: 'inj',
   },
-});
+};
 
-const lcdClientConfig = lcd.config[env.CHAIN_ID];
+const testnetConfig: Record<string, LCDClientConfig> = {
+  'injective-888': {
+    chainID: 'injective-888',
+    lcd: 'https://k8s.testnet.lcd.injective.network',
+    gasAdjustment: 1.75,
+    gasPrices: {
+      INJ: 0.05,
+    },
+    prefix: 'inj',
+  },
+};
+
+const lcd = new LCDClient(env.NETWORK === 'mainnet' ? mainnetConfig : testnetConfig);
+
+const chainId = env.NETWORK === 'mainnet' ? 'injective-1' : 'injective-888';
+
+const lcdClientConfig = lcd.config[chainId];
 
 const wallet = new Wallet(lcd, new MnemonicKey({ mnemonic: env.MNEMONIC_KEY }));
 
-const sdk = new WarpSdk(wallet, lcd.config[env.CHAIN_ID]);
+const sdk = new WarpSdk(wallet as any, lcd.config[chainId] as any);
 
 export const tryExecute = async (
   wallet: Wallet,
