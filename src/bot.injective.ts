@@ -24,7 +24,7 @@ const mainnetConfig: Record<string, LCDClientConfig> = {
     lcd: 'https://lcd.injective.network',
     gasAdjustment: 1.75,
     gasPrices: {
-      INJ: 0.05,
+      inj: 1500000000,
     },
     prefix: 'inj',
   },
@@ -36,7 +36,7 @@ const testnetConfig: Record<string, LCDClientConfig> = {
     lcd: 'https://k8s.testnet.lcd.injective.network',
     gasAdjustment: 1.75,
     gasPrices: {
-      INJ: 0.05,
+      inj: 1500000000,
     },
     prefix: 'inj',
   },
@@ -48,7 +48,8 @@ const chainId = env.NETWORK === 'mainnet' ? 'injective-1' : 'injective-888';
 
 const lcdClientConfig = lcd.config[chainId];
 
-const wallet = new Wallet(lcd, new MnemonicKey({ mnemonic: env.MNEMONIC_KEY }));
+// if you wonder what 60 is, ask Alessandro from TFL
+const wallet = new Wallet(lcd, new MnemonicKey({ mnemonic: env.MNEMONIC_KEY, coinType: 60 }));
 
 const sdk = new WarpSdk(wallet as any, lcd.config[chainId] as any);
 
