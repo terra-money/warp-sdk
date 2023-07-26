@@ -1,6 +1,6 @@
 # warp-sdk
 
-WarpSdk provides a Typescript API for interacting with warp protocol, the automation protocol of the Terra blockchain. The SDK provides a simple way to interact with the warp protocol's contracts, allowing developers to perform operations such as creating and managing jobs, templates, and accounts.
+WarpSdk provides a Typescript API for interacting with warp protocol, the automation protocol for the Cosmos ecosystem. The SDK provides a simple way to interact with the warp protocol's contracts, allowing developers to perform operations such as creating and managing jobs, templates, and accounts.
 
 ## Installation
 
