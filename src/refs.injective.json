@@ -1,0 +1,22 @@
+{
+  "testnet": {
+    "warp-controller": {
+      "codeId": "9264",
+      "address": "inj1kqx3aqep5udv3ftgr0yrqt8rlm0n64mqrlspkk"
+    },
+    "warp-resolver": {
+      "codeId": "9263",
+      "address": "inj1z8wsnjqy5psq7sxx4zpy4t49nq0r8l2w08uxzu"
+    }
+  },
+  "mainnet": {
+    "warp-controller": {
+      "codeId": "71",
+      "address": "inj1l5xlk2eerslrd8va5qu6wd8yzc8yz8hdc579fg"
+    },
+    "warp-resolver": {
+      "codeId": "70",
+      "address": "inj147v6a22ue68uumjxgz3t93g06w8vrlv7mmfuyf"
+    }
+  }
+}

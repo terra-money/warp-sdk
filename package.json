@@ -6,6 +6,7 @@
   },
   "description": "Sdk for interacting with Warp protocol on Terra.",
   "main": "dist/index.js",
+  "browser": "dist/index.browser.js",
   "publishConfig": {
     "access": "public"
   },
@@ -17,8 +18,12 @@
   "version": "0.1.30",
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "yarn clean && node build.js && tsc",
-    "start": "esbuild src/bot.ts --bundle --platform=node --outdir=dist --outbase=src --external:jsonpath && node ./dist/bot.js",
+    "build": "yarn clean && yarn build:node && yarn build:browser",
+    "build:node": "node build.js && tsc",
+    "build:browser": "BUILD_TARGET=browser node build.js",
+    "start": "yarn bot-terra",
+    "bot-terra": "esbuild src/bot.terra.ts --bundle --platform=node --outdir=dist --outbase=src --external:jsonpath && node ./dist/bot.terra.js",
+    "bot-injective": "esbuild src/bot.injective.ts --bundle --platform=node --outdir=dist --outbase=src --external:jsonpath && node ./dist/bot.injective.js",
     "format": "prettier --write \"src/**/*.{js,ts,tsx}\"",
     "generate-types": "node --experimental-specifier-resolution=node --loader ts-node/esm ./scripts/generate-types.js warp-protocol",
     "postinstall": "husky install",
@@ -39,7 +44,8 @@
     "output": "src/types/contracts"
   },
   "dependencies": {
-    "@terra-money/terra.js": "^3.1.6",
+    "@terra-money/feather.js": "^1.0.7-beta.4",
+    "@terra-money/feather.js-injective": "npm:@terra-money/feather.js@1.0.9-injective.0",
     "@types/jsonpath": "^0.2.0",
     "@types/node": "^16.11.56",
     "axios": "^1.1.2",

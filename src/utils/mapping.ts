@@ -14,7 +14,7 @@ import {
   MsgVote,
   Coin,
   Msg,
-} from '@terra-money/terra.js';
+} from '@terra-money/feather.js';
 import { base64decode } from './contract';
 import { VoteOption } from 'tx';
 

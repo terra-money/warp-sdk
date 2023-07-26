@@ -1,3 +1,4 @@
+import { LCDClient } from '@terra-money/feather.js';
 import { BigSource } from 'big.js';
 
 export type TokenBase = {
@@ -12,16 +13,6 @@ export type TokenBase = {
 export type NativeToken = TokenBase & {
   type: 'native';
   denom: string;
-};
-export const LUNA: NativeToken = {
-  key: 'uluna',
-  type: 'native',
-  denom: 'uluna',
-  name: 'LUNA',
-  symbol: 'LUNA',
-  decimals: 6,
-  icon: 'https://assets.terra.money/icon/svg/LUNA.png',
-  coinGeckoId: 'terra-luna-2',
 };
 
 export type NominalType<T extends BigSource> = { __type: T };
@@ -40,3 +31,10 @@ export type IBCToken = TokenBase & {
 };
 
 export type Token = NativeToken | CW20Token | IBCToken;
+
+export const nativeTokenDenom = async (lcd: LCDClient, chainId: string): Promise<string> => {
+  const stakingModuleParams = await lcd.staking.parameters(chainId);
+  const mintModuleParams = await lcd.mint.parameters(chainId);
+
+  return stakingModuleParams.bond_denom || mintModuleParams.mint_denom;
+};

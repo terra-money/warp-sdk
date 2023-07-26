@@ -5,14 +5,15 @@ import { contractQuery } from './utils';
 import { Big } from 'big.js';
 import { Wallet } from './wallet';
 import { extractVariableName, resolveExternalVariable, variableName } from './variables';
+import { ContractAddresses } from 'modules/chain';
 
 export class Condition {
   public wallet: Wallet;
-  public contractAddress: string;
+  public contracts: ContractAddresses;
 
-  constructor(wallet: Wallet, contractAddress: string) {
+  constructor(wallet: Wallet, contracts: ContractAddresses) {
     this.wallet = wallet;
-    this.contractAddress = contractAddress;
+    this.contracts = contracts;
   }
 
   public resolveCond = async (cond: warp_controller.Condition, vars: warp_controller.Variable[]): Promise<boolean> => {
@@ -66,7 +67,7 @@ export class Condition {
   };
 
   public resolveExprTimestamp = async (expr: warp_controller.TimeExpr): Promise<boolean> => {
-    const blockInfo = await this.wallet.lcd.tendermint.blockInfo();
+    const blockInfo = await this.wallet.lcd.tendermint.blockInfo(this.wallet.chainConfig.chainID);
 
     return this.resolveNumOp(
       Big(Math.floor(new Date(blockInfo.block.header.time).getTime() / 1000)),
@@ -76,7 +77,7 @@ export class Condition {
   };
 
   public resolveExprBlockheight = async (expr: warp_controller.BlockExpr): Promise<boolean> => {
-    const blockInfo = await this.wallet.lcd.tendermint.blockInfo();
+    const blockInfo = await this.wallet.lcd.tendermint.blockInfo(this.wallet.chainConfig.chainID);
 
     return this.resolveNumOp(Big(blockInfo.block.header.height), Big(expr.comparator), expr.op);
   };
@@ -141,7 +142,7 @@ export class Condition {
     }
 
     if ('env' in value) {
-      const blockInfo = await this.wallet.lcd.tendermint.blockInfo();
+      const blockInfo = await this.wallet.lcd.tendermint.blockInfo(this.wallet.chainConfig.chainID);
 
       if (value.env === 'block_height') {
         return Big(blockInfo.block.header.height);
@@ -234,7 +235,7 @@ export class Condition {
     const resp = await contractQuery<
       Extract<warp_controller.QueryMsg, { simulate_query: {} }>,
       warp_controller.SimulateResponse
-    >(this.wallet.lcd, this.contractAddress, { simulate_query: { query: query.init_fn.query } });
+    >(this.wallet.lcd, this.contracts.controller, { simulate_query: { query: query.init_fn.query } });
     const extracted = jsonpath.query(JSON.parse(resp.response), query.init_fn.selector);
 
     if (extracted[0] == null) {

@@ -3,7 +3,6 @@ export { TerraTxError } from './wallet/utils';
 import axios from 'axios';
 import dotenv from 'dotenv';
 import { env } from 'process';
-import { getContractAddress, getNetworkName } from './utils';
 import {
   Coins,
   CreateTxOptions,
@@ -12,27 +11,47 @@ import {
   MsgExecuteContract,
   WaitTxBroadcastResult,
   Wallet,
-} from '@terra-money/terra.js';
+  LCDClientConfig,
+} from '@terra-money/feather.js-injective';
 import { WarpSdk } from './sdk';
 import { warp_controller } from './types/contracts';
 
 dotenv.config();
 
-const lcd = new LCDClient({
-  URL: env.LCD_ENDPOINT,
-  chainID: env.CHAIN_ID,
-});
-
-const wallet = new Wallet(lcd, new MnemonicKey({ mnemonic: env.MNEMONIC_KEY }));
-
-const options = {
-  lcd,
-  wallet,
-  controllerAddress: getContractAddress(getNetworkName(lcd.config.chainID), 'warp-controller'),
-  resolverAddress: getContractAddress(getNetworkName(lcd.config.chainID), 'warp-resolver'),
+const mainnetConfig: Record<string, LCDClientConfig> = {
+  'injective-1': {
+    chainID: 'injective-1',
+    lcd: 'https://lcd.injective.network',
+    gasAdjustment: 1.75,
+    gasPrices: {
+      inj: 1500000000,
+    },
+    prefix: 'inj',
+  },
 };
 
-const sdk = new WarpSdk(wallet, options.controllerAddress, options.resolverAddress);
+const testnetConfig: Record<string, LCDClientConfig> = {
+  'injective-888': {
+    chainID: 'injective-888',
+    lcd: 'https://k8s.testnet.lcd.injective.network',
+    gasAdjustment: 1.75,
+    gasPrices: {
+      inj: 1500000000,
+    },
+    prefix: 'inj',
+  },
+};
+
+const lcd = new LCDClient(env.NETWORK === 'mainnet' ? mainnetConfig : testnetConfig);
+
+const chainId = env.NETWORK === 'mainnet' ? 'injective-1' : 'injective-888';
+
+const lcdClientConfig = lcd.config[chainId];
+
+// if you wonder what 60 is, ask Alessandro from TFL
+const wallet = new Wallet(lcd, new MnemonicKey({ mnemonic: env.MNEMONIC_KEY, coinType: 60 }));
+
+const sdk = new WarpSdk(wallet as any, lcd.config[chainId] as any);
 
 export const tryExecute = async (
   wallet: Wallet,
@@ -40,12 +59,13 @@ export const tryExecute = async (
 ): Promise<WaitTxBroadcastResult | string> => {
   const txOptions: CreateTxOptions = {
     msgs: msgs,
+    chainID: lcdClientConfig.chainID,
   };
 
   try {
     const tx = await wallet.createAndSignTx(txOptions);
 
-    return await wallet.lcd.tx.broadcast(tx);
+    return await wallet.lcd.tx.broadcast(tx, lcdClientConfig.chainID);
   } catch (error) {
     console.log({ error });
 
@@ -62,9 +82,13 @@ function executeMsg<T extends {}>(sender: string, contract: string, msg: T, coin
 
 const executeJobMsgs = (jobs: warp_controller.Job[]) => {
   return jobs.map((job) =>
-    executeMsg<Extract<warp_controller.ExecuteMsg, { execute_job }>>(wallet.key.accAddress, options.controllerAddress, {
-      execute_job: { id: job.id },
-    })
+    executeMsg<Extract<warp_controller.ExecuteMsg, { execute_job }>>(
+      wallet.key.accAddress(lcdClientConfig.prefix),
+      sdk.chain.contracts.controller,
+      {
+        execute_job: { id: job.id },
+      }
+    )
   );
 };
 

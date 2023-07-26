@@ -1,28 +1,26 @@
 import { warp_account, warp_controller, warp_resolver } from './types/contracts';
 import { WalletLike, Wallet, wallet } from './wallet';
 import { Condition } from './condition';
-import { base64encode, contractQuery, LUNA, Token, TransferMsg } from './utils';
-import { CreateTxOptions, Fee, TxInfo } from '@terra-money/terra.js';
+import { base64encode, contractQuery, nativeTokenDenom, Token, TransferMsg } from './utils';
+import { CreateTxOptions, Fee, TxInfo, LCDClientConfig } from '@terra-money/feather.js';
 import { TxBuilder } from './tx';
 import Big from 'big.js';
 import { JobSequenceMsgComposer } from './composers';
 import { resolveExternalInputs } from './variables';
-import { TxModule } from './modules';
+import { TxModule, ChainModule } from './modules';
 import { cosmosMsgToCreateTxMsg } from './utils';
 
 export class WarpSdk {
   public wallet: Wallet;
-  public controllerContract: string;
-  public resolverContract: string;
   public condition: Condition;
   public tx: TxModule;
+  public chain: ChainModule;
 
-  constructor(walletLike: WalletLike, controllerContract: string, resolverContract: string) {
-    this.wallet = wallet(walletLike);
-    this.controllerContract = controllerContract;
-    this.resolverContract = resolverContract;
-    this.condition = new Condition(this.wallet, this.controllerContract);
+  constructor(walletLike: WalletLike, chainConfig: LCDClientConfig) {
+    this.wallet = wallet(walletLike, chainConfig);
     this.tx = new TxModule(this);
+    this.chain = new ChainModule(chainConfig);
+    this.condition = new Condition(this.wallet, this.chain.contracts);
   }
 
   public async isJobActive(jobId: string): Promise<boolean> {
@@ -34,7 +32,7 @@ export class WarpSdk {
     const { jobs } = await contractQuery<
       Extract<warp_controller.QueryMsg, { query_jobs: {} }>,
       warp_controller.JobsResponse
-    >(this.wallet.lcd, this.controllerContract, { query_jobs: opts });
+    >(this.wallet.lcd, this.chain.contracts.controller, { query_jobs: opts });
 
     return jobs;
   }
@@ -43,7 +41,7 @@ export class WarpSdk {
     const { job } = await contractQuery<
       Extract<warp_controller.QueryMsg, { query_job: {} }>,
       warp_controller.JobResponse
-    >(this.wallet.lcd, this.controllerContract, { query_job: { id } });
+    >(this.wallet.lcd, this.chain.contracts.controller, { query_job: { id } });
 
     return job;
   }
@@ -52,7 +50,7 @@ export class WarpSdk {
     const { templates } = await contractQuery<
       Extract<warp_resolver.QueryMsg, { query_templates: {} }>,
       warp_resolver.TemplatesResponse
-    >(this.wallet.lcd, this.resolverContract, { query_templates: opts });
+    >(this.wallet.lcd, this.chain.contracts.resolver, { query_templates: opts });
 
     return templates;
   }
@@ -61,7 +59,7 @@ export class WarpSdk {
     const { template } = await contractQuery<
       Extract<warp_resolver.QueryMsg, { query_template: {} }>,
       warp_resolver.TemplateResponse
-    >(this.wallet.lcd, this.resolverContract, { query_template: { id } });
+    >(this.wallet.lcd, this.chain.contracts.resolver, { query_template: { id } });
 
     return template;
   }
@@ -70,7 +68,7 @@ export class WarpSdk {
     const { response } = await contractQuery<
       Extract<warp_controller.QueryMsg, { simulate_query: {} }>,
       warp_controller.SimulateResponse
-    >(this.wallet.lcd, this.controllerContract, { simulate_query: { query } });
+    >(this.wallet.lcd, this.chain.contracts.controller, { simulate_query: { query } });
 
     return JSON.parse(response);
   }
@@ -79,7 +77,7 @@ export class WarpSdk {
     const { account } = await contractQuery<
       Extract<warp_controller.QueryMsg, { query_account: {} }>,
       warp_controller.AccountResponse
-    >(this.wallet.lcd, this.controllerContract, { query_account: { owner } });
+    >(this.wallet.lcd, this.chain.contracts.controller, { query_account: { owner } });
 
     return account;
   }
@@ -88,7 +86,7 @@ export class WarpSdk {
     const { accounts } = await contractQuery<
       Extract<warp_controller.QueryMsg, { query_accounts: {} }>,
       warp_controller.AccountsResponse
-    >(this.wallet.lcd, this.controllerContract, { query_accounts: opts });
+    >(this.wallet.lcd, this.chain.contracts.controller, { query_accounts: opts });
 
     return accounts;
   }
@@ -97,12 +95,12 @@ export class WarpSdk {
     const { config: controllerConfig } = await contractQuery<
       Extract<warp_controller.QueryMsg, { query_config: {} }>,
       warp_controller.ConfigResponse
-    >(this.wallet.lcd, this.controllerContract, { query_config: {} });
+    >(this.wallet.lcd, this.chain.contracts.controller, { query_config: {} });
 
     const { config: resolverConfig } = await contractQuery<
       Extract<warp_resolver.QueryMsg, { query_config: {} }>,
       warp_resolver.ConfigResponse
-    >(this.wallet.lcd, this.resolverContract, { query_config: {} });
+    >(this.wallet.lcd, this.chain.contracts.resolver, { query_config: {} });
 
     return { ...controllerConfig, template_fee: resolverConfig.template_fee };
   }
@@ -117,12 +115,17 @@ export class WarpSdk {
           msgs: job.msgs.map((msg) =>
             cosmosMsgToCreateTxMsg(job.owner, JSON.parse(msg) as warp_controller.CosmosMsgFor_Empty)
           ),
+          chainID: this.chain.config.chainID,
         }
       );
       return fee;
     } catch (err) {
       throw new Error('Estimate fee not possible for this job.');
     }
+  }
+
+  public async nativeTokenDenom(): Promise<string> {
+    return nativeTokenDenom(this.wallet.lcd, this.chain.config.chainID);
   }
 
   public async isJobProfitable(sender: string, job: warp_controller.Job): Promise<boolean> {
@@ -139,11 +142,13 @@ export class WarpSdk {
     const account = await this.account(sender);
     const config = await this.config();
 
-    const txPayload = TxBuilder.new()
+    const nativeDenom = await nativeTokenDenom(this.wallet.lcd, this.chain.config.chainID);
+
+    const txPayload = TxBuilder.new(this.chain.config)
       .send(account.owner, account.account, {
-        [LUNA.denom]: Big(msg.reward).mul(Big(config.creation_fee_percentage).add(100).div(100)).toString(),
+        [nativeDenom]: Big(msg.reward).mul(Big(config.creation_fee_percentage).add(100).div(100)).toString(),
       })
-      .execute<Extract<warp_controller.ExecuteMsg, { create_job: {} }>>(sender, this.controllerContract, {
+      .execute<Extract<warp_controller.ExecuteMsg, { create_job: {} }>>(sender, this.chain.contracts.controller, {
         create_job: msg,
       })
       .build();
@@ -181,11 +186,13 @@ export class WarpSdk {
 
     const jobSequenceMsg = jobSequenceMsgComposer.compose();
 
-    const txPayload = TxBuilder.new()
+    const nativeDenom = await nativeTokenDenom(this.wallet.lcd, this.chain.config.chainID);
+
+    const txPayload = TxBuilder.new(this.chain.config)
       .send(account.owner, account.account, {
-        [LUNA.denom]: Big(totalReward).mul(Big(config.creation_fee_percentage).add(100).div(100)).toString(),
+        [nativeDenom]: Big(totalReward).mul(Big(config.creation_fee_percentage).add(100).div(100)).toString(),
       })
-      .execute<Extract<warp_controller.ExecuteMsg, { create_job: {} }>>(sender, this.controllerContract, {
+      .execute<Extract<warp_controller.ExecuteMsg, { create_job: {} }>>(sender, this.chain.contracts.controller, {
         create_job: jobSequenceMsg,
       })
       .build();
@@ -205,8 +212,8 @@ export class WarpSdk {
   }
 
   public async deleteJob(sender: string, jobId: string): Promise<TxInfo> {
-    const txPayload = TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { delete_job: {} }>>(sender, this.controllerContract, {
+    const txPayload = TxBuilder.new(this.chain.config)
+      .execute<Extract<warp_controller.ExecuteMsg, { delete_job: {} }>>(sender, this.chain.contracts.controller, {
         delete_job: { id: jobId },
       })
       .build();
@@ -215,8 +222,8 @@ export class WarpSdk {
   }
 
   public async updateJob(sender: string, msg: warp_controller.UpdateJobMsg): Promise<TxInfo> {
-    const txPayload = TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { update_job: {} }>>(sender, this.controllerContract, {
+    const txPayload = TxBuilder.new(this.chain.config)
+      .execute<Extract<warp_controller.ExecuteMsg, { update_job: {} }>>(sender, this.chain.contracts.controller, {
         update_job: msg,
       })
       .build();
@@ -225,8 +232,8 @@ export class WarpSdk {
   }
 
   public async evictJob(sender: string, jobId: string): Promise<TxInfo> {
-    const txPayload = TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { evict_job: {} }>>(sender, this.controllerContract, {
+    const txPayload = TxBuilder.new(this.chain.config)
+      .execute<Extract<warp_controller.ExecuteMsg, { evict_job: {} }>>(sender, this.chain.contracts.controller, {
         evict_job: {
           id: jobId,
         },
@@ -241,8 +248,8 @@ export class WarpSdk {
 
     const externalInputs = await resolveExternalInputs(job.vars);
 
-    const txPayload = TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { execute_job: {} }>>(sender, this.controllerContract, {
+    const txPayload = TxBuilder.new(this.chain.config)
+      .execute<Extract<warp_controller.ExecuteMsg, { execute_job: {} }>>(sender, this.chain.contracts.controller, {
         execute_job: { id: job.id, external_inputs: externalInputs },
       })
       .build();
@@ -253,15 +260,17 @@ export class WarpSdk {
   public async submitTemplate(sender: string, msg: warp_resolver.SubmitTemplateMsg): Promise<TxInfo> {
     const config = await this.config();
 
-    const txPayload = TxBuilder.new()
+    const nativeDenom = await nativeTokenDenom(this.wallet.lcd, this.chain.config.chainID);
+
+    const txPayload = TxBuilder.new(this.chain.config)
       .execute<Extract<warp_resolver.ExecuteMsg, { submit_template: {} }>>(
         sender,
-        this.resolverContract,
+        this.chain.contracts.resolver,
         {
           submit_template: msg,
         },
         {
-          [LUNA.denom]: config.template_fee,
+          [nativeDenom]: config.template_fee,
         }
       )
       .build();
@@ -270,8 +279,8 @@ export class WarpSdk {
   }
 
   public async deleteTemplate(sender: string, templateId: string): Promise<TxInfo> {
-    const txPayload = TxBuilder.new()
-      .execute<Extract<warp_resolver.ExecuteMsg, { delete_template: {} }>>(sender, this.resolverContract, {
+    const txPayload = TxBuilder.new(this.chain.config)
+      .execute<Extract<warp_resolver.ExecuteMsg, { delete_template: {} }>>(sender, this.chain.contracts.resolver, {
         delete_template: { id: templateId },
       })
       .build();
@@ -280,8 +289,8 @@ export class WarpSdk {
   }
 
   public async editTemplate(sender: string, msg: warp_resolver.EditTemplateMsg): Promise<TxInfo> {
-    const txPayload = TxBuilder.new()
-      .execute<Extract<warp_resolver.ExecuteMsg, { edit_template: {} }>>(sender, this.resolverContract, {
+    const txPayload = TxBuilder.new(this.chain.config)
+      .execute<Extract<warp_resolver.ExecuteMsg, { edit_template: {} }>>(sender, this.chain.contracts.resolver, {
         edit_template: msg,
       })
       .build();
@@ -290,8 +299,8 @@ export class WarpSdk {
   }
 
   public async createAccount(sender: string, funds?: warp_controller.Fund[]): Promise<TxInfo> {
-    const txPayload = TxBuilder.new()
-      .execute<Extract<warp_controller.ExecuteMsg, { create_account: {} }>>(sender, this.controllerContract, {
+    const txPayload = TxBuilder.new(this.chain.config)
+      .execute<Extract<warp_controller.ExecuteMsg, { create_account: {} }>>(sender, this.chain.contracts.controller, {
         create_account: {
           funds,
         },
@@ -304,7 +313,7 @@ export class WarpSdk {
   public async withdrawAssets(sender: string, msg: warp_account.WithdrawAssetsMsg): Promise<TxInfo> {
     const { account } = await this.account(sender);
 
-    const tx = TxBuilder.new()
+    const tx = TxBuilder.new(this.chain.config)
       .execute<Extract<warp_account.ExecuteMsg, { withdraw_assets: {} }>>(sender, account, {
         withdraw_assets: msg,
       })
@@ -318,7 +327,7 @@ export class WarpSdk {
   public async depositToAccount(sender: string, account: string, token: Token, amount: string): Promise<TxInfo> {
     let txPayload: CreateTxOptions;
     if (token.type === 'cw20') {
-      txPayload = TxBuilder.new()
+      txPayload = TxBuilder.new(this.chain.config)
         .execute<TransferMsg>(sender, token.token, {
           transfer: {
             amount,
@@ -327,7 +336,7 @@ export class WarpSdk {
         })
         .build();
     } else {
-      txPayload = TxBuilder.new()
+      txPayload = TxBuilder.new(this.chain.config)
         .send(sender, account, { [token.denom]: amount })
         .build();
     }
@@ -348,7 +357,7 @@ export class WarpSdk {
         },
       };
 
-      txPayload = TxBuilder.new()
+      txPayload = TxBuilder.new(this.chain.config)
         .execute<warp_account.ExecuteMsg>(sender, account, {
           generic: {
             msgs: [
@@ -366,7 +375,7 @@ export class WarpSdk {
         })
         .build();
     } else {
-      txPayload = TxBuilder.new()
+      txPayload = TxBuilder.new(this.chain.config)
         .execute<warp_account.ExecuteMsg>(sender, account, {
           generic: {
             msgs: [

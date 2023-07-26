@@ -1,4 +1,4 @@
-import { CreateTxOptions, TxInfo } from '@terra-money/terra.js';
+import { TxInfo } from '@terra-money/feather.js';
 
 export class TerraTxError extends Error {
   txInfo: TxInfo;
@@ -13,11 +13,13 @@ export class TerraTxError extends Error {
   }
 }
 
-export interface TxResult extends CreateTxOptions {
-  result: {
-    height: number;
-    raw_log: string;
-    txhash: string;
-  };
+export interface TxResult {
+  result?:
+    | {
+        height: string;
+        raw_log: string;
+        txhash: string;
+      }
+    | undefined;
   success: boolean;
 }
