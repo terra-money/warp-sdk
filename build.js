@@ -12,7 +12,7 @@ esbuild
     platform: isBrowserBuild ? 'browser' : 'node',
     format: isBrowserBuild ? 'esm' : 'cjs',
     target: isBrowserBuild ? ['es2020'] : ['node14'],
-    external: ['jsonpath'], // Consider what other dependencies might also not be browser-compatible
+    // external: [], // Consider what other dependencies might also not be browser-compatible
     plugins: [nodeExternalsPlugin()],
   })
   .catch(() => process.exit(1));

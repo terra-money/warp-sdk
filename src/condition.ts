@@ -1,6 +1,6 @@
 import { warp_controller } from './types/contracts';
 import { every, some } from 'lodash';
-import jsonpath from 'jsonpath';
+import { JSONPath } from 'jsonpath-plus';
 import { contractQuery } from './utils';
 import { Big } from 'big.js';
 import { Wallet } from './wallet';
@@ -236,7 +236,7 @@ export class Condition {
       Extract<warp_controller.QueryMsg, { simulate_query: {} }>,
       warp_controller.SimulateResponse
     >(this.wallet.lcd, this.contracts.controller, { simulate_query: { query: query.init_fn.query } });
-    const extracted = jsonpath.query(JSON.parse(resp.response), query.init_fn.selector);
+    const extracted = JSONPath({ path: query.init_fn.selector, json: JSON.parse(resp.response) });
 
     if (extracted[0] == null) {
       return null;

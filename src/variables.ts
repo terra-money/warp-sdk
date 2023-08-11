@@ -1,5 +1,5 @@
 import { warp_controller } from './types';
-import jsonpath from 'jsonpath';
+import { JSONPath } from 'jsonpath-plus';
 import { isObject } from 'lodash';
 import axios, { AxiosRequestConfig } from 'axios';
 
@@ -36,7 +36,7 @@ export const resolveExternalVariable = async (external: warp_controller.External
 
   try {
     const resp = await axios.request({ ...options, responseType: 'json' });
-    const extracted = jsonpath.query(resp.data, selector);
+    const extracted = JSONPath({ path: selector, json: resp.data });
 
     if (extracted[0] == null) {
       return null;
