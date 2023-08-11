@@ -12,7 +12,7 @@ import {
   WaitTxBroadcastResult,
   Wallet,
   LCDClientConfig,
-} from '@terra-money/feather.js-injective';
+} from '@terra-money/feather.js';
 import { WarpSdk } from './sdk';
 import { warp_controller } from './types/contracts';
 
