@@ -1,11 +1,11 @@
 {
   "testnet": {
     "warp-controller": {
-      "codeId": "9264",
+      "codeId": "2241",
       "address": "inj1kqx3aqep5udv3ftgr0yrqt8rlm0n64mqrlspkk"
     },
     "warp-resolver": {
-      "codeId": "9263",
+      "codeId": "2242",
       "address": "inj1z8wsnjqy5psq7sxx4zpy4t49nq0r8l2w08uxzu"
     }
   },
