@@ -21,5 +21,4 @@ export interface TxResult {
         txhash: string;
       }
     | undefined;
-  success: boolean;
 }
