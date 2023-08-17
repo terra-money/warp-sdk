@@ -66,7 +66,7 @@ export class WarpSdk {
     return template;
   }
 
-  public async simulateQuery(query: warp_controller.QueryRequestFor_String): Promise<object> {
+  public async simulateQuery(query: warp_resolver.QueryRequestFor_String): Promise<object> {
     const { response } = await contractQuery<
       Extract<warp_resolver.QueryMsg, { simulate_query: {} }>,
       warp_resolver.SimulateResponse
@@ -114,7 +114,7 @@ export class WarpSdk {
       const fee = await this.wallet.lcd.tx.estimateFee(
         [{ sequenceNumber: accountInfo.getSequenceNumber(), publicKey: accountInfo.getPublicKey() }],
         {
-          msgs: JSON.parse(job.msgs).map((msg: warp_controller.CosmosMsgFor_Empty) =>
+          msgs: JSON.parse(job.msgs).map((msg: warp_resolver.CosmosMsgFor_Empty) =>
             cosmosMsgToCreateTxMsg(sender, msg)
           ),
           chainID: this.chain.config.chainID,

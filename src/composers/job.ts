@@ -1,4 +1,4 @@
-import { warp_controller } from '../types';
+import { warp_controller, warp_resolver } from '../types/contracts';
 
 export class JobSequenceMsgComposer {
   static new() {
@@ -44,9 +44,9 @@ export class CreateJobMsgComposer {
   private _description: string;
   private _labels: string[];
   private _assetsToWithdraw: warp_controller.AssetInfo[] | undefined;
-  private _msgs: warp_controller.CosmosMsgFor_Empty[] = [];
-  private _vars: warp_controller.Variable[] = [];
-  private _condition: warp_controller.Condition | undefined;
+  private _msgs: warp_resolver.CosmosMsgFor_Empty[] = [];
+  private _vars: warp_resolver.Variable[] = [];
+  private _condition: warp_resolver.Condition | undefined;
 
   static new(): CreateJobMsgComposer {
     return new CreateJobMsgComposer();
@@ -87,17 +87,17 @@ export class CreateJobMsgComposer {
     return this;
   }
 
-  msg(msg: warp_controller.CosmosMsgFor_Empty): CreateJobMsgComposer {
+  msg(msg: warp_resolver.CosmosMsgFor_Empty): CreateJobMsgComposer {
     this._msgs.push(msg);
     return this;
   }
 
-  cond(condition: warp_controller.Condition): CreateJobMsgComposer {
+  cond(condition: warp_resolver.Condition): CreateJobMsgComposer {
     this._condition = condition;
     return this;
   }
 
-  var(variable: warp_controller.Variable): CreateJobMsgComposer {
+  var(variable: warp_resolver.Variable): CreateJobMsgComposer {
     this._vars.push(variable);
     return this;
   }
@@ -125,9 +125,9 @@ export class CreateJobMsgComposer {
       reward: this._reward,
       description: this._description,
       labels: this._labels,
-      condition: this._condition,
-      msgs: this._msgs.map((m) => JSON.stringify(m)),
-      vars: this._vars,
+      condition: JSON.stringify(this._condition),
+      msgs: JSON.stringify(this._msgs),
+      vars: JSON.stringify(this._vars),
       assets_to_withdraw: this._assetsToWithdraw,
     };
 
