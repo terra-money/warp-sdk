@@ -1,26 +1,37 @@
-export module warp_resolver {
+export module warp_templates {
+  export type Addr = string;
+  export type Uint128 = string;
+  export interface Config {
+    fee_collector: Addr;
+    fee_denom: string;
+    owner: Addr;
+    template_fee: Uint128;
+  }
+  export interface ConfigResponse {
+    config: Config;
+  }
+  export type ExecuteMsg =
+    | {
+        submit_template: SubmitTemplateMsg;
+      }
+    | {
+        edit_template: EditTemplateMsg;
+      }
+    | {
+        delete_template: DeleteTemplateMsg;
+      }
+    | {
+        update_config: UpdateConfigMsg;
+      };
   export type Condition =
     | {
-        and: Condition1[];
+        and: Condition[];
       }
     | {
-        or: Condition1[];
+        or: Condition[];
       }
     | {
-        not: Condition1;
-      }
-    | {
-        expr: Expr;
-      };
-  export type Condition1 =
-    | {
-        and: Condition1[];
-      }
-    | {
-        or: Condition1[];
-      }
-    | {
-        not: Condition1;
+        not: Condition;
       }
     | {
         expr: Expr;
@@ -112,64 +123,37 @@ export module warp_resolver {
   export type DecimalFnOp = 'abs' | 'neg' | 'floor' | 'sqrt' | 'ceil';
   export type Uint64 = string;
   export type TimeOp = 'lt' | 'gt';
-  export interface GenExprFor_ValueFor_StringAnd_StringOp {
-    left: ValueFor_String;
-    op: StringOp;
-    right: ValueFor_String;
-  }
-  export interface GenExprFor_NumValueFor_Uint256And_NumExprOpAnd_IntFnOpAnd_NumOp {
-    left: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
-    op: NumOp;
-    right: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
-  }
-  export interface NumExprValueFor_Uint256And_NumExprOpAnd_IntFnOp {
-    left: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
-    op: NumExprOp;
-    right: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
-  }
-  export interface NumFnValueFor_Uint256And_NumExprOpAnd_IntFnOp {
-    op: IntFnOp;
-    right: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
-  }
-  export interface GenExprFor_NumValueForInt128And_NumExprOpAnd_IntFnOpAnd_NumOp {
-    left: NumValueForInt128And_NumExprOpAnd_IntFnOp;
-    op: NumOp;
-    right: NumValueForInt128And_NumExprOpAnd_IntFnOp;
-  }
-  export interface NumExprValueForInt128And_NumExprOpAnd_IntFnOp {
-    left: NumValueForInt128And_NumExprOpAnd_IntFnOp;
-    op: NumExprOp;
-    right: NumValueForInt128And_NumExprOpAnd_IntFnOp;
-  }
-  export interface NumFnValueForInt128And_NumExprOpAnd_IntFnOp {
-    op: IntFnOp;
-    right: NumValueForInt128And_NumExprOpAnd_IntFnOp;
-  }
-  export interface GenExprFor_NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOpAnd_NumOp {
-    left: NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
-    op: NumOp;
-    right: NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
-  }
-  export interface NumExprValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp {
-    left: NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
-    op: NumExprOp;
-    right: NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
-  }
-  export interface NumFnValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp {
-    op: DecimalFnOp;
-    right: NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
-  }
-  export interface TimeExpr {
-    comparator: Uint64;
-    op: TimeOp;
-  }
-  export interface BlockExpr {
-    comparator: Uint64;
-    op: NumOp;
-  }
-  export type ExecuteMsg = {
-    execute_simulate_query: ExecuteSimulateQueryMsg;
-  };
+  export type Variable =
+    | {
+        static: StaticVariable;
+      }
+    | {
+        external: ExternalVariable;
+      }
+    | {
+        query: QueryVariable;
+      };
+  export type VariableKind = 'string' | 'uint' | 'int' | 'decimal' | 'timestamp' | 'bool' | 'amount' | 'asset' | 'json';
+  export type UpdateFnValue =
+    | {
+        uint: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
+      }
+    | {
+        int: NumValueForInt128And_NumExprOpAnd_IntFnOp;
+      }
+    | {
+        decimal: NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
+      }
+    | {
+        timestamp: NumValueForInt128And_NumExprOpAnd_IntFnOp;
+      }
+    | {
+        block_height: NumValueForInt128And_NumExprOpAnd_IntFnOp;
+      }
+    | {
+        bool: string;
+      };
+  export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete';
   export type QueryRequestFor_String =
     | {
         bank: BankQuery;
@@ -276,96 +260,68 @@ export module warp_resolver {
           contract_addr: string;
         };
       };
-  export interface ExecuteSimulateQueryMsg {
-    query: QueryRequestFor_String;
-  }
-  export interface InstantiateMsg {}
-  export type QueryMsg =
-    | {
-        simulate_query: SimulateQueryMsg;
-      }
-    | {
-        query_validate_job_creation: QueryValidateJobCreationMsg;
-      }
-    | {
-        query_hydrate_vars: QueryHydrateVarsMsg;
-      }
-    | {
-        query_resolve_condition: QueryResolveConditionMsg;
-      }
-    | {
-        query_apply_var_fn: QueryApplyVarFnMsg;
-      }
-    | {
-        query_hydrate_msgs: QueryHydrateMsgsMsg;
-      };
-  export type JobStatus = 'Pending' | 'Executed' | 'Failed' | 'Cancelled' | 'Evicted';
-  export interface SimulateQueryMsg {
-    query: QueryRequestFor_String;
-  }
-  export interface QueryValidateJobCreationMsg {
-    condition: string;
-    msgs: string;
-    terminate_condition?: string | null;
-    vars: string;
-  }
-  export interface QueryHydrateVarsMsg {
-    external_inputs?: ExternalInput[] | null;
-    vars: string;
-  }
-  export interface ExternalInput {
-    input: string;
+  export interface SubmitTemplateMsg {
+    condition?: Condition | null;
+    formatted_str: string;
+    msg: string;
     name: string;
+    vars: Variable[];
   }
-  export interface QueryResolveConditionMsg {
-    condition: string;
-    vars: string;
+  export interface GenExprFor_ValueFor_StringAnd_StringOp {
+    left: ValueFor_String;
+    op: StringOp;
+    right: ValueFor_String;
   }
-  export interface QueryApplyVarFnMsg {
-    status: JobStatus;
-    vars: string;
+  export interface GenExprFor_NumValueFor_Uint256And_NumExprOpAnd_IntFnOpAnd_NumOp {
+    left: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
+    op: NumOp;
+    right: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
   }
-  export interface QueryHydrateMsgsMsg {
-    msgs: string;
-    vars: string;
+  export interface NumExprValueFor_Uint256And_NumExprOpAnd_IntFnOp {
+    left: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
+    op: NumExprOp;
+    right: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
   }
-  export interface ResolveResponse {
-    response: string;
+  export interface NumFnValueFor_Uint256And_NumExprOpAnd_IntFnOp {
+    op: IntFnOp;
+    right: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
   }
-  export interface SimulateResponse {
-    response: string;
+  export interface GenExprFor_NumValueForInt128And_NumExprOpAnd_IntFnOpAnd_NumOp {
+    left: NumValueForInt128And_NumExprOpAnd_IntFnOp;
+    op: NumOp;
+    right: NumValueForInt128And_NumExprOpAnd_IntFnOp;
   }
-  export type Variable =
-    | {
-        static: StaticVariable;
-      }
-    | {
-        external: ExternalVariable;
-      }
-    | {
-        query: QueryVariable;
-      };
-  export type VariableKind = 'string' | 'uint' | 'int' | 'decimal' | 'timestamp' | 'bool' | 'amount' | 'asset' | 'json';
-  export type UpdateFnValue =
-    | {
-        uint: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
-      }
-    | {
-        int: NumValueForInt128And_NumExprOpAnd_IntFnOp;
-      }
-    | {
-        decimal: NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
-      }
-    | {
-        timestamp: NumValueForInt128And_NumExprOpAnd_IntFnOp;
-      }
-    | {
-        block_height: NumValueForInt128And_NumExprOpAnd_IntFnOp;
-      }
-    | {
-        bool: string;
-      };
-  export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete';
+  export interface NumExprValueForInt128And_NumExprOpAnd_IntFnOp {
+    left: NumValueForInt128And_NumExprOpAnd_IntFnOp;
+    op: NumExprOp;
+    right: NumValueForInt128And_NumExprOpAnd_IntFnOp;
+  }
+  export interface NumFnValueForInt128And_NumExprOpAnd_IntFnOp {
+    op: IntFnOp;
+    right: NumValueForInt128And_NumExprOpAnd_IntFnOp;
+  }
+  export interface GenExprFor_NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOpAnd_NumOp {
+    left: NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
+    op: NumOp;
+    right: NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
+  }
+  export interface NumExprValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp {
+    left: NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
+    op: NumExprOp;
+    right: NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
+  }
+  export interface NumFnValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp {
+    op: DecimalFnOp;
+    right: NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
+  }
+  export interface TimeExpr {
+    comparator: Uint64;
+    op: TimeOp;
+  }
+  export interface BlockExpr {
+    comparator: Uint64;
+    op: NumOp;
+  }
   export interface StaticVariable {
     encode: boolean;
     kind: VariableKind;
@@ -407,5 +363,60 @@ export module warp_resolver {
   export interface QueryExpr {
     query: QueryRequestFor_String;
     selector: string;
+  }
+  export interface EditTemplateMsg {
+    id: Uint64;
+    name?: string | null;
+  }
+  export interface DeleteTemplateMsg {
+    id: Uint64;
+  }
+  export interface UpdateConfigMsg {
+    fee_collector?: string | null;
+    fee_denom?: string | null;
+    owner?: string | null;
+    template_fee?: Uint128 | null;
+  }
+  export interface InstantiateMsg {
+    fee_collector: string;
+    fee_denom: string;
+    owner: string;
+    templates: Template[];
+  }
+  export interface Template {
+    condition?: Condition | null;
+    formatted_str: string;
+    id: Uint64;
+    msg: string;
+    name: string;
+    owner: Addr;
+    vars: Variable[];
+  }
+  export type QueryMsg =
+    | {
+        query_template: QueryTemplateMsg;
+      }
+    | {
+        query_templates: QueryTemplatesMsg;
+      }
+    | {
+        query_config: QueryConfigMsg;
+      };
+  export interface QueryTemplateMsg {
+    id: Uint64;
+  }
+  export interface QueryTemplatesMsg {
+    ids?: Uint64[] | null;
+    limit?: number | null;
+    name?: string | null;
+    owner?: Addr | null;
+    start_after?: Uint64 | null;
+  }
+  export interface QueryConfigMsg {}
+  export interface TemplateResponse {
+    template: Template;
+  }
+  export interface TemplatesResponse {
+    templates: Template[];
   }
 }

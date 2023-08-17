@@ -18,9 +18,11 @@ export module warp_controller {
     cancellation_fee_percentage: Uint64;
     creation_fee_percentage: Uint64;
     fee_collector: Addr;
+    fee_denom: string;
     minimum_reward: Uint128;
     owner: Addr;
     q_max: Uint64;
+    resolver_address: Addr;
     t_max: Uint64;
     t_min: Uint64;
     warp_account_code_id: Uint64;
@@ -260,136 +262,151 @@ export module warp_controller {
          */
         cw721: [Addr, string];
       };
-  export type Condition =
+  export type Fund =
     | {
-        and: Condition[];
+        cw20: Cw20Fund;
       }
     | {
-        or: Condition[];
-      }
-    | {
-        not: Condition;
-      }
-    | {
-        expr: Expr;
+        cw721: Cw721Fund;
       };
-  export type Expr =
+  export interface CreateJobMsg {
+    assets_to_withdraw?: AssetInfo[] | null;
+    condition: string;
+    description: string;
+    labels: string[];
+    msgs: string;
+    name: string;
+    recurring: boolean;
+    requeue_on_evict: boolean;
+    reward: Uint128;
+    terminate_condition?: string | null;
+    vars: string;
+  }
+  export interface DeleteJobMsg {
+    id: Uint64;
+  }
+  export interface UpdateJobMsg {
+    added_reward?: Uint128 | null;
+    description?: string | null;
+    id: Uint64;
+    labels?: string[] | null;
+    name?: string | null;
+  }
+  export interface ExecuteJobMsg {
+    external_inputs?: ExternalInput[] | null;
+    id: Uint64;
+  }
+  export interface ExternalInput {
+    input: string;
+    name: string;
+  }
+  export interface EvictJobMsg {
+    id: Uint64;
+  }
+  export interface CreateAccountMsg {
+    funds?: Fund[] | null;
+  }
+  export interface Cw20Fund {
+    amount: Uint128;
+    contract_addr: string;
+  }
+  export interface Cw721Fund {
+    contract_addr: string;
+    token_id: string;
+  }
+  export interface UpdateConfigMsg {
+    a_max?: Uint128 | null;
+    a_min?: Uint128 | null;
+    cancellation_fee_percentage?: Uint64 | null;
+    creation_fee_percentage?: Uint64 | null;
+    fee_collector?: string | null;
+    minimum_reward?: Uint128 | null;
+    owner?: string | null;
+    q_max?: Uint64 | null;
+    t_max?: Uint64 | null;
+    t_min?: Uint64 | null;
+  }
+  export interface InstantiateMsg {
+    a_max: Uint128;
+    a_min: Uint128;
+    cancellation_fee: Uint64;
+    creation_fee: Uint64;
+    fee_collector?: string | null;
+    fee_denom: string;
+    minimum_reward: Uint128;
+    owner?: string | null;
+    q_max: Uint64;
+    resolver_address: string;
+    t_max: Uint64;
+    t_min: Uint64;
+    warp_account_code_id: Uint64;
+  }
+  export type JobStatus = 'Pending' | 'Executed' | 'Failed' | 'Cancelled' | 'Evicted';
+  export interface JobResponse {
+    job: Job;
+  }
+  export interface Job {
+    assets_to_withdraw: AssetInfo[];
+    condition: string;
+    description: string;
+    id: Uint64;
+    labels: string[];
+    last_update_time: Uint64;
+    msgs: string;
+    name: string;
+    owner: Addr;
+    recurring: boolean;
+    requeue_on_evict: boolean;
+    reward: Uint128;
+    status: JobStatus;
+    terminate_condition?: string | null;
+    vars: string;
+  }
+  export interface JobsResponse {
+    jobs: Job[];
+    total_count: number;
+  }
+  export type QueryMsg =
     | {
-        string: GenExprFor_ValueFor_StringAnd_StringOp;
+        query_job: QueryJobMsg;
       }
     | {
-        uint: GenExprFor_NumValueFor_Uint256And_NumExprOpAnd_IntFnOpAnd_NumOp;
+        query_jobs: QueryJobsMsg;
       }
     | {
-        int: GenExprFor_NumValueForInt128And_NumExprOpAnd_IntFnOpAnd_NumOp;
+        query_account: QueryAccountMsg;
       }
     | {
-        decimal: GenExprFor_NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOpAnd_NumOp;
+        query_accounts: QueryAccountsMsg;
       }
     | {
-        timestamp: TimeExpr;
-      }
-    | {
-        block_height: BlockExpr;
-      }
-    | {
-        bool: string;
+        query_config: QueryConfigMsg;
       };
-  export type ValueFor_String =
-    | {
-        simple: string;
-      }
-    | {
-        ref: string;
-      };
-  export type StringOp = 'starts_with' | 'ends_with' | 'contains' | 'eq' | 'neq';
-  export type NumValueFor_Uint256And_NumExprOpAnd_IntFnOp =
-    | {
-        simple: Uint256;
-      }
-    | {
-        expr: NumExprValueFor_Uint256And_NumExprOpAnd_IntFnOp;
-      }
-    | {
-        ref: string;
-      }
-    | {
-        fn: NumFnValueFor_Uint256And_NumExprOpAnd_IntFnOp;
-      }
-    | {
-        env: NumEnvValue;
-      };
-  export type Uint256 = string;
-  export type NumExprOp = 'add' | 'sub' | 'div' | 'mul' | 'mod';
-  export type IntFnOp = 'abs' | 'neg';
-  export type NumEnvValue = 'time' | 'block_height';
-  export type NumOp = 'eq' | 'neq' | 'lt' | 'gt' | 'gte' | 'lte';
-  export type NumValueForInt128And_NumExprOpAnd_IntFnOp =
-    | {
-        simple: number;
-      }
-    | {
-        expr: NumExprValueForInt128And_NumExprOpAnd_IntFnOp;
-      }
-    | {
-        ref: string;
-      }
-    | {
-        fn: NumFnValueForInt128And_NumExprOpAnd_IntFnOp;
-      }
-    | {
-        env: NumEnvValue;
-      };
-  export type NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp =
-    | {
-        simple: Decimal256;
-      }
-    | {
-        expr: NumExprValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
-      }
-    | {
-        ref: string;
-      }
-    | {
-        fn: NumFnValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
-      }
-    | {
-        env: NumEnvValue;
-      };
-  export type Decimal256 = string;
-  export type DecimalFnOp = 'abs' | 'neg' | 'floor' | 'sqrt' | 'ceil';
-  export type TimeOp = 'lt' | 'gt';
-  export type Variable =
-    | {
-        static: StaticVariable;
-      }
-    | {
-        external: ExternalVariable;
-      }
-    | {
-        query: QueryVariable;
-      };
-  export type VariableKind = 'string' | 'uint' | 'int' | 'decimal' | 'timestamp' | 'bool' | 'amount' | 'asset' | 'json';
-  export type UpdateFnValue =
-    | {
-        uint: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
-      }
-    | {
-        int: NumValueForInt128And_NumExprOpAnd_IntFnOp;
-      }
-    | {
-        decimal: NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
-      }
-    | {
-        timestamp: NumValueForInt128And_NumExprOpAnd_IntFnOp;
-      }
-    | {
-        block_height: NumValueForInt128And_NumExprOpAnd_IntFnOp;
-      }
-    | {
-        bool: string;
-      };
-  export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete';
+  export interface QueryJobMsg {
+    id: Uint64;
+  }
+  export interface QueryJobsMsg {
+    active?: boolean | null;
+    condition_status?: boolean | null;
+    ids?: Uint64[] | null;
+    job_status?: JobStatus | null;
+    limit?: number | null;
+    name?: string | null;
+    owner?: Addr | null;
+    start_after?: JobIndex | null;
+  }
+  export interface JobIndex {
+    _0: Uint128;
+    _1: Uint64;
+  }
+  export interface QueryAccountMsg {
+    owner: string;
+  }
+  export interface QueryAccountsMsg {
+    limit?: number | null;
+    start_after?: string | null;
+  }
+  export interface QueryConfigMsg {}
   export type QueryRequestFor_String =
     | {
         bank: BankQuery;
@@ -495,248 +512,4 @@ export module warp_controller {
           contract_addr: string;
         };
       };
-  export type Fund =
-    | {
-        cw20: Cw20Fund;
-      }
-    | {
-        cw721: Cw721Fund;
-      };
-  export interface CreateJobMsg {
-    assets_to_withdraw?: AssetInfo[] | null;
-    condition: Condition;
-    description: string;
-    labels: string[];
-    msgs: string[];
-    name: string;
-    recurring: boolean;
-    requeue_on_evict: boolean;
-    reward: Uint128;
-    vars: Variable[];
-  }
-  export interface GenExprFor_ValueFor_StringAnd_StringOp {
-    left: ValueFor_String;
-    op: StringOp;
-    right: ValueFor_String;
-  }
-  export interface GenExprFor_NumValueFor_Uint256And_NumExprOpAnd_IntFnOpAnd_NumOp {
-    left: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
-    op: NumOp;
-    right: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
-  }
-  export interface NumExprValueFor_Uint256And_NumExprOpAnd_IntFnOp {
-    left: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
-    op: NumExprOp;
-    right: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
-  }
-  export interface NumFnValueFor_Uint256And_NumExprOpAnd_IntFnOp {
-    op: IntFnOp;
-    right: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
-  }
-  export interface GenExprFor_NumValueForInt128And_NumExprOpAnd_IntFnOpAnd_NumOp {
-    left: NumValueForInt128And_NumExprOpAnd_IntFnOp;
-    op: NumOp;
-    right: NumValueForInt128And_NumExprOpAnd_IntFnOp;
-  }
-  export interface NumExprValueForInt128And_NumExprOpAnd_IntFnOp {
-    left: NumValueForInt128And_NumExprOpAnd_IntFnOp;
-    op: NumExprOp;
-    right: NumValueForInt128And_NumExprOpAnd_IntFnOp;
-  }
-  export interface NumFnValueForInt128And_NumExprOpAnd_IntFnOp {
-    op: IntFnOp;
-    right: NumValueForInt128And_NumExprOpAnd_IntFnOp;
-  }
-  export interface GenExprFor_NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOpAnd_NumOp {
-    left: NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
-    op: NumOp;
-    right: NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
-  }
-  export interface NumExprValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp {
-    left: NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
-    op: NumExprOp;
-    right: NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
-  }
-  export interface NumFnValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp {
-    op: DecimalFnOp;
-    right: NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
-  }
-  export interface TimeExpr {
-    comparator: Uint64;
-    op: TimeOp;
-  }
-  export interface BlockExpr {
-    comparator: Uint64;
-    op: NumOp;
-  }
-  export interface StaticVariable {
-    kind: VariableKind;
-    name: string;
-    update_fn?: UpdateFn | null;
-    value: string;
-  }
-  export interface UpdateFn {
-    on_error?: UpdateFnValue | null;
-    on_success?: UpdateFnValue | null;
-  }
-  export interface ExternalVariable {
-    init_fn: ExternalExpr;
-    kind: VariableKind;
-    name: string;
-    reinitialize: boolean;
-    update_fn?: UpdateFn | null;
-    value?: string | null;
-  }
-  export interface ExternalExpr {
-    body?: string | null;
-    headers?: {
-      [k: string]: string;
-    } | null;
-    method?: Method | null;
-    selector: string;
-    url: string;
-  }
-  export interface QueryVariable {
-    init_fn: QueryExpr;
-    kind: VariableKind;
-    name: string;
-    reinitialize: boolean;
-    update_fn?: UpdateFn | null;
-    value?: string | null;
-  }
-  export interface QueryExpr {
-    query: QueryRequestFor_String;
-    selector: string;
-  }
-  export interface DeleteJobMsg {
-    id: Uint64;
-  }
-  export interface UpdateJobMsg {
-    added_reward?: Uint128 | null;
-    description?: string | null;
-    id: Uint64;
-    labels?: string[] | null;
-    name?: string | null;
-  }
-  export interface ExecuteJobMsg {
-    external_inputs?: ExternalInput[] | null;
-    id: Uint64;
-  }
-  export interface ExternalInput {
-    input: string;
-    name: string;
-  }
-  export interface EvictJobMsg {
-    id: Uint64;
-  }
-  export interface CreateAccountMsg {
-    funds?: Fund[] | null;
-  }
-  export interface Cw20Fund {
-    amount: Uint128;
-    contract_addr: string;
-  }
-  export interface Cw721Fund {
-    contract_addr: string;
-    token_id: string;
-  }
-  export interface UpdateConfigMsg {
-    a_max?: Uint128 | null;
-    a_min?: Uint128 | null;
-    cancellation_fee_percentage?: Uint64 | null;
-    creation_fee_percentage?: Uint64 | null;
-    fee_collector?: string | null;
-    minimum_reward?: Uint128 | null;
-    owner?: string | null;
-    q_max?: Uint64 | null;
-    t_max?: Uint64 | null;
-    t_min?: Uint64 | null;
-  }
-  export interface InstantiateMsg {
-    a_max: Uint128;
-    a_min: Uint128;
-    cancellation_fee: Uint64;
-    creation_fee: Uint64;
-    fee_collector?: string | null;
-    minimum_reward: Uint128;
-    owner?: string | null;
-    q_max: Uint64;
-    t_max: Uint64;
-    t_min: Uint64;
-    warp_account_code_id: Uint64;
-  }
-  export type JobStatus = 'Pending' | 'Executed' | 'Failed' | 'Cancelled' | 'Evicted';
-  export interface JobResponse {
-    job: Job;
-  }
-  export interface Job {
-    assets_to_withdraw: AssetInfo[];
-    condition: Condition;
-    description: string;
-    id: Uint64;
-    labels: string[];
-    last_update_time: Uint64;
-    msgs: string[];
-    name: string;
-    owner: Addr;
-    recurring: boolean;
-    requeue_on_evict: boolean;
-    reward: Uint128;
-    status: JobStatus;
-    vars: Variable[];
-  }
-  export interface JobsResponse {
-    jobs: Job[];
-    total_count: number;
-  }
-  export type QueryMsg =
-    | {
-        query_job: QueryJobMsg;
-      }
-    | {
-        query_jobs: QueryJobsMsg;
-      }
-    | {
-        simulate_query: SimulateQueryMsg;
-      }
-    | {
-        query_account: QueryAccountMsg;
-      }
-    | {
-        query_accounts: QueryAccountsMsg;
-      }
-    | {
-        query_config: QueryConfigMsg;
-      };
-  export interface QueryJobMsg {
-    id: Uint64;
-  }
-  export interface QueryJobsMsg {
-    active?: boolean | null;
-    condition_status?: boolean | null;
-    ids?: Uint64[] | null;
-    job_status?: JobStatus | null;
-    limit?: number | null;
-    name?: string | null;
-    owner?: Addr | null;
-    start_after?: JobIndex | null;
-  }
-  export interface JobIndex {
-    _0: Uint128;
-    _1: Uint64;
-  }
-  export interface SimulateQueryMsg {
-    query: QueryRequestFor_String;
-  }
-  export interface QueryAccountMsg {
-    owner: string;
-  }
-  export interface QueryAccountsMsg {
-    limit?: number | null;
-    start_after?: string | null;
-  }
-  export interface QueryConfigMsg {}
-  export interface SimulateResponse {
-    response: string;
-  }
 }
