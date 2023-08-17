@@ -1,6 +1,6 @@
 import { CreateTxOptions, LCDClient, LCDClientConfig } from '@terra-money/feather.js';
 import { Wallet } from './base';
-import { TxResult } from './utils';
+import { PostResponse } from './utils';
 
 export type ConnectedWalletInput = {
   wallet?: ConnectedWalletPayload;
@@ -8,7 +8,7 @@ export type ConnectedWalletInput = {
 };
 
 export type ConnectedWalletPayload = {
-  post: (tx: CreateTxOptions) => Promise<TxResult>;
+  post: (tx: CreateTxOptions) => Promise<PostResponse>;
 };
 
 export class ConnectedWallet extends Wallet {
@@ -25,6 +25,6 @@ export class ConnectedWallet extends Wallet {
     }
 
     const txResult = await this.wallet.post(txOpts);
-    return txResult.result.txhash;
+    return txResult.txhash;
   }
 }
