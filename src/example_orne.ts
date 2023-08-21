@@ -51,6 +51,10 @@ const nextExecution = variable
 
 const condition = cond.uint(uint.env('time'), 'gt', uint.ref(nextExecution));
 
+const orneTokenAddress = 'terra1k8k32t9fd6v5smjsnymv97sywdl2jppmlhaqw6nm63zq332jmmms9kgk26';
+const orneDistributorContract = 'terra19p20mfnvwh9yvyr7aus3a6z6g6uk28fv4jhx9kmnc2m7krg27q2qkfenjw';
+const depositAmount = '250000000000000'; // orne token is 6 decimals
+
 const createJobMsg = job
   .create()
   .name('orne-dao--staking-rewards')
@@ -62,10 +66,10 @@ const createJobMsg = job
   .cond(condition)
   .var(nextExecution)
   .msg(
-    msg.execute('terra1k8k32t9fd6v5smjsnymv97sywdl2jppmlhaqw6nm63zq332jmmms9kgk26', {
+    msg.execute(orneTokenAddress, {
       send: {
-        amount: '250000000000000', // orne token is 6 decimals
-        contract: 'terra19p20mfnvwh9yvyr7aus3a6z6g6uk28fv4jhx9kmnc2m7krg27q2qkfenjw',
+        amount: depositAmount,
+        contract: orneDistributorContract,
         msg: base64encode({ distribute: {} }),
       },
     })
@@ -74,6 +78,10 @@ const createJobMsg = job
 
 console.log({ createJobMsg: JSON.stringify(createJobMsg) });
 
-sdk.createJob(sender, createJobMsg).then((response) => {
-  console.log(response);
-});
+const loop = async () => {
+  const createJobTx = await sdk.createJob(sender, createJobMsg);
+
+  console.log(createJobTx);
+};
+
+loop();
