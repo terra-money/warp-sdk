@@ -23,6 +23,7 @@
     "build:browser": "BUILD_TARGET=browser node build.js",
     "start": "yarn bot-terra",
     "bot-terra": "esbuild src/bot.terra.ts --bundle --platform=node --outdir=dist --outbase=src && node ./dist/bot.terra.js",
+    "orne": "esbuild src/example_orne.ts --bundle --platform=node --outdir=dist --outbase=src && node ./dist/example_orne.js",
     "bot-injective": "esbuild src/bot.injective.ts --bundle --platform=node --outdir=dist --outbase=src && node ./dist/bot.injective.js",
     "format": "prettier --write \"src/**/*.{js,ts,tsx}\"",
     "generate-types": "node --experimental-specifier-resolution=node --loader ts-node/esm ./scripts/generate-types.js warp-protocol",
