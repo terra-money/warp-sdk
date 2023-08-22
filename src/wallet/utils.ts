@@ -13,13 +13,10 @@ export class TerraTxError extends Error {
   }
 }
 
-export interface TxResult {
-  result?:
-    | {
-        height: string;
-        raw_log: string;
-        txhash: string;
-      }
-    | undefined;
-  success: boolean;
-}
+export type PostResponse = {
+  height: string | number;
+  raw_log: string;
+  txhash: string;
+  code?: number | string;
+  codespace?: string;
+};

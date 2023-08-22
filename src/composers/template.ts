@@ -1,17 +1,17 @@
-import { warp_controller, warp_resolver } from '../types';
+import { warp_resolver, warp_templates } from '../types';
 
 export class SubmitTemplateMsgComposer {
-  private _condition: warp_controller.Condition | undefined;
+  private _condition: warp_resolver.Condition | undefined;
   private _formattedStr: string = '';
-  private _msgs: warp_controller.CosmosMsgFor_Empty[] = [];
+  private _msgs: warp_resolver.CosmosMsgFor_Empty[] = [];
   private _name: string = '';
-  private _vars: warp_controller.Variable[] = [];
+  private _vars: warp_resolver.Variable[] = [];
 
   static new(): SubmitTemplateMsgComposer {
     return new SubmitTemplateMsgComposer();
   }
 
-  cond(condition: warp_controller.Condition): SubmitTemplateMsgComposer {
+  cond(condition: warp_resolver.Condition): SubmitTemplateMsgComposer {
     this._condition = condition;
     return this;
   }
@@ -26,22 +26,22 @@ export class SubmitTemplateMsgComposer {
     return this;
   }
 
-  var(variable: warp_controller.Variable): SubmitTemplateMsgComposer {
+  var(variable: warp_resolver.Variable): SubmitTemplateMsgComposer {
     this._vars.push(variable);
     return this;
   }
 
-  msg(msg: warp_controller.CosmosMsgFor_Empty): SubmitTemplateMsgComposer {
+  msg(msg: warp_resolver.CosmosMsgFor_Empty): SubmitTemplateMsgComposer {
     this._msgs.push(msg);
     return this;
   }
 
-  compose(): warp_resolver.SubmitTemplateMsg {
+  compose(): warp_templates.SubmitTemplateMsg {
     if (this._name === undefined) {
       throw new Error('Name must be provided');
     }
 
-    const submitTemplateMsg: warp_resolver.SubmitTemplateMsg = {
+    const submitTemplateMsg: warp_templates.SubmitTemplateMsg = {
       condition: this._condition,
       formatted_str: this._formattedStr,
       msg: JSON.stringify(this._msgs),

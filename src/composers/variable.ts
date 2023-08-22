@@ -1,14 +1,14 @@
 import { variableName } from '../variables';
-import { warp_controller } from '../types';
+import { warp_resolver } from '../types';
 
 class StaticVariableComposer {
-  private variable: warp_controller.StaticVariable;
+  private variable: warp_resolver.StaticVariable;
 
   constructor() {
-    this.variable = { kind: 'string', name: '', value: '' };
+    this.variable = { kind: 'string', name: '', value: '', encode: false };
   }
 
-  kind(kind: warp_controller.VariableKind): StaticVariableComposer {
+  kind(kind: warp_resolver.VariableKind): StaticVariableComposer {
     this.variable.kind = kind;
     return this;
   }
@@ -23,7 +23,12 @@ class StaticVariableComposer {
     return this;
   }
 
-  onSuccess(fn: warp_controller.UpdateFnValue): StaticVariableComposer {
+  encode(value: boolean): StaticVariableComposer {
+    this.variable.encode = value;
+    return this;
+  }
+
+  onSuccess(fn: warp_resolver.UpdateFnValue): StaticVariableComposer {
     this.variable.update_fn = {
       ...(this.variable.update_fn ?? {}),
       on_success: fn,
@@ -32,7 +37,7 @@ class StaticVariableComposer {
     return this;
   }
 
-  onError(fn: warp_controller.UpdateFnValue): StaticVariableComposer {
+  onError(fn: warp_resolver.UpdateFnValue): StaticVariableComposer {
     this.variable.update_fn = {
       ...(this.variable.update_fn ?? {}),
       on_error: fn,
@@ -41,24 +46,25 @@ class StaticVariableComposer {
     return this;
   }
 
-  compose(): warp_controller.Variable {
+  compose(): warp_resolver.Variable {
     return { static: this.variable };
   }
 }
 
 class ExternalVariableComposer {
-  private variable: warp_controller.ExternalVariable;
+  private variable: warp_resolver.ExternalVariable;
 
   constructor() {
     this.variable = {
       kind: 'string',
       name: '',
       reinitialize: false,
-      init_fn: {} as warp_controller.ExternalExpr,
+      init_fn: {} as warp_resolver.ExternalExpr,
+      encode: false,
     };
   }
 
-  kind(kind: warp_controller.VariableKind): ExternalVariableComposer {
+  kind(kind: warp_resolver.VariableKind): ExternalVariableComposer {
     this.variable.kind = kind;
     return this;
   }
@@ -78,12 +84,17 @@ class ExternalVariableComposer {
     return this;
   }
 
-  onInit(value: warp_controller.ExternalExpr): ExternalVariableComposer {
+  encode(value: boolean): ExternalVariableComposer {
+    this.variable.encode = value;
+    return this;
+  }
+
+  onInit(value: warp_resolver.ExternalExpr): ExternalVariableComposer {
     this.variable.init_fn = value;
     return this;
   }
 
-  onSuccess(fn: warp_controller.UpdateFnValue): ExternalVariableComposer {
+  onSuccess(fn: warp_resolver.UpdateFnValue): ExternalVariableComposer {
     this.variable.update_fn = {
       ...(this.variable.update_fn ?? {}),
       on_success: fn,
@@ -92,7 +103,7 @@ class ExternalVariableComposer {
     return this;
   }
 
-  onError(fn: warp_controller.UpdateFnValue): ExternalVariableComposer {
+  onError(fn: warp_resolver.UpdateFnValue): ExternalVariableComposer {
     this.variable.update_fn = {
       ...(this.variable.update_fn ?? {}),
       on_error: fn,
@@ -101,24 +112,25 @@ class ExternalVariableComposer {
     return this;
   }
 
-  compose(): warp_controller.Variable {
+  compose(): warp_resolver.Variable {
     return { external: this.variable };
   }
 }
 
 class QueryVariableComposer {
-  private variable: warp_controller.QueryVariable;
+  private variable: warp_resolver.QueryVariable;
 
   constructor() {
     this.variable = {
       kind: 'string',
       name: '',
       reinitialize: false,
-      init_fn: {} as warp_controller.QueryExpr,
+      init_fn: {} as warp_resolver.QueryExpr,
+      encode: false,
     };
   }
 
-  kind(kind: warp_controller.VariableKind): QueryVariableComposer {
+  kind(kind: warp_resolver.VariableKind): QueryVariableComposer {
     this.variable.kind = kind;
     return this;
   }
@@ -138,12 +150,17 @@ class QueryVariableComposer {
     return this;
   }
 
-  onInit(value: warp_controller.QueryExpr): QueryVariableComposer {
+  encode(value: boolean): QueryVariableComposer {
+    this.variable.encode = value;
+    return this;
+  }
+
+  onInit(value: warp_resolver.QueryExpr): QueryVariableComposer {
     this.variable.init_fn = value;
     return this;
   }
 
-  onSuccess(fn: warp_controller.UpdateFnValue): QueryVariableComposer {
+  onSuccess(fn: warp_resolver.UpdateFnValue): QueryVariableComposer {
     this.variable.update_fn = {
       ...(this.variable.update_fn ?? {}),
       on_success: fn,
@@ -152,7 +169,7 @@ class QueryVariableComposer {
     return this;
   }
 
-  onError(fn: warp_controller.UpdateFnValue): QueryVariableComposer {
+  onError(fn: warp_resolver.UpdateFnValue): QueryVariableComposer {
     this.variable.update_fn = {
       ...(this.variable.update_fn ?? {}),
       on_error: fn,
@@ -161,7 +178,7 @@ class QueryVariableComposer {
     return this;
   }
 
-  compose(): warp_controller.Variable {
+  compose(): warp_resolver.Variable {
     return { query: this.variable };
   }
 }
@@ -179,7 +196,7 @@ export class VariableComposer {
     return new QueryVariableComposer();
   }
 
-  ref(v: warp_controller.Variable): string {
+  ref(v: warp_resolver.Variable): string {
     return `$warp.variable.${variableName(v)}`;
   }
 }

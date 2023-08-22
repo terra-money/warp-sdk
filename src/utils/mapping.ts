@@ -1,4 +1,4 @@
-import { warp_controller } from '../types';
+import { warp_resolver } from '../types';
 import {
   MsgSend,
   MsgDelegate,
@@ -18,7 +18,7 @@ import {
 import { base64decode } from './contract';
 import { VoteOption } from 'tx';
 
-export function cosmosMsgToCreateTxMsg(sender: string, input: warp_controller.CosmosMsgFor_Empty): Msg {
+export function cosmosMsgToCreateTxMsg(sender: string, input: warp_resolver.CosmosMsgFor_Empty): Msg {
   if ('bank' in input) {
     const bankMsg = input.bank;
 
@@ -90,15 +90,15 @@ export function cosmosMsgToCreateTxMsg(sender: string, input: warp_controller.Co
   throw new Error('Estimate fee not supported for message type provided as input.');
 }
 
-function coins(input: warp_controller.Coin[]) {
+function coins(input: warp_resolver.Coin[]) {
   return input.map(coin);
 }
 
-function coin(input: warp_controller.Coin) {
+function coin(input: warp_resolver.Coin) {
   return new Coin(input.denom, input.amount);
 }
 
-function vote(input: warp_controller.VoteOption): VoteOption {
+function vote(input: warp_resolver.VoteOption): VoteOption {
   switch (input) {
     case 'yes':
       return VoteOption.VOTE_OPTION_YES;

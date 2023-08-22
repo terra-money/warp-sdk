@@ -1,4 +1,4 @@
-import { warp_controller } from './types';
+import { warp_controller, warp_resolver } from './types';
 import { JSONPath } from 'jsonpath-plus';
 import { isObject } from 'lodash';
 import axios, { AxiosRequestConfig } from 'axios';
@@ -8,7 +8,7 @@ export const extractVariableName = (str: string) => {
   return str.substring(prefix.length);
 };
 
-export const variableName = (v: warp_controller.Variable): string => {
+export const variableName = (v: warp_resolver.Variable): string => {
   if ('static' in v) {
     return v.static.name;
   }
@@ -20,7 +20,7 @@ export const variableName = (v: warp_controller.Variable): string => {
   return v.query.name;
 };
 
-export const resolveExternalVariable = async (external: warp_controller.ExternalVariable): Promise<string> => {
+export const resolveExternalVariable = async (external: warp_resolver.ExternalVariable): Promise<string> => {
   const { init_fn } = external;
   const { body = null, method = 'get', selector, url, headers = {} } = init_fn;
 
@@ -56,7 +56,7 @@ export const resolveExternalVariable = async (external: warp_controller.External
 };
 
 const resolveExternalInput = async (
-  external: warp_controller.ExternalVariable
+  external: warp_resolver.ExternalVariable
 ): Promise<warp_controller.ExternalInput> => {
   const input = await resolveExternalVariable(external);
 
@@ -64,9 +64,9 @@ const resolveExternalInput = async (
 };
 
 export const resolveExternalInputs = async (
-  variables: warp_controller.Variable[]
+  variables: warp_resolver.Variable[]
 ): Promise<warp_controller.ExternalInput[]> => {
-  const externals = variables.filter((v) => 'external' in v) as Extract<warp_controller.Variable, { external: {} }>[];
+  const externals = variables.filter((v) => 'external' in v) as Extract<warp_resolver.Variable, { external: {} }>[];
 
   return Promise.all(externals.map((e) => resolveExternalInput(e.external)));
 };

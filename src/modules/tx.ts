@@ -1,4 +1,4 @@
-import { warp_account, warp_controller, warp_resolver } from '../types/contracts';
+import { warp_account, warp_controller, warp_templates } from '../types/contracts';
 import { base64encode, nativeTokenDenom, Token, TransferMsg } from '../utils';
 import { CreateTxOptions } from '@terra-money/feather.js';
 import { TxBuilder } from '../tx';
@@ -132,13 +132,13 @@ export class TxModule {
       .build();
   }
 
-  public async submitTemplate(sender: string, msg: warp_resolver.SubmitTemplateMsg): Promise<CreateTxOptions> {
+  public async submitTemplate(sender: string, msg: warp_templates.SubmitTemplateMsg): Promise<CreateTxOptions> {
     const config = await this.warpSdk.config();
 
     const nativeDenom = await nativeTokenDenom(this.warpSdk.wallet.lcd, this.warpSdk.chain.config.chainID);
 
     return TxBuilder.new(this.warpSdk.chain.config)
-      .execute<Extract<warp_resolver.ExecuteMsg, { submit_template: {} }>>(
+      .execute<Extract<warp_templates.ExecuteMsg, { submit_template: {} }>>(
         sender,
         this.warpSdk.chain.contracts.resolver,
         {
@@ -153,7 +153,7 @@ export class TxModule {
 
   public async deleteTemplate(sender: string, templateId: string): Promise<CreateTxOptions> {
     return TxBuilder.new(this.warpSdk.chain.config)
-      .execute<Extract<warp_resolver.ExecuteMsg, { delete_template: {} }>>(
+      .execute<Extract<warp_templates.ExecuteMsg, { delete_template: {} }>>(
         sender,
         this.warpSdk.chain.contracts.resolver,
         {
@@ -163,9 +163,9 @@ export class TxModule {
       .build();
   }
 
-  public async editTemplate(sender: string, msg: warp_resolver.EditTemplateMsg): Promise<CreateTxOptions> {
+  public async editTemplate(sender: string, msg: warp_templates.EditTemplateMsg): Promise<CreateTxOptions> {
     return TxBuilder.new(this.warpSdk.chain.config)
-      .execute<Extract<warp_resolver.ExecuteMsg, { edit_template: {} }>>(
+      .execute<Extract<warp_templates.ExecuteMsg, { edit_template: {} }>>(
         sender,
         this.warpSdk.chain.contracts.resolver,
         {

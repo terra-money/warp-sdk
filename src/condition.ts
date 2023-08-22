@@ -1,4 +1,4 @@
-import { warp_controller } from './types/contracts';
+import { warp_resolver } from './types/contracts';
 import { every, some } from 'lodash';
 import { JSONPath } from 'jsonpath-plus';
 import { contractQuery } from './utils';
@@ -16,7 +16,7 @@ export class Condition {
     this.contracts = contracts;
   }
 
-  public resolveCond = async (cond: warp_controller.Condition, vars: warp_controller.Variable[]): Promise<boolean> => {
+  public resolveCond = async (cond: warp_resolver.Condition, vars: warp_resolver.Variable[]): Promise<boolean> => {
     if ('and' in cond) {
       const all = await Promise.all(cond.and.map((c) => this.resolveCond(c, vars)));
       return every(all);
@@ -34,7 +34,7 @@ export class Condition {
     return this.resolveExpr(cond.expr, vars);
   };
 
-  public resolveExpr = async (expr: warp_controller.Expr, vars: warp_controller.Variable[]): Promise<boolean> => {
+  public resolveExpr = async (expr: warp_resolver.Expr, vars: warp_resolver.Variable[]): Promise<boolean> => {
     if ('string' in expr) {
       return this.resolveExprString(expr.string, vars);
     }
@@ -66,7 +66,7 @@ export class Condition {
     return false;
   };
 
-  public resolveExprTimestamp = async (expr: warp_controller.TimeExpr): Promise<boolean> => {
+  public resolveExprTimestamp = async (expr: warp_resolver.TimeExpr): Promise<boolean> => {
     const blockInfo = await this.wallet.lcd.tendermint.blockInfo(this.wallet.chainConfig.chainID);
 
     return this.resolveNumOp(
@@ -76,15 +76,15 @@ export class Condition {
     );
   };
 
-  public resolveExprBlockheight = async (expr: warp_controller.BlockExpr): Promise<boolean> => {
+  public resolveExprBlockheight = async (expr: warp_resolver.BlockExpr): Promise<boolean> => {
     const blockInfo = await this.wallet.lcd.tendermint.blockInfo(this.wallet.chainConfig.chainID);
 
     return this.resolveNumOp(Big(blockInfo.block.header.height), Big(expr.comparator), expr.op);
   };
 
   public resolveExprString = async (
-    expr: warp_controller.GenExprFor_ValueFor_StringAnd_StringOp,
-    vars: warp_controller.Variable[]
+    expr: warp_resolver.GenExprFor_ValueFor_StringAnd_StringOp,
+    vars: warp_resolver.Variable[]
   ): Promise<boolean> => {
     const left = await this.resolveStringValue(expr.left, vars);
     const right = await this.resolveStringValue(expr.right, vars);
@@ -93,8 +93,8 @@ export class Condition {
   };
 
   public resolveStringValue = async (
-    value: warp_controller.ValueFor_String,
-    vars: warp_controller.Variable[]
+    value: warp_resolver.ValueFor_String,
+    vars: warp_resolver.Variable[]
   ): Promise<string> => {
     if ('simple' in value) {
       return String(value.simple);
@@ -107,10 +107,10 @@ export class Condition {
 
   public resolveExprNum = async (
     expr:
-      | warp_controller.GenExprFor_NumValueForInt128And_NumExprOpAnd_IntFnOpAnd_NumOp
-      | warp_controller.GenExprFor_NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOpAnd_NumOp
-      | warp_controller.GenExprFor_NumValueFor_Uint256And_NumExprOpAnd_IntFnOpAnd_NumOp,
-    vars: warp_controller.Variable[]
+      | warp_resolver.GenExprFor_NumValueForInt128And_NumExprOpAnd_IntFnOpAnd_NumOp
+      | warp_resolver.GenExprFor_NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOpAnd_NumOp
+      | warp_resolver.GenExprFor_NumValueFor_Uint256And_NumExprOpAnd_IntFnOpAnd_NumOp,
+    vars: warp_resolver.Variable[]
   ): Promise<boolean> => {
     const left = await this.resolveNumValue(expr.left, vars);
     const right = await this.resolveNumValue(expr.right, vars);
@@ -120,10 +120,10 @@ export class Condition {
 
   public resolveNumValue = async (
     value:
-      | warp_controller.NumValueForInt128And_NumExprOpAnd_IntFnOp
-      | warp_controller.NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp
-      | warp_controller.NumValueFor_Uint256And_NumExprOpAnd_IntFnOp,
-    vars: warp_controller.Variable[]
+      | warp_resolver.NumValueForInt128And_NumExprOpAnd_IntFnOp
+      | warp_resolver.NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp
+      | warp_resolver.NumValueFor_Uint256And_NumExprOpAnd_IntFnOp,
+    vars: warp_resolver.Variable[]
   ): Promise<Big> => {
     if ('simple' in value) {
       return Big(value.simple);
@@ -156,10 +156,10 @@ export class Condition {
 
   public async resolveNumFn(
     fn:
-      | warp_controller.NumFnValueForInt128And_NumExprOpAnd_IntFnOp
-      | warp_controller.NumFnValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp
-      | warp_controller.NumFnValueFor_Uint256And_NumExprOpAnd_IntFnOp,
-    vars: warp_controller.Variable[]
+      | warp_resolver.NumFnValueForInt128And_NumExprOpAnd_IntFnOp
+      | warp_resolver.NumFnValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp
+      | warp_resolver.NumFnValueFor_Uint256And_NumExprOpAnd_IntFnOp,
+    vars: warp_resolver.Variable[]
   ): Promise<Big> {
     const val = await this.resolveNumValue(fn.right, vars);
     switch (fn.op) {
@@ -178,10 +178,10 @@ export class Condition {
 
   public async resolveNumExpr(
     expr:
-      | warp_controller.NumExprValueForInt128And_NumExprOpAnd_IntFnOp
-      | warp_controller.NumExprValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp
-      | warp_controller.NumExprValueFor_Uint256And_NumExprOpAnd_IntFnOp,
-    vars: warp_controller.Variable[]
+      | warp_resolver.NumExprValueForInt128And_NumExprOpAnd_IntFnOp
+      | warp_resolver.NumExprValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp
+      | warp_resolver.NumExprValueFor_Uint256And_NumExprOpAnd_IntFnOp,
+    vars: warp_resolver.Variable[]
   ): Promise<Big> {
     const left = await this.resolveNumValue(expr.left, vars);
     const right = await this.resolveNumValue(expr.right, vars);
@@ -200,7 +200,7 @@ export class Condition {
     }
   }
 
-  public variable(ref: string, vars: warp_controller.Variable[]): warp_controller.Variable {
+  public variable(ref: string, vars: warp_resolver.Variable[]): warp_resolver.Variable {
     const name = extractVariableName(ref);
     const v = vars.find((v) => variableName(v) === name);
 
@@ -211,13 +211,13 @@ export class Condition {
     return v;
   }
 
-  public resolveExprBool(ref: string, vars: warp_controller.Variable[]): Promise<boolean> {
+  public resolveExprBool(ref: string, vars: warp_resolver.Variable[]): Promise<boolean> {
     const v = this.variable(ref, vars);
 
     return this.resolveVariable(v, (val) => Boolean(val));
   }
 
-  public async resolveVariable<T>(variable: warp_controller.Variable, cast: (val: string) => T): Promise<T> {
+  public async resolveVariable<T>(variable: warp_resolver.Variable, cast: (val: string) => T): Promise<T> {
     if ('static' in variable) {
       return cast(variable.static.value);
     }
@@ -231,10 +231,10 @@ export class Condition {
     }
   }
 
-  public async resolveQueryVariable(query: warp_controller.QueryVariable): Promise<string> {
+  public async resolveQueryVariable(query: warp_resolver.QueryVariable): Promise<string> {
     const resp = await contractQuery<
-      Extract<warp_controller.QueryMsg, { simulate_query: {} }>,
-      warp_controller.SimulateResponse
+      Extract<warp_resolver.QueryMsg, { simulate_query: {} }>,
+      warp_resolver.SimulateResponse
     >(this.wallet.lcd, this.contracts.controller, { simulate_query: { query: query.init_fn.query } });
     const extracted = JSONPath({ path: query.init_fn.selector, json: JSON.parse(resp.response) });
 
@@ -245,7 +245,7 @@ export class Condition {
     }
   }
 
-  public resolveStringOp = async (left: string, right: string, op: warp_controller.StringOp): Promise<boolean> => {
+  public resolveStringOp = async (left: string, right: string, op: warp_resolver.StringOp): Promise<boolean> => {
     if (left == null || right == null) {
       return false;
     }
@@ -264,7 +264,7 @@ export class Condition {
     }
   };
 
-  public resolveNumOp = async (left: Big, right: Big, op: warp_controller.NumOp): Promise<boolean> => {
+  public resolveNumOp = async (left: Big, right: Big, op: warp_resolver.NumOp): Promise<boolean> => {
     if (left == null || right == null) {
       return false;
     }

@@ -39,7 +39,8 @@
     "contracts": [
       "warp-controller",
       "warp-account",
-      "warp-resolver"
+      "warp-resolver",
+      "warp-templates"
     ],
     "output": "src/types/contracts"
   },
