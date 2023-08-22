@@ -12,6 +12,7 @@ import { TemplateComposer } from './template';
 import { VariableComposer } from './variable';
 import { TimestampComposer } from './timestamp';
 import { QueryComposer } from './query';
+import { AccountComposer } from './account';
 
 export * from './condition';
 export * from './job';
@@ -31,3 +32,4 @@ export const job = new JobComposer();
 export const variable = new VariableComposer();
 export const ts = new TimestampComposer();
 export const query = new QueryComposer();
+export const account = new AccountComposer();
