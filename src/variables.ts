@@ -8,6 +8,11 @@ export const extractVariableName = (str: string) => {
   return str.substring(prefix.length);
 };
 
+export const isVariableRef = (input: any) => {
+  const prefix = '$warp.variable.';
+  return typeof input === 'string' && input.startsWith(prefix);
+};
+
 export const variableName = (v: warp_resolver.Variable): string => {
   if ('static' in v) {
     return v.static.name;

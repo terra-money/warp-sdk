@@ -1,3 +1,4 @@
+import { isVariableRef } from '../variables';
 import { warp_resolver } from '../types';
 import { base64encode } from '../utils';
 
@@ -43,38 +44,34 @@ export class MessageComposer {
     return { ibc: { transfer: { amount, channel_id, timeout, to_address } } };
   }
 
-  sendPacket<T extends {}>(
-    channel_id: string,
-    data: T,
-    timeout: warp_resolver.IbcTimeout
-  ): warp_resolver.CosmosMsgFor_Empty {
-    return { ibc: { send_packet: { channel_id, data: base64encode(data), timeout } } };
+  sendPacket<T>(channel_id: string, data: T, timeout: warp_resolver.IbcTimeout): warp_resolver.CosmosMsgFor_Empty {
+    return {
+      ibc: { send_packet: { channel_id, data: variableRefOrEncode(data), timeout } },
+    };
   }
 
   closeChannel(channel_id: string): warp_resolver.CosmosMsgFor_Empty {
     return { ibc: { close_channel: { channel_id } } };
   }
 
-  execute<T extends {}>(
-    contract_addr: string,
-    msg: T,
-    funds: warp_resolver.Coin[] = []
-  ): warp_resolver.CosmosMsgFor_Empty {
-    return { wasm: { execute: { contract_addr, funds, msg: base64encode(msg) } } };
+  execute<T>(contract_addr: string, msg: T, funds: warp_resolver.Coin[] = []): warp_resolver.CosmosMsgFor_Empty {
+    return {
+      wasm: { execute: { contract_addr, funds, msg: variableRefOrEncode(msg) } },
+    };
   }
 
-  instantiate<T extends {}>(
+  instantiate<T>(
     admin: string | null,
     code_id: number,
     label: string,
     msg: T,
     funds: warp_resolver.Coin[] = []
   ): warp_resolver.CosmosMsgFor_Empty {
-    return { wasm: { instantiate: { admin, code_id, funds, label, msg: base64encode(msg) } } };
+    return { wasm: { instantiate: { admin, code_id, funds, label, msg: variableRefOrEncode(msg) } } };
   }
 
-  migrate<T extends {}>(contract_addr: string, msg: T, new_code_id: number): warp_resolver.CosmosMsgFor_Empty {
-    return { wasm: { migrate: { contract_addr, msg: base64encode(msg), new_code_id } } };
+  migrate<T>(contract_addr: string, msg: T, new_code_id: number): warp_resolver.CosmosMsgFor_Empty {
+    return { wasm: { migrate: { contract_addr, msg: variableRefOrEncode(msg), new_code_id } } };
   }
 
   update_admin(admin: string, contract_addr: string): warp_resolver.CosmosMsgFor_Empty {
@@ -88,4 +85,8 @@ export class MessageComposer {
   vote(proposal_id: number, vote: warp_resolver.VoteOption): warp_resolver.CosmosMsgFor_Empty {
     return { gov: { vote: { proposal_id, vote } } };
   }
+}
+
+function variableRefOrEncode(input: any): string {
+  return isVariableRef(input) ? input : base64encode(input);
 }
