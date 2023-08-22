@@ -70,7 +70,7 @@ export class WarpSdk {
     const { response } = await contractQuery<
       Extract<warp_resolver.QueryMsg, { simulate_query: {} }>,
       warp_resolver.SimulateResponse
-    >(this.wallet.lcd, this.chain.contracts.controller, { simulate_query: { query } });
+    >(this.wallet.lcd, this.chain.contracts.resolver, { simulate_query: { query } });
 
     return JSON.parse(response);
   }

@@ -235,7 +235,7 @@ export class Condition {
     const resp = await contractQuery<
       Extract<warp_resolver.QueryMsg, { simulate_query: {} }>,
       warp_resolver.SimulateResponse
-    >(this.wallet.lcd, this.contracts.controller, { simulate_query: { query: query.init_fn.query } });
+    >(this.wallet.lcd, this.contracts.resolver, { simulate_query: { query: query.init_fn.query } });
     const extracted = JSONPath({ path: query.init_fn.selector, json: JSON.parse(resp.response) });
 
     if (extracted[0] == null) {
