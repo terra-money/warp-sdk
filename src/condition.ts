@@ -1,7 +1,7 @@
 import { warp_resolver } from './types/contracts';
 import { every, some } from 'lodash';
 import { JSONPath } from 'jsonpath-plus';
-import { contractQuery } from './utils';
+import { base64encode, contractQuery } from './utils';
 import { Big } from 'big.js';
 import { Wallet } from './wallet';
 import { extractVariableName, resolveExternalVariable, variableName } from './variables';
@@ -218,17 +218,29 @@ export class Condition {
   }
 
   public async resolveVariable<T>(variable: warp_resolver.Variable, cast: (val: string) => T): Promise<T> {
+    let resp: T;
+    let encode: boolean = false;
+
     if ('static' in variable) {
-      return cast(variable.static.value);
+      resp = cast(variable.static.value);
+      encode = variable.static.encode;
     }
 
     if ('external' in variable) {
-      return cast(await resolveExternalVariable(variable.external));
+      resp = cast(await resolveExternalVariable(variable.external));
+      encode = variable.external.encode;
     }
 
     if ('query' in variable) {
-      return cast(await this.resolveQueryVariable(variable.query));
+      resp = cast(await this.resolveQueryVariable(variable.query));
+      encode = variable.query.encode;
     }
+
+    if (encode) {
+      resp = base64encode(resp) as T;
+    }
+
+    return resp;
   }
 
   public async resolveQueryVariable(query: warp_resolver.QueryVariable): Promise<string> {

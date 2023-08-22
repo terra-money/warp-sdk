@@ -15,7 +15,7 @@ export type TransferMsg = {
   };
 };
 
-export const base64encode = (input: object): string => {
+export const base64encode = (input: any): string => {
   return Buffer.from(JSON.stringify(JSON.parse(JSON.stringify(input)))).toString('base64');
 };
 
