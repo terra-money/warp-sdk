@@ -10,7 +10,7 @@ interface ContractDefinition {
   address: string;
 }
 
-type ContractNames = 'warp-controller' | 'warp-resolver';
+type ContractNames = 'warp-controller' | 'warp-resolver' | 'warp-templates';
 
 type NetworkConfig = {
   [contract in ContractNames]: ContractDefinition;
@@ -47,6 +47,7 @@ export const SUPPORTED_CHAINS: ChainMetadata[] = [TERRA_CHAIN, INJECTIVE_CHAIN];
 export interface ContractAddresses {
   controller: string;
   resolver: string;
+  templates: string;
 }
 
 export class ChainModule {
@@ -63,6 +64,7 @@ export class ChainModule {
     this.contracts = {
       controller: contractsConfig['warp-controller'].address,
       resolver: contractsConfig['warp-resolver'].address,
+      templates: contractsConfig['warp-templates'].address,
     };
   }
 
@@ -109,6 +111,8 @@ export class ChainModule {
         return contractDefs['warp-controller'].address;
       case 'resolver':
         return contractDefs['warp-resolver'].address;
+      case 'templates':
+        return contractDefs['warp-templates'].address;
     }
   }
 }

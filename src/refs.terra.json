@@ -7,6 +7,10 @@
     "warp-resolver": {
       "codeId": "9263",
       "address": "terra1lxfx6n792aw3hg47tchmyuhv5t30f334gus67pc250qx5zljadws65elnf"
+    },
+    "warp-templates": {
+      "codeId": "9263",
+      "address": "terra1lxfx6n792aw3hg47tchmyuhv5t30f334gus67pc250qx5zljadws65elnf"
     }
   },
   "mainnet": {
@@ -15,6 +19,10 @@
       "address": "terra1mg93d4g69tsf3x6sa9nkmkzc9wl38gdrygu0sewwcwj6l2a4089sdd7fgj"
     },
     "warp-resolver": {
+      "codeId": "1616",
+      "address": "terra13taf05fedehdfsguu0v24ssmrs9xfzn6wewwkxxlsdy2qmudhwfsvvgdm5"
+    },
+    "warp-templates": {
       "codeId": "1616",
       "address": "terra13taf05fedehdfsguu0v24ssmrs9xfzn6wewwkxxlsdy2qmudhwfsvvgdm5"
     }

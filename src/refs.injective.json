@@ -7,6 +7,10 @@
     "warp-resolver": {
       "codeId": "2242",
       "address": "inj1z8wsnjqy5psq7sxx4zpy4t49nq0r8l2w08uxzu"
+    },
+    "warp-templates": {
+      "codeId": "2242",
+      "address": "inj1z8wsnjqy5psq7sxx4zpy4t49nq0r8l2w08uxzu"
     }
   },
   "mainnet": {
@@ -15,6 +19,10 @@
       "address": "inj1l5xlk2eerslrd8va5qu6wd8yzc8yz8hdc579fg"
     },
     "warp-resolver": {
+      "codeId": "70",
+      "address": "inj147v6a22ue68uumjxgz3t93g06w8vrlv7mmfuyf"
+    },
+    "warp-templates": {
       "codeId": "70",
       "address": "inj147v6a22ue68uumjxgz3t93g06w8vrlv7mmfuyf"
     }

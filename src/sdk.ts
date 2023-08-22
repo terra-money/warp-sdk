@@ -52,7 +52,7 @@ export class WarpSdk {
     const { templates } = await contractQuery<
       Extract<warp_templates.QueryMsg, { query_templates: {} }>,
       warp_templates.TemplatesResponse
-    >(this.wallet.lcd, this.chain.contracts.resolver, { query_templates: opts });
+    >(this.wallet.lcd, this.chain.contracts.templates, { query_templates: opts });
 
     return templates;
   }
@@ -61,7 +61,7 @@ export class WarpSdk {
     const { template } = await contractQuery<
       Extract<warp_templates.QueryMsg, { query_template: {} }>,
       warp_templates.TemplateResponse
-    >(this.wallet.lcd, this.chain.contracts.resolver, { query_template: { id } });
+    >(this.wallet.lcd, this.chain.contracts.templates, { query_template: { id } });
 
     return template;
   }
@@ -102,7 +102,7 @@ export class WarpSdk {
     const { config: resolverConfig } = await contractQuery<
       Extract<warp_templates.QueryMsg, { query_config: {} }>,
       warp_templates.ConfigResponse
-    >(this.wallet.lcd, this.chain.contracts.resolver, { query_config: {} });
+    >(this.wallet.lcd, this.chain.contracts.templates, { query_config: {} });
 
     return { ...controllerConfig, template_fee: resolverConfig.template_fee };
   }
@@ -259,7 +259,7 @@ export class WarpSdk {
     const txPayload = TxBuilder.new(this.chain.config)
       .execute<Extract<warp_templates.ExecuteMsg, { submit_template: {} }>>(
         sender,
-        this.chain.contracts.resolver,
+        this.chain.contracts.templates,
         {
           submit_template: msg,
         },
@@ -274,7 +274,7 @@ export class WarpSdk {
 
   public async deleteTemplate(sender: string, templateId: string): Promise<TxInfo> {
     const txPayload = TxBuilder.new(this.chain.config)
-      .execute<Extract<warp_templates.ExecuteMsg, { delete_template: {} }>>(sender, this.chain.contracts.resolver, {
+      .execute<Extract<warp_templates.ExecuteMsg, { delete_template: {} }>>(sender, this.chain.contracts.templates, {
         delete_template: { id: templateId },
       })
       .build();
@@ -284,7 +284,7 @@ export class WarpSdk {
 
   public async editTemplate(sender: string, msg: warp_templates.EditTemplateMsg): Promise<TxInfo> {
     const txPayload = TxBuilder.new(this.chain.config)
-      .execute<Extract<warp_templates.ExecuteMsg, { edit_template: {} }>>(sender, this.chain.contracts.resolver, {
+      .execute<Extract<warp_templates.ExecuteMsg, { edit_template: {} }>>(sender, this.chain.contracts.templates, {
         edit_template: msg,
       })
       .build();

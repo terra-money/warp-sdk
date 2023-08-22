@@ -140,7 +140,7 @@ export class TxModule {
     return TxBuilder.new(this.warpSdk.chain.config)
       .execute<Extract<warp_templates.ExecuteMsg, { submit_template: {} }>>(
         sender,
-        this.warpSdk.chain.contracts.resolver,
+        this.warpSdk.chain.contracts.templates,
         {
           submit_template: msg,
         },
@@ -155,7 +155,7 @@ export class TxModule {
     return TxBuilder.new(this.warpSdk.chain.config)
       .execute<Extract<warp_templates.ExecuteMsg, { delete_template: {} }>>(
         sender,
-        this.warpSdk.chain.contracts.resolver,
+        this.warpSdk.chain.contracts.templates,
         {
           delete_template: { id: templateId },
         }
@@ -167,7 +167,7 @@ export class TxModule {
     return TxBuilder.new(this.warpSdk.chain.config)
       .execute<Extract<warp_templates.ExecuteMsg, { edit_template: {} }>>(
         sender,
-        this.warpSdk.chain.contracts.resolver,
+        this.warpSdk.chain.contracts.templates,
         {
           edit_template: msg,
         }
