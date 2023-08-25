@@ -1,8 +1,9 @@
 import refsTerra from '../refs.terra.json';
 import refsInjective from '../refs.injective.json';
+import refsNeutron from '../refs.neutron.json';
 import { LCDClientConfig } from '@terra-money/feather.js';
 
-export type ChainName = 'terra' | 'injective';
+export type ChainName = 'terra' | 'injective' | 'neutron';
 export type NetworkName = 'testnet' | 'mainnet';
 
 interface ContractDefinition {
@@ -35,6 +36,13 @@ export const TERRA_CHAIN: ChainMetadata = {
   refs: refsTerra,
 };
 
+export const NEUTRON_CHAIN: ChainMetadata = {
+  name: 'neutron',
+  testnet: 'pion-1',
+  mainnet: 'neutron-1',
+  refs: refsNeutron,
+};
+
 export const INJECTIVE_CHAIN: ChainMetadata = {
   name: 'injective',
   testnet: 'injective-888',
@@ -42,7 +50,7 @@ export const INJECTIVE_CHAIN: ChainMetadata = {
   refs: refsInjective,
 };
 
-export const SUPPORTED_CHAINS: ChainMetadata[] = [TERRA_CHAIN, INJECTIVE_CHAIN];
+export const SUPPORTED_CHAINS: ChainMetadata[] = [TERRA_CHAIN, INJECTIVE_CHAIN, NEUTRON_CHAIN];
 
 export interface ContractAddresses {
   controller: string;

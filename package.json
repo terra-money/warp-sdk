@@ -24,6 +24,7 @@
     "start": "yarn bot-terra",
     "bot-terra": "esbuild src/bot.terra.ts --bundle --platform=node --outdir=dist --outbase=src && node ./dist/bot.terra.js",
     "bot-injective": "esbuild src/bot.injective.ts --bundle --platform=node --outdir=dist --outbase=src && node ./dist/bot.injective.js",
+    "bot-neutron": "esbuild src/bot.neutron.ts --bundle --platform=node --outdir=dist --outbase=src && node ./dist/bot.neutron.js",
     "format": "prettier --write \"src/**/*.{js,ts,tsx}\"",
     "generate-types": "node --experimental-specifier-resolution=node --loader ts-node/esm ./scripts/generate-types.js warp-protocol",
     "postinstall": "husky install",
