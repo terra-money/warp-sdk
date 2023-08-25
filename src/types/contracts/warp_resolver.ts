@@ -364,9 +364,25 @@ export module warp_resolver {
      */
     revision: number;
   }
-  export type ExecuteMsg = {
-    execute_simulate_query: ExecuteSimulateQueryMsg;
-  };
+  export type ExecuteMsg =
+    | {
+        execute_simulate_query: ExecuteSimulateQueryMsg;
+      }
+    | {
+        execute_validate_job_creation: ExecuteValidateJobCreationMsg;
+      }
+    | {
+        execute_hydrate_vars: ExecuteHydrateVarsMsg;
+      }
+    | {
+        execute_resolve_condition: ExecuteResolveConditionMsg;
+      }
+    | {
+        execute_apply_var_fn: ExecuteApplyVarFnMsg;
+      }
+    | {
+        execute_hydrate_msgs: ExecuteHydrateMsgsMsg;
+      };
   export type QueryRequestFor_String =
     | {
         bank: BankQuery;
@@ -472,8 +488,35 @@ export module warp_resolver {
           contract_addr: string;
         };
       };
+  export type JobStatus = 'Pending' | 'Executed' | 'Failed' | 'Cancelled' | 'Evicted';
   export interface ExecuteSimulateQueryMsg {
     query: QueryRequestFor_String;
+  }
+  export interface ExecuteValidateJobCreationMsg {
+    condition: string;
+    msgs: string;
+    terminate_condition?: string | null;
+    vars: string;
+  }
+  export interface ExecuteHydrateVarsMsg {
+    external_inputs?: ExternalInput[] | null;
+    vars: string;
+  }
+  export interface ExternalInput {
+    input: string;
+    name: string;
+  }
+  export interface ExecuteResolveConditionMsg {
+    condition: string;
+    vars: string;
+  }
+  export interface ExecuteApplyVarFnMsg {
+    status: JobStatus;
+    vars: string;
+  }
+  export interface ExecuteHydrateMsgsMsg {
+    msgs: string;
+    vars: string;
   }
   export interface InstantiateMsg {}
   export type QueryMsg =
@@ -495,7 +538,6 @@ export module warp_resolver {
     | {
         query_hydrate_msgs: QueryHydrateMsgsMsg;
       };
-  export type JobStatus = 'Pending' | 'Executed' | 'Failed' | 'Cancelled' | 'Evicted';
   export interface SimulateQueryMsg {
     query: QueryRequestFor_String;
   }
@@ -509,10 +551,6 @@ export module warp_resolver {
     external_inputs?: ExternalInput[] | null;
     vars: string;
   }
-  export interface ExternalInput {
-    input: string;
-    name: string;
-  }
   export interface QueryResolveConditionMsg {
     condition: string;
     vars: string;
@@ -524,9 +562,6 @@ export module warp_resolver {
   export interface QueryHydrateMsgsMsg {
     msgs: string;
     vars: string;
-  }
-  export interface ResolveResponse {
-    response: string;
   }
   export interface SimulateResponse {
     response: string;

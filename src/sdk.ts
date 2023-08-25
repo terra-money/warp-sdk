@@ -75,46 +75,50 @@ export class WarpSdk {
     return JSON.parse(response);
   }
 
-  public async validateJobCreation(msg: warp_resolver.QueryValidateJobCreationMsg): Promise<String> {
-    const { response } = await contractQuery<
-      Extract<warp_resolver.QueryMsg, { query_validate_job_creation: {} }>,
-      warp_resolver.ResolveResponse
-    >(this.wallet.lcd, this.chain.contracts.resolver, { query_validate_job_creation: msg });
+  public async validateJobCreation(msg: warp_resolver.QueryValidateJobCreationMsg): Promise<string> {
+    const response = await contractQuery<Extract<warp_resolver.QueryMsg, { query_validate_job_creation: {} }>, string>(
+      this.wallet.lcd,
+      this.chain.contracts.resolver,
+      { query_validate_job_creation: msg }
+    );
 
     return response;
   }
 
-  public async hydrateVars(msg: warp_resolver.QueryHydrateVarsMsg): Promise<String> {
-    const { response } = await contractQuery<
-      Extract<warp_resolver.QueryMsg, { query_hydrate_vars: {} }>,
-      warp_resolver.ResolveResponse
-    >(this.wallet.lcd, this.chain.contracts.resolver, { query_hydrate_vars: msg });
+  public async hydrateVars(msg: warp_resolver.QueryHydrateVarsMsg): Promise<string> {
+    const resp = await contractQuery<Extract<warp_resolver.QueryMsg, { query_hydrate_vars: {} }>, string>(
+      this.wallet.lcd,
+      this.chain.contracts.resolver,
+      { query_hydrate_vars: msg }
+    );
+
+    return resp;
+  }
+
+  public async resolveCondition(msg: warp_resolver.QueryResolveConditionMsg): Promise<boolean> {
+    const response = await contractQuery<Extract<warp_resolver.QueryMsg, { query_resolve_condition: {} }>, boolean>(
+      this.wallet.lcd,
+      this.chain.contracts.resolver,
+      { query_resolve_condition: msg }
+    );
 
     return response;
   }
 
-  public async resolveCondition(msg: warp_resolver.QueryResolveConditionMsg): Promise<String> {
-    const { response } = await contractQuery<
-      Extract<warp_resolver.QueryMsg, { query_resolve_condition: {} }>,
-      warp_resolver.ResolveResponse
-    >(this.wallet.lcd, this.chain.contracts.resolver, { query_resolve_condition: msg });
+  public async applyVarFn(msg: warp_resolver.QueryApplyVarFnMsg): Promise<string> {
+    const response = await contractQuery<Extract<warp_resolver.QueryMsg, { query_apply_var_fn: {} }>, string>(
+      this.wallet.lcd,
+      this.chain.contracts.resolver,
+      { query_apply_var_fn: msg }
+    );
 
     return response;
   }
 
-  public async applyVarFn(msg: warp_resolver.QueryApplyVarFnMsg): Promise<String> {
-    const { response } = await contractQuery<
-      Extract<warp_resolver.QueryMsg, { query_apply_var_fn: {} }>,
-      warp_resolver.ResolveResponse
-    >(this.wallet.lcd, this.chain.contracts.resolver, { query_apply_var_fn: msg });
-
-    return response;
-  }
-
-  public async hydrateMsgs(msg: warp_resolver.QueryHydrateMsgsMsg): Promise<String> {
-    const { response } = await contractQuery<
+  public async hydrateMsgs(msg: warp_resolver.QueryHydrateMsgsMsg): Promise<warp_resolver.CosmosMsgFor_Empty[]> {
+    const response = await contractQuery<
       Extract<warp_resolver.QueryMsg, { query_hydrate_msgs: {} }>,
-      warp_resolver.ResolveResponse
+      warp_resolver.CosmosMsgFor_Empty[]
     >(this.wallet.lcd, this.chain.contracts.resolver, { query_hydrate_msgs: msg });
 
     return response;

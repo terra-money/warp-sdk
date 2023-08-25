@@ -20,6 +20,9 @@ export module warp_account {
       }
     | {
         withdraw_assets: WithdrawAssetsMsg;
+      }
+    | {
+        ibc_transfer: IbcTransferMsg;
       };
   export type CosmosMsgFor_Empty =
     | {
@@ -238,6 +241,25 @@ export module warp_account {
   }
   export interface WithdrawAssetsMsg {
     asset_infos: AssetInfo[];
+  }
+  export interface IbcTransferMsg {
+    timeout_block_delta?: number | null;
+    timeout_timestamp_seconds_delta?: number | null;
+    transfer_msg: TransferMsg;
+  }
+  export interface TransferMsg {
+    memo: string;
+    receiver: string;
+    sender: string;
+    source_channel: string;
+    source_port: string;
+    timeout_block?: TimeoutBlock | null;
+    timeout_timestamp?: number | null;
+    token?: Coin | null;
+  }
+  export interface TimeoutBlock {
+    revision_height?: number | null;
+    revision_number?: number | null;
   }
   export type Fund =
     | {
