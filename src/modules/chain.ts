@@ -1,7 +1,7 @@
 import refsTerra from '../refs.terra.json';
 import refsInjective from '../refs.injective.json';
 import refsNeutron from '../refs.neutron.json';
-import { LCDClientConfig } from '@terra-money/feather.js';
+import { LCDClient, LCDClientConfig } from '@terra-money/feather.js';
 
 export type ChainName = 'terra' | 'injective' | 'neutron';
 export type NetworkName = 'testnet' | 'mainnet';
@@ -25,28 +25,92 @@ type Refs = {
 export type ChainMetadata = {
   name: ChainName;
   mainnet: string;
+  mainnetConfig: LCDClientConfig;
   testnet: string;
+  testnetConfig: LCDClientConfig;
   refs: Refs;
+};
+
+const mainnetConfig: Record<string, LCDClientConfig> = {
+  'phoenix-1': {
+    chainID: 'phoenix-1',
+    lcd: 'https://phoenix-lcd.terra.dev',
+    gasAdjustment: 1.75,
+    gasPrices: { uluna: 0.15 },
+    prefix: 'terra',
+  },
+  'injective-1': {
+    chainID: 'injective-1',
+    lcd: 'https://lcd.injective.network',
+    gasAdjustment: 1.75,
+    gasPrices: {
+      inj: 1500000000,
+    },
+    prefix: 'inj',
+  },
+  'neutron-1': {
+    chainID: 'neutron-1',
+    lcd: 'https://rest-kralum.neutron-1.neutron.org',
+    gasAdjustment: 1.75,
+    gasPrices: {
+      untrn: 0.05,
+    },
+    prefix: 'neutron',
+  },
+};
+
+const testnetConfig: Record<string, LCDClientConfig> = {
+  'pisco-1': {
+    lcd: 'https://pisco-lcd.terra.dev',
+    chainID: 'pisco-1',
+    gasAdjustment: 1.75,
+    gasPrices: { uluna: 0.15 },
+    prefix: 'terra',
+  },
+  'injective-888': {
+    chainID: 'injective-888',
+    lcd: 'https://k8s.testnet.lcd.injective.network',
+    gasAdjustment: 1.75,
+    gasPrices: {
+      inj: 1500000000,
+    },
+    prefix: 'inj',
+  },
+  'pion-1': {
+    chainID: 'pion-1',
+    lcd: 'https://rest-palvus.pion-1.ntrn.tech',
+    gasAdjustment: 1.75,
+    gasPrices: {
+      untrn: 0.05,
+    },
+    prefix: 'neutron',
+  },
 };
 
 export const TERRA_CHAIN: ChainMetadata = {
   name: 'terra',
   testnet: 'pisco-1',
+  testnetConfig: testnetConfig['pisco-1'],
   mainnet: 'phoenix-1',
+  mainnetConfig: mainnetConfig['phoenix-1'],
   refs: refsTerra,
 };
 
 export const NEUTRON_CHAIN: ChainMetadata = {
   name: 'neutron',
   testnet: 'pion-1',
+  testnetConfig: testnetConfig['pion-1'],
   mainnet: 'neutron-1',
+  mainnetConfig: mainnetConfig['neutron-1'],
   refs: refsNeutron,
 };
 
 export const INJECTIVE_CHAIN: ChainMetadata = {
   name: 'injective',
   testnet: 'injective-888',
+  testnetConfig: testnetConfig['injective-888'],
   mainnet: 'injective-1',
+  mainnetConfig: mainnetConfig['injective-1'],
   refs: refsInjective,
 };
 
@@ -74,6 +138,40 @@ export class ChainModule {
       resolver: contractsConfig['warp-resolver'].address,
       templates: contractsConfig['warp-templates'].address,
     };
+  }
+
+  public static lcdClientConfig(
+    chains: ChainName[] = ['terra', 'neutron', 'injective'],
+    networks: NetworkName[] = ['mainnet', 'testnet']
+  ): Record<string, LCDClientConfig> {
+    let configs: Record<string, LCDClientConfig> = {};
+
+    for (const chain of chains) {
+      const chainMetadata = SUPPORTED_CHAINS.find((ch) => ch.name === chain);
+
+      if (chainMetadata) {
+        for (const network of networks) {
+          const config = network === 'testnet' ? chainMetadata.testnetConfig : chainMetadata.mainnetConfig;
+          const configKey = config.chainID;
+
+          configs[configKey] = config;
+        }
+      }
+    }
+
+    return configs;
+  }
+
+  public static lcdClient(
+    input: {
+      chains: ChainName[];
+      networks: NetworkName[];
+    } = {
+      chains: ['terra', 'neutron', 'injective'],
+      networks: ['mainnet', 'testnet'],
+    }
+  ): LCDClient {
+    return new LCDClient(ChainModule.lcdClientConfig(input.chains, input.networks));
   }
 
   public chainMetadata(chainName: ChainName): ChainMetadata {

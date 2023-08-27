@@ -2,12 +2,12 @@ import { warp_account, warp_controller, warp_resolver } from './types/contracts'
 import { WalletLike, Wallet, wallet } from './wallet';
 import { Condition } from './condition';
 import { base64encode, contractQuery, nativeTokenDenom, Token, TransferMsg } from './utils';
-import { CreateTxOptions, Fee, TxInfo, LCDClientConfig } from '@terra-money/feather.js';
+import { CreateTxOptions, Fee, TxInfo, LCDClientConfig, LCDClient } from '@terra-money/feather.js';
 import { TxBuilder } from './tx';
 import Big from 'big.js';
 import { JobSequenceMsgComposer } from './composers';
 import { resolveExternalInputs } from './variables';
-import { TxModule, ChainModule } from './modules';
+import { TxModule, ChainModule, ChainName, NetworkName } from './modules';
 import { cosmosMsgToCreateTxMsg } from './utils';
 import { warp_templates } from './types/contracts/warp_templates';
 import { Job, parseJob } from './types/job';
@@ -23,6 +23,25 @@ export class WarpSdk {
     this.tx = new TxModule(this);
     this.chain = new ChainModule(chainConfig);
     this.condition = new Condition(this.wallet, this.chain.contracts);
+  }
+
+  public static lcdClientConfig(
+    chains: ChainName[] = ['terra', 'neutron', 'injective'],
+    networks: NetworkName[] = ['mainnet', 'testnet']
+  ): Record<string, LCDClientConfig> {
+    return ChainModule.lcdClientConfig(chains, networks);
+  }
+
+  public static lcdClient(
+    input: {
+      chains: ChainName[];
+      networks: NetworkName[];
+    } = {
+      chains: ['terra', 'neutron', 'injective'],
+      networks: ['mainnet', 'testnet'],
+    }
+  ): LCDClient {
+    return ChainModule.lcdClient(input);
   }
 
   public async isJobActive(jobId: string): Promise<boolean> {

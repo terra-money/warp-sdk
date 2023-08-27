@@ -51,7 +51,7 @@ const lcdClientConfig = lcd.config[chainId];
 // if you wonder what 60 is, ask Alessandro from TFL
 const wallet = new Wallet(lcd, new MnemonicKey({ mnemonic: env.MNEMONIC_KEY, coinType: 60 }));
 
-const sdk = new WarpSdk(wallet as any, lcd.config[chainId] as any);
+const sdk = new WarpSdk(wallet, lcd.config[chainId]);
 
 export const tryExecute = async (
   wallet: Wallet,
