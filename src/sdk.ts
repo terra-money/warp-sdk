@@ -26,20 +26,17 @@ export class WarpSdk {
   }
 
   public static lcdClientConfig(
-    chains: ChainName[] = ['terra', 'neutron', 'injective'],
-    networks: NetworkName[] = ['mainnet', 'testnet']
+    networks: NetworkName[] = ['mainnet', 'testnet'],
+    chains: ChainName[] = ['terra', 'neutron', 'injective']
   ): Record<string, LCDClientConfig> {
-    return ChainModule.lcdClientConfig(chains, networks);
+    return ChainModule.lcdClientConfig(networks, chains);
   }
 
   public static lcdClient(
     input: {
-      chains: ChainName[];
-      networks: NetworkName[];
-    } = {
-      chains: ['terra', 'neutron', 'injective'],
-      networks: ['mainnet', 'testnet'],
-    }
+      chains?: ChainName[];
+      networks?: NetworkName[];
+    } = {}
   ): LCDClient {
     return ChainModule.lcdClient(input);
   }

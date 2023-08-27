@@ -141,8 +141,8 @@ export class ChainModule {
   }
 
   public static lcdClientConfig(
-    chains: ChainName[] = ['terra', 'neutron', 'injective'],
-    networks: NetworkName[] = ['mainnet', 'testnet']
+    networks: NetworkName[] = ['mainnet', 'testnet'],
+    chains: ChainName[] = ['terra', 'neutron', 'injective']
   ): Record<string, LCDClientConfig> {
     let configs: Record<string, LCDClientConfig> = {};
 
@@ -164,14 +164,11 @@ export class ChainModule {
 
   public static lcdClient(
     input: {
-      chains: ChainName[];
-      networks: NetworkName[];
-    } = {
-      chains: ['terra', 'neutron', 'injective'],
-      networks: ['mainnet', 'testnet'],
-    }
+      chains?: ChainName[];
+      networks?: NetworkName[];
+    } = {}
   ): LCDClient {
-    return new LCDClient(ChainModule.lcdClientConfig(input.chains, input.networks));
+    return new LCDClient(ChainModule.lcdClientConfig(input.networks, input.chains));
   }
 
   public chainMetadata(chainName: ChainName): ChainMetadata {
