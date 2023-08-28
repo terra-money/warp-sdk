@@ -1,18 +1,13 @@
-dist
-
-node_modules
-
+dist/
+node_modules/
 yarn-error.log
-
-.env
 config.*.json
 
 # IDEs
 *.iml
 .idea
-.vscode
+.vscode/
 *.profraw
-.vscode
 
 # npm/yarn
 .yarn/*
@@ -23,7 +18,6 @@ config.*.json
 !.yarn/versions
 .pnp.*
 .pnp/
-node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
