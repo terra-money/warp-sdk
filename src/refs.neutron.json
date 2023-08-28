@@ -1,30 +1,30 @@
 {
   "testnet": {
     "warp-controller": {
-      "codeId": "9264",
-      "address": "terra1fqcfh8vpqsl7l5yjjtq5wwu6sv989txncq5fa756tv7lywqexraq5vnjvt"
+      "codeId": "1466",
+      "address": "neutron1jrnawm93r4h4q0djzz9yxuau5ld236wwy24mg7u8lrznwd46x4xqztkyd6"
     },
     "warp-resolver": {
-      "codeId": "9263",
-      "address": "terra1lxfx6n792aw3hg47tchmyuhv5t30f334gus67pc250qx5zljadws65elnf"
+      "codeId": "1467",
+      "address": "neutron1wxrgvd8sjv2ydw4x84rc0q89u3rk92ypzyj5268y880aw4mw4wssx8l4jg"
     },
     "warp-templates": {
-      "codeId": "9263",
-      "address": "terra17xm2ewyg60y7eypnwav33fwm23hxs3qyd8qk9tnntj4d0rp2vvhsgkpwwp"
+      "codeId": "1475",
+      "address": "neutron1a29vd6lltycyr2cfku0w4km3axeexcxut53t3wx397dw8jndfq4swlxw9d"
     }
   },
   "mainnet": {
     "warp-controller": {
-      "codeId": "1617",
-      "address": "terra1mg93d4g69tsf3x6sa9nkmkzc9wl38gdrygu0sewwcwj6l2a4089sdd7fgj"
+      "codeId": "200",
+      "address": "neutron12aavdpccvq7lyrr8zaq5f54hk5ux0lw0q5xstqzre6sm2cvyfw5stlmlr3"
     },
     "warp-resolver": {
-      "codeId": "1616",
-      "address": "terra13taf05fedehdfsguu0v24ssmrs9xfzn6wewwkxxlsdy2qmudhwfsvvgdm5"
+      "codeId": "201",
+      "address": "neutron1dzax7rxeq7ju0t8rgr5afg8kfdaxpe296qdeymreq030ay4rcx2s6sgx9p"
     },
     "warp-templates": {
-      "codeId": "1616",
-      "address": "terra13taf05fedehdfsguu0v24ssmrs9xfzn6wewwkxxlsdy2qmudhwfsvvgdm5"
+      "codeId": "202",
+      "address": "neutron1hn43q3v92y4dgdgtc5p7g684zx9dn6ejr74gchntdnppsljd89usxqs2s9"
     }
   }
 }
