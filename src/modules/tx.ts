@@ -1,4 +1,4 @@
-import { warp_account, warp_controller, warp_templates } from '../types/contracts';
+import { warp_account, warp_controller, warp_resolver, warp_templates } from '../types/contracts';
 import { base64encode, nativeTokenDenom, Token, TransferMsg } from '../utils';
 import { CreateTxOptions } from '@terra-money/feather.js';
 import { TxBuilder } from '../tx';
@@ -158,6 +158,87 @@ export class TxModule {
         this.warpSdk.chain.contracts.templates,
         {
           delete_template: { id: templateId },
+        }
+      )
+      .build();
+  }
+
+  public async executeSimulateQuery(
+    sender: string,
+    msg: warp_resolver.ExecuteSimulateQueryMsg
+  ): Promise<CreateTxOptions> {
+    return TxBuilder.new(this.warpSdk.chain.config)
+      .execute<Extract<warp_resolver.ExecuteMsg, { execute_simulate_query: {} }>>(
+        sender,
+        this.warpSdk.chain.contracts.resolver,
+        {
+          execute_simulate_query: msg,
+        }
+      )
+      .build();
+  }
+
+  public async executeHydrateVars(sender: string, msg: warp_resolver.ExecuteHydrateVarsMsg): Promise<CreateTxOptions> {
+    return TxBuilder.new(this.warpSdk.chain.config)
+      .execute<Extract<warp_resolver.ExecuteMsg, { execute_hydrate_vars: {} }>>(
+        sender,
+        this.warpSdk.chain.contracts.resolver,
+        {
+          execute_hydrate_vars: msg,
+        }
+      )
+      .build();
+  }
+
+  public async executeHydrateMsgs(sender: string, msg: warp_resolver.ExecuteHydrateMsgsMsg): Promise<CreateTxOptions> {
+    return TxBuilder.new(this.warpSdk.chain.config)
+      .execute<Extract<warp_resolver.ExecuteMsg, { execute_hydrate_msgs: {} }>>(
+        sender,
+        this.warpSdk.chain.contracts.resolver,
+        {
+          execute_hydrate_msgs: msg,
+        }
+      )
+      .build();
+  }
+
+  public async executeValidateJobCreation(
+    sender: string,
+    msg: warp_resolver.ExecuteValidateJobCreationMsg
+  ): Promise<CreateTxOptions> {
+    return TxBuilder.new(this.warpSdk.chain.config)
+      .execute<Extract<warp_resolver.ExecuteMsg, { execute_validate_job_creation: {} }>>(
+        sender,
+        this.warpSdk.chain.contracts.resolver,
+        {
+          execute_validate_job_creation: msg,
+        }
+      )
+      .build();
+  }
+
+  public async executeResolveCondition(
+    sender: string,
+    msg: warp_resolver.ExecuteResolveConditionMsg
+  ): Promise<CreateTxOptions> {
+    return TxBuilder.new(this.warpSdk.chain.config)
+      .execute<Extract<warp_resolver.ExecuteMsg, { execute_resolve_condition: {} }>>(
+        sender,
+        this.warpSdk.chain.contracts.resolver,
+        {
+          execute_resolve_condition: msg,
+        }
+      )
+      .build();
+  }
+
+  public async executeApplyVarFn(sender: string, msg: warp_resolver.ExecuteApplyVarFnMsg): Promise<CreateTxOptions> {
+    return TxBuilder.new(this.warpSdk.chain.config)
+      .execute<Extract<warp_resolver.ExecuteMsg, { execute_apply_var_fn: {} }>>(
+        sender,
+        this.warpSdk.chain.contracts.resolver,
+        {
+          execute_apply_var_fn: msg,
         }
       )
       .build();

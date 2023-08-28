@@ -33,3 +33,19 @@ export const variable = new VariableComposer();
 export const ts = new TimestampComposer();
 export const query = new QueryComposer();
 export const account = new AccountComposer();
+
+export const composers = {
+  decimal,
+  uint,
+  int,
+  string,
+  cond,
+  fn,
+  msg,
+  template,
+  job,
+  variable,
+  ts,
+  query,
+  account,
+};

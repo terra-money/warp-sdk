@@ -55,7 +55,7 @@ export function cosmosMsgToCreateTxMsg(sender: string, input: warp_resolver.Cosm
       return new MsgExecuteContract(
         sender,
         wasmMsg.execute.contract_addr,
-        JSON.parse(base64decode(wasmMsg.execute.msg)),
+        base64decode(wasmMsg.execute.msg),
         coins(wasmMsg.execute.funds)
       );
     } else if ('instantiate' in wasmMsg) {
@@ -63,7 +63,7 @@ export function cosmosMsgToCreateTxMsg(sender: string, input: warp_resolver.Cosm
         sender,
         wasmMsg.instantiate.admin,
         wasmMsg.instantiate.code_id,
-        JSON.parse(base64decode(wasmMsg.instantiate.msg)),
+        base64decode(wasmMsg.instantiate.msg),
         coins(wasmMsg.instantiate.funds),
         wasmMsg.instantiate.label
       );
@@ -72,7 +72,7 @@ export function cosmosMsgToCreateTxMsg(sender: string, input: warp_resolver.Cosm
         sender,
         wasmMsg.migrate.contract_addr,
         wasmMsg.migrate.new_code_id,
-        JSON.parse(base64decode(wasmMsg.migrate.msg))
+        base64decode(wasmMsg.migrate.msg)
       );
     } else if ('update_admin' in wasmMsg) {
       return new MsgUpdateContractAdmin(sender, wasmMsg.update_admin.admin, wasmMsg.update_admin.contract_addr);
