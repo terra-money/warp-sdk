@@ -5,6 +5,7 @@ node_modules
 yarn-error.log
 
 .env
+config.*.json
 
 # IDEs
 *.iml
