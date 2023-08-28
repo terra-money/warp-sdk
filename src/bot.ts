@@ -1,57 +1,27 @@
-export * from './sdk';
-export { TerraTxError } from './wallet/utils';
 import axios from 'axios';
 import dotenv from 'dotenv';
-import { env } from 'process';
 import {
   Coins,
   CreateTxOptions,
-  LCDClient,
   MnemonicKey,
   MsgExecuteContract,
   WaitTxBroadcastResult,
   Wallet,
-  LCDClientConfig,
 } from '@terra-money/feather.js';
 import { WarpSdk } from './sdk';
 import { warp_controller } from './types/contracts';
+import { ChainName, NetworkName } from 'modules';
+import fs from 'fs';
 
 dotenv.config();
 
-const mainnetConfig: Record<string, LCDClientConfig> = {
-  'injective-1': {
-    chainID: 'injective-1',
-    lcd: 'https://lcd.injective.network',
-    gasAdjustment: 1.75,
-    gasPrices: {
-      inj: 1500000000,
-    },
-    prefix: 'inj',
-  },
-};
+const configPath = process.argv[2];
+const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 
-const testnetConfig: Record<string, LCDClientConfig> = {
-  'injective-888': {
-    chainID: 'injective-888',
-    lcd: 'https://k8s.testnet.lcd.injective.network',
-    gasAdjustment: 1.75,
-    gasPrices: {
-      inj: 1500000000,
-    },
-    prefix: 'inj',
-  },
-};
-
-const lcd = new LCDClient(env.NETWORK === 'mainnet' ? mainnetConfig : testnetConfig);
-
-const chainId = env.NETWORK === 'mainnet' ? 'injective-1' : 'injective-888';
-
-const lcdClientConfig = lcd.config[chainId];
-
-// if you wonder what 60 is, ask Alessandro from TFL
-const wallet = new Wallet(lcd, new MnemonicKey({ mnemonic: env.MNEMONIC_KEY, coinType: 60 }));
-
-const sdk = new WarpSdk(wallet, lcd.config[chainId]);
+const lcd = WarpSdk.lcdClient({ networks: [config.NETWORK as NetworkName], chains: [config.CHAIN as ChainName] });
+const lcdClientConfig = Object.values(lcd.config)[0];
+const wallet = new Wallet(lcd, new MnemonicKey({ mnemonic: config.MNEMONIC_KEY, coinType: Number(config.COIN_TYPE) }));
+const sdk = new WarpSdk(wallet, lcdClientConfig);
 
 export const tryExecute = async (
   wallet: Wallet,
