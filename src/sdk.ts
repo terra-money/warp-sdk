@@ -215,7 +215,7 @@ export class WarpSdk {
         ...(
           await this.tx.executeApplyVarFn(account.account, {
             vars: hydratedVars,
-            status: 'Pending',
+            status: 'Executed',
           })
         ).msgs
       );
