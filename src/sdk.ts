@@ -12,6 +12,8 @@ import { cosmosMsgToCreateTxMsg } from './utils';
 import { warp_templates } from './types/contracts/warp_templates';
 import { Job, parseJob } from './types/job';
 
+const FEE_ADJUSTMENT_FACTOR = 3;
+
 export class WarpSdk {
   public wallet: Wallet;
   public condition: Condition;
@@ -172,7 +174,7 @@ export class WarpSdk {
     return { ...controllerConfig, template_fee: resolverConfig.template_fee };
   }
 
-  public async estimateFee(sender: string, job: warp_controller.CreateJobMsg): Promise<Big> {
+  public async estimateJobReward(sender: string, job: warp_controller.CreateJobMsg): Promise<Big> {
     const account = await this.account(sender);
 
     const hydratedVars = await this.hydrateVars({ vars: job.vars });
@@ -240,7 +242,7 @@ export class WarpSdk {
 
     const denom = await this.nativeTokenDenom();
 
-    return Big(fee.amount.get(denom).amount.toString());
+    return Big(fee.amount.get(denom).amount.toString()).mul(FEE_ADJUSTMENT_FACTOR);
   }
 
   public async nativeTokenDenom(): Promise<string> {
