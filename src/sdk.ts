@@ -2,7 +2,7 @@ import { warp_account, warp_controller, warp_resolver } from './types/contracts'
 import { WalletLike, Wallet, wallet } from './wallet';
 import { Condition } from './condition';
 import { base64encode, contractQuery, nativeTokenDenom, Token, TransferMsg } from './utils';
-import { CreateTxOptions, Fee, TxInfo, LCDClientConfig, LCDClient } from '@terra-money/feather.js';
+import { CreateTxOptions, TxInfo, LCDClientConfig, LCDClient } from '@terra-money/feather.js';
 import { TxBuilder } from './tx';
 import Big from 'big.js';
 import { JobSequenceMsgComposer } from './composers';
@@ -172,23 +172,75 @@ export class WarpSdk {
     return { ...controllerConfig, template_fee: resolverConfig.template_fee };
   }
 
-  public async estimateFee(sender: string, job: warp_controller.CreateJobMsg): Promise<Fee> {
-    const accountInfo = await this.wallet.lcd.auth.accountInfo(sender);
+  public async estimateFee(sender: string, job: warp_controller.CreateJobMsg): Promise<Big> {
+    const account = await this.account(sender);
 
-    try {
-      const fee = await this.wallet.lcd.tx.estimateFee(
-        [{ sequenceNumber: accountInfo.getSequenceNumber(), publicKey: accountInfo.getPublicKey() }],
-        {
-          msgs: JSON.parse(job.msgs).map((msg: warp_resolver.CosmosMsgFor_Empty) =>
-            cosmosMsgToCreateTxMsg(sender, msg)
-          ),
-          chainID: this.chain.config.chainID,
-        }
+    const hydratedVars = await this.hydrateVars({ vars: job.vars });
+
+    const hydratedMsgs = await this.hydrateMsgs({
+      vars: hydratedVars,
+      msgs: job.msgs,
+    });
+
+    const msgs = [];
+
+    msgs.push(
+      ...(
+        await this.tx.executeHydrateVars(account.account, {
+          vars: hydratedVars,
+        })
+      ).msgs
+    );
+
+    msgs.push(
+      ...(
+        await this.tx.executeHydrateMsgs(account.account, {
+          vars: hydratedVars,
+          msgs: job.msgs,
+        })
+      ).msgs
+    );
+
+    msgs.push(
+      ...(
+        await this.tx.executeResolveCondition(account.account, {
+          condition: job.condition,
+          vars: hydratedVars,
+        })
+      ).msgs
+    );
+
+    if (job.recurring) {
+      msgs.push(
+        ...(
+          await this.tx.executeApplyVarFn(account.account, {
+            vars: hydratedVars,
+            status: 'Pending',
+          })
+        ).msgs
       );
-      return fee;
-    } catch (err) {
-      throw new Error('Estimate fee not possible for this job.');
     }
+
+    msgs.push(...hydratedMsgs.map((msg) => cosmosMsgToCreateTxMsg(account.account, msg)));
+
+    const accountInfo = await this.wallet.lcd.auth.accountInfo(account.account);
+
+    const fee = await this.wallet.lcd.tx.estimateFee(
+      [
+        {
+          sequenceNumber: accountInfo.getSequenceNumber(),
+          publicKey: accountInfo.getPublicKey(),
+        },
+      ],
+      {
+        msgs,
+        chainID: this.chain.config.chainID,
+      }
+    );
+
+    const denom = await this.nativeTokenDenom();
+
+    return Big(fee.amount.get(denom).amount.toString());
   }
 
   public async nativeTokenDenom(): Promise<string> {
