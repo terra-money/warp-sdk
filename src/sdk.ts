@@ -174,14 +174,17 @@ export class WarpSdk {
     return { ...controllerConfig, template_fee: resolverConfig.template_fee };
   }
 
-  public async estimateJobReward(sender: string, job: warp_controller.CreateJobMsg): Promise<Big> {
+  public async estimateJobReward(
+    sender: string,
+    createJobMsg: Omit<warp_controller.CreateJobMsg, 'reward'>
+  ): Promise<Big> {
     const account = await this.account(sender);
 
-    const hydratedVars = await this.hydrateVars({ vars: job.vars });
+    const hydratedVars = await this.hydrateVars({ vars: createJobMsg.vars });
 
     const hydratedMsgs = await this.hydrateMsgs({
       vars: hydratedVars,
-      msgs: job.msgs,
+      msgs: createJobMsg.msgs,
     });
 
     const msgs = [];
@@ -198,7 +201,7 @@ export class WarpSdk {
       ...(
         await this.tx.executeHydrateMsgs(account.account, {
           vars: hydratedVars,
-          msgs: job.msgs,
+          msgs: createJobMsg.msgs,
         })
       ).msgs
     );
@@ -206,13 +209,13 @@ export class WarpSdk {
     msgs.push(
       ...(
         await this.tx.executeResolveCondition(account.account, {
-          condition: job.condition,
+          condition: createJobMsg.condition,
           vars: hydratedVars,
         })
       ).msgs
     );
 
-    if (job.recurring) {
+    if (createJobMsg.recurring) {
       msgs.push(
         ...(
           await this.tx.executeApplyVarFn(account.account, {
