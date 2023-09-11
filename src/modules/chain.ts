@@ -129,9 +129,9 @@ export class ChainModule {
 
   constructor(config: LCDClientConfig) {
     this.config = config;
-    this.metadata = this.chainMetadataFromChainId(this.config.chainID);
+    this.metadata = ChainModule.chainMetadataFromChainId(this.config.chainID);
 
-    const contractsConfig = this.contractsFromChainId(this.config.chainID);
+    const contractsConfig = ChainModule.contractsFromChainId(this.config.chainID);
 
     this.contracts = {
       controller: contractsConfig['warp-controller'].address,
@@ -171,7 +171,7 @@ export class ChainModule {
     return new LCDClient(ChainModule.lcdClientConfig(input.networks, input.chains));
   }
 
-  public chainMetadata(chainName: ChainName): ChainMetadata {
+  public static chainMetadata(chainName: ChainName): ChainMetadata {
     const found = SUPPORTED_CHAINS.find((chain) => chain.name === chainName);
 
     if (!found) {
@@ -181,11 +181,11 @@ export class ChainModule {
     return found;
   }
 
-  public supportedChains(): ChainMetadata[] {
+  public static supportedChains(): ChainMetadata[] {
     return SUPPORTED_CHAINS;
   }
 
-  public chainMetadataFromChainId(chainId: string): ChainMetadata {
+  public static chainMetadataFromChainId(chainId: string): ChainMetadata {
     for (let chain of SUPPORTED_CHAINS) {
       if (chain.testnet === chainId || chain.mainnet === chainId) {
         return chain;
@@ -195,19 +195,19 @@ export class ChainModule {
     throw new Error(`Unsupported Chain ID: ${chainId}`);
   }
 
-  public networkNameFromChainId(chainId: string): NetworkName {
+  public static networkNameFromChainId(chainId: string): NetworkName {
     const chainMetadata = this.chainMetadataFromChainId(chainId);
     return chainMetadata.testnet === chainId ? 'testnet' : 'mainnet';
   }
 
-  public contractsFromChainId(chainId: string = this.config.chainID): NetworkConfig {
-    const chainMetadata = this.chainMetadataFromChainId(chainId);
-    const network = this.networkNameFromChainId(chainId);
+  public static contractsFromChainId(chainId: string): NetworkConfig {
+    const chainMetadata = ChainModule.chainMetadataFromChainId(chainId);
+    const network = ChainModule.networkNameFromChainId(chainId);
     return chainMetadata.refs[network];
   }
 
-  public contractAddress(contract: keyof ContractAddresses, chainId: string = this.config.chainID): string {
-    const contractDefs = this.contractsFromChainId(chainId);
+  public static contractAddress(contract: keyof ContractAddresses, chainId: string): string {
+    const contractDefs = ChainModule.contractsFromChainId(chainId);
 
     switch (contract) {
       case 'controller':
