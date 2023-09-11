@@ -46,7 +46,7 @@
     "output": "src/types/contracts"
   },
   "dependencies": {
-    "@terra-money/feather.js": "^1.0.10",
+    "@terra-money/feather.js": "^1.0.11",
     "@types/node": "^16.11.56",
     "axios": "^1.1.2",
     "big.js": "^6.2.1",
