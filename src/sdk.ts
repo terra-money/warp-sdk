@@ -166,12 +166,12 @@ export class WarpSdk {
       warp_controller.ConfigResponse
     >(this.wallet.lcd, this.chain.contracts.controller, { query_config: {} });
 
-    const { config: resolverConfig } = await contractQuery<
+    const { config: templatesConfig } = await contractQuery<
       Extract<warp_templates.QueryMsg, { query_config: {} }>,
       warp_templates.ConfigResponse
     >(this.wallet.lcd, this.chain.contracts.templates, { query_config: {} });
 
-    return { ...controllerConfig, template_fee: resolverConfig.template_fee };
+    return { ...controllerConfig, template_fee: templatesConfig.template_fee };
   }
 
   public async estimateJobReward(
