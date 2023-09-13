@@ -1,7 +1,17 @@
 import { warp_account, warp_controller, warp_resolver } from './types/contracts';
 import { WalletLike, Wallet, wallet } from './wallet';
 import { Condition } from './condition';
-import { base64encode, contractQuery, nativeTokenDenom, Token, TransferMsg } from './utils';
+import {
+  base64encode,
+  contractQuery,
+  nativeTokenDenom,
+  Token,
+  TransferMsg,
+  computeBurnFee,
+  computeCreationFee,
+  computeMaintenanceFee,
+  feeConfigByChainId,
+} from './utils';
 import { CreateTxOptions, TxInfo, LCDClientConfig, LCDClient } from '@terra-money/feather.js';
 import { TxBuilder } from './tx';
 import Big from 'big.js';
@@ -13,6 +23,10 @@ import { warp_templates } from './types/contracts/warp_templates';
 import { Job, parseJob } from './types/job';
 
 const FEE_ADJUSTMENT_FACTOR = 3;
+
+export type EstimateJobMsg = Omit<warp_controller.CreateJobMsg, 'reward'> & {
+  duration_days: number;
+};
 
 export class WarpSdk {
   public wallet: Wallet;
@@ -174,17 +188,23 @@ export class WarpSdk {
     return { ...controllerConfig, template_fee: templatesConfig.template_fee };
   }
 
-  public async estimateJobReward(
-    sender: string,
-    createJobMsg: Omit<warp_controller.CreateJobMsg, 'reward'>
-  ): Promise<Big> {
+  public async state(): Promise<warp_controller.State> {
+    const { state: controllerState } = await contractQuery<
+      Extract<warp_controller.QueryMsg, { query_state: {} }>,
+      warp_controller.StateResponse
+    >(this.wallet.lcd, this.chain.contracts.controller, { query_state: {} });
+
+    return { ...controllerState };
+  }
+
+  public async estimateJobReward(sender: string, estimateJobMsg: EstimateJobMsg): Promise<Big> {
     const account = await this.account(sender);
 
-    const hydratedVars = await this.hydrateVars({ vars: createJobMsg.vars });
+    const hydratedVars = await this.hydrateVars({ vars: estimateJobMsg.vars });
 
     const hydratedMsgs = await this.hydrateMsgs({
       vars: hydratedVars,
-      msgs: createJobMsg.msgs,
+      msgs: estimateJobMsg.msgs,
     });
 
     const msgs = [];
@@ -201,7 +221,7 @@ export class WarpSdk {
       ...(
         await this.tx.executeHydrateMsgs(account.account, {
           vars: hydratedVars,
-          msgs: createJobMsg.msgs,
+          msgs: estimateJobMsg.msgs,
         })
       ).msgs
     );
@@ -209,13 +229,13 @@ export class WarpSdk {
     msgs.push(
       ...(
         await this.tx.executeResolveCondition(account.account, {
-          condition: createJobMsg.condition,
+          condition: estimateJobMsg.condition,
           vars: hydratedVars,
         })
       ).msgs
     );
 
-    if (createJobMsg.recurring) {
+    if (estimateJobMsg.recurring) {
       msgs.push(
         ...(
           await this.tx.executeApplyVarFn(account.account, {
@@ -246,6 +266,23 @@ export class WarpSdk {
     const denom = await this.nativeTokenDenom();
 
     return Big(fee.amount.get(denom).amount.toString()).mul(FEE_ADJUSTMENT_FACTOR);
+  }
+
+  public async estimateJobFee(sender: string, estimateJobMsg: EstimateJobMsg): Promise<Big> {
+    const state = await this.state();
+    const feeConfig = feeConfigByChainId[this.chain.config.chainID];
+
+    const jobRewardMicro = await this.estimateJobReward(sender, estimateJobMsg);
+    const jobRewardUnmicro = jobRewardMicro.div(Big(10).pow(feeConfig.nativeToken.decimals));
+
+    const burnFeeUnmicro = computeBurnFee(jobRewardUnmicro, feeConfig);
+    const maintenanceFeeUnmicro = computeMaintenanceFee(estimateJobMsg.duration_days, feeConfig);
+    const creationFeeUnmicro = computeCreationFee(Number(state.q), feeConfig);
+
+    const totalFeeUnmicro = jobRewardUnmicro.add(burnFeeUnmicro).add(creationFeeUnmicro).add(maintenanceFeeUnmicro);
+    const totalFeeMicro = totalFeeUnmicro.mul(Big(10).pow(feeConfig.nativeToken.decimals));
+
+    return totalFeeMicro;
   }
 
   public async nativeTokenDenom(): Promise<string> {
