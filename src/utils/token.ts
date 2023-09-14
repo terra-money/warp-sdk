@@ -1,7 +1,8 @@
 import { LCDClient } from '@terra-money/feather.js';
-import axios, { AxiosRequestConfig } from 'axios';
+import { AxiosRequestConfig } from 'axios';
 import { BigSource } from 'big.js';
 import { ChainModule } from 'modules';
+import { http } from './http';
 
 export type TokenBase = {
   key: string;
@@ -88,7 +89,7 @@ export const nativeTokenDenom = async (lcd: LCDClient, chainId: string): Promise
     },
   };
 
-  const { data: chains } = await axios.request<ChainsResponse>({ ...options, responseType: 'json' });
+  const { data: chains } = await http.request<ChainsResponse>({ ...options, responseType: 'json' });
 
   const denom = chains[ChainModule.networkNameFromChainId(chainId)][chainId].baseAsset;
 
