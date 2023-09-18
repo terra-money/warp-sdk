@@ -49,7 +49,6 @@
     "@terra-money/feather.js": "^1.0.11",
     "@types/node": "^16.11.56",
     "axios": "^1.1.2",
-    "axios-cached-dns-resolve": "^3.3.0",
     "big.js": "^6.2.1",
     "date-fns": "^2.29.3",
     "dotenv": "^16.0.1",
