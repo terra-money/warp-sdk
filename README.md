@@ -11,32 +11,29 @@ npm install -S @terra-money/warp-sdk
 
 ## Usage
 
-```typescript
-import { WarpSdk } from "warp-sdk";
-
-const wallet = { ... }; // Wallet object
-const contractAddress = "terra1..."; // Warp Protocol contract address
-
-const warpSdk = new WarpSdk(wallet, contractAddress);
-
-const jobId = "abc123...";
-const isActive = await warpSdk.isJobActive(jobId)
-console.log(`Job is ${isActive ? "active" : "inactive"}.`)
-```
-
-## Composers
-
 Warp sdk provides a fluent API for building more complex payloads such as creating job and templates.
 
 Here is an example of an harvest rewards job used by eris-protocol built using composers.
 ```typescript
-import { uint, cond, fn, msg, variable, job, ts } from '@terra-money/warp-sdk';
+import { LCDClient, LCDClientConfig, MnemonicKey, Wallet } from '@terra-money/feather.js';
+import { uint, cond, fn, msg, variable, job, ts, WarpSdk } from '@terra-money/warp-sdk';
 
-// ...
+const piscoLcdClientConfig: LCDClientConfig = {
+  lcd: 'https://pisco-lcd.terra.dev',
+  chainID: 'pisco-1',
+  gasAdjustment: 1.75,
+  gasPrices: { uluna: 0.15 },
+  prefix: 'terra',
+};
 
-const sdk = new WarpSdk(wallet, options.contractAddress);
+const lcd = new LCDClient({
+  'pisco-1': piscoLcdClientConfig,
+});
 
-const sender = 'terra1qry8zdwge8ufchefvuhtz4yh70rc9dxlcuvp34';
+const wallet = new Wallet(lcd, new MnemonicKey({ mnemonic: '<your mnemonic here>' }));
+
+const sdk = new WarpSdk(wallet, piscoLcdClientConfig);
+const sender = wallet.key.accAddress(piscoLcdClientConfig.prefix);
 
 const nextExecution = variable
   .static()
@@ -52,6 +49,8 @@ const condition = cond.uint(uint.env('time'), 'gt', uint.ref(nextExecution));
 const createJobMsg = job
   .create()
   .name('eris-harvest')
+  .description('This job harvests rewards for eris protoocl vaults each day.')
+  .labels([])
   .recurring(true)
   .requeueOnEvict(true)
   .reward('50000')
@@ -63,6 +62,8 @@ const createJobMsg = job
 sdk.createJob(sender, createJobMsg).then((response) => {
   console.log(response);
 });
+
+
 ```
 
 ## Methods
