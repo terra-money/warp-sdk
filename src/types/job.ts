@@ -36,3 +36,10 @@ export const parseJobsResponse = (resp: warp_controller.JobsResponse): JobsRespo
     jobs: resp.jobs.map(parseJob),
   };
 };
+
+export type Fund = warp_controller.Fund & {
+  native: {
+    denom: string;
+    amount: string;
+  };
+};

@@ -15,6 +15,13 @@ export type TransferMsg = {
   };
 };
 
+export type TransferNftMsg = {
+  transfer_nft: {
+    recipient: string;
+    token_id: string;
+  };
+};
+
 export const base64encode = (input: any): string => {
   return Buffer.from(JSON.stringify(JSON.parse(JSON.stringify(input)))).toString('base64');
 };

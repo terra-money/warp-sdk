@@ -1,7 +1,7 @@
 import { warp_account, warp_controller, warp_resolver } from './types/contracts';
 import { WalletLike, Wallet, wallet } from './wallet';
 import { Condition } from './condition';
-import { base64encode, contractQuery, nativeTokenDenom, Token, TransferMsg } from './utils';
+import { base64encode, contractQuery, nativeTokenDenom, Token, TransferMsg, TransferNftMsg } from './utils';
 import { CreateTxOptions, TxInfo, LCDClientConfig, LCDClient } from '@terra-money/feather.js';
 import { TxBuilder } from './tx';
 import Big from 'big.js';
@@ -10,7 +10,7 @@ import { resolveExternalInputs } from './variables';
 import { TxModule, ChainModule, ChainName, NetworkName } from './modules';
 import { cosmosMsgToCreateTxMsg } from './utils';
 import { warp_templates } from './types/contracts/warp_templates';
-import { Job, parseJob } from './types/job';
+import { Fund, Job, parseJob } from './types/job';
 
 const FEE_ADJUSTMENT_FACTOR = 3;
 
@@ -414,13 +414,46 @@ export class WarpSdk {
     return this.wallet.tx(txPayload);
   }
 
-  public async createAccount(sender: string, funds?: warp_controller.Fund[]): Promise<TxInfo> {
-    const txPayload = TxBuilder.new(this.chain.config)
-      .execute<Extract<warp_controller.ExecuteMsg, { create_account: {} }>>(sender, this.chain.contracts.controller, {
-        create_account: {
-          funds,
+  public async createAccount(sender: string, funds?: Fund[]): Promise<TxInfo> {
+    let txBuilder = TxBuilder.new(this.chain.config);
+
+    if (funds) {
+      for (let fund of funds) {
+        if ('cw20' in fund) {
+          const { amount, contract_addr } = fund.cw20;
+
+          txBuilder = txBuilder.execute<TransferMsg>(sender, contract_addr, {
+            transfer: {
+              amount,
+              recipient: this.chain.contracts.controller,
+            },
+          });
+        } else if ('cw721' in fund) {
+          const { contract_addr, token_id } = fund.cw721;
+
+          txBuilder = txBuilder.execute<TransferNftMsg>(sender, contract_addr, {
+            transfer_nft: {
+              token_id,
+              recipient: this.chain.contracts.controller,
+            },
+          });
+        }
+      }
+    }
+
+    const nativeFunds = funds?.filter((fund) => 'native' in fund).map((fund) => fund.native) || [];
+
+    const txPayload = txBuilder
+      .execute<Extract<warp_controller.ExecuteMsg, { create_account: {} }>>(
+        sender,
+        this.chain.contracts.controller,
+        {
+          create_account: {
+            funds,
+          },
         },
-      })
+        nativeFunds.reduce((acc, curr) => ({ ...acc, [curr.denom]: curr.amount }), {})
+      )
       .build();
 
     return this.wallet.tx(txPayload);

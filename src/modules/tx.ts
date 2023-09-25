@@ -1,11 +1,12 @@
 import { warp_account, warp_controller, warp_resolver, warp_templates } from '../types/contracts';
-import { base64encode, nativeTokenDenom, Token, TransferMsg } from '../utils';
+import { base64encode, nativeTokenDenom, Token, TransferMsg, TransferNftMsg } from '../utils';
 import { CreateTxOptions } from '@terra-money/feather.js';
 import { TxBuilder } from '../tx';
 import Big from 'big.js';
 import { JobSequenceMsgComposer } from '../composers';
 import { resolveExternalInputs } from '../variables';
 import { WarpSdk } from '../sdk';
+import { Fund } from '../types/job';
 
 export class TxModule {
   private warpSdk: WarpSdk;
@@ -256,8 +257,36 @@ export class TxModule {
       .build();
   }
 
-  public async createAccount(sender: string, funds?: warp_controller.Fund[]): Promise<CreateTxOptions> {
-    return TxBuilder.new(this.warpSdk.chain.config)
+  public async createAccount(sender: string, funds?: Fund[]): Promise<CreateTxOptions> {
+    let txBuilder = TxBuilder.new(this.warpSdk.chain.config);
+
+    if (funds) {
+      for (let fund of funds) {
+        if ('cw20' in fund) {
+          const { amount, contract_addr } = fund.cw20;
+
+          txBuilder = txBuilder.execute<TransferMsg>(sender, contract_addr, {
+            transfer: {
+              amount,
+              recipient: this.warpSdk.chain.contracts.controller,
+            },
+          });
+        } else if ('cw721' in fund) {
+          const { contract_addr, token_id } = fund.cw721;
+
+          txBuilder = txBuilder.execute<TransferNftMsg>(sender, contract_addr, {
+            transfer_nft: {
+              token_id,
+              recipient: this.warpSdk.chain.contracts.controller,
+            },
+          });
+        }
+      }
+    }
+
+    const nativeFunds = funds?.filter((fund) => 'native' in fund).map((fund) => fund.native) || [];
+
+    return txBuilder
       .execute<Extract<warp_controller.ExecuteMsg, { create_account: {} }>>(
         sender,
         this.warpSdk.chain.contracts.controller,
@@ -265,7 +294,8 @@ export class TxModule {
           create_account: {
             funds,
           },
-        }
+        },
+        nativeFunds.reduce((acc, curr) => ({ ...acc, [curr.denom]: curr.amount }), {})
       )
       .build();
   }
