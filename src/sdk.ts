@@ -21,7 +21,7 @@ import { resolveExternalInputs } from './variables';
 import { TxModule, ChainModule, ChainName, NetworkName } from './modules';
 import { cosmosMsgToCreateTxMsg } from './utils';
 import { warp_templates } from './types/contracts/warp_templates';
-import { Fund, Job, parseJob } from './types/job';
+import { Fund, Job, mergeFunds, parseJob } from './types/job';
 
 const FEE_ADJUSTMENT_FACTOR = 3;
 
@@ -290,22 +290,21 @@ export class WarpSdk {
     return nativeTokenDenom(this.wallet.lcd, this.chain.config.chainID);
   }
 
-  public async createJob(sender: string, msg: warp_controller.CreateJobMsg): Promise<TxInfo> {
-    await this.createAccountIfNotExists(sender);
-
-    const account = await this.account(sender);
-    const config = await this.config();
-
+  public async createJob(sender: string, msg: warp_controller.CreateJobMsg, funds?: Fund[]): Promise<TxInfo> {
     const nativeDenom = await nativeTokenDenom(this.wallet.lcd, this.chain.config.chainID);
 
-    const txPayload = TxBuilder.new(this.chain.config)
-      .send(account.owner, account.account, {
-        [nativeDenom]: Big(msg.reward).mul(Big(config.creation_fee_percentage).add(100).div(100)).toString(),
-      })
+    const rewardFund: Fund = { native: { denom: nativeDenom, amount: msg.reward } };
+    const totalFunds = funds ? mergeFunds(funds, rewardFund) : [rewardFund];
+
+    const createAccountTx = await this.tx.createAccount(sender, totalFunds);
+
+    const txBuilder = TxBuilder.new(this.chain.config)
+      .tx(createAccountTx)
       .execute<Extract<warp_controller.ExecuteMsg, { create_job: {} }>>(sender, this.chain.contracts.controller, {
         create_job: msg,
-      })
-      .build();
+      });
+
+    const txPayload = txBuilder.build();
 
     return this.wallet.tx(txPayload);
   }
@@ -324,45 +323,35 @@ export class WarpSdk {
    *            when cond3 active
    *            then execute job3
    */
-  public async createJobSequence(sender: string, sequence: warp_controller.CreateJobMsg[]): Promise<TxInfo> {
-    await this.createAccountIfNotExists(sender);
+  public async createJobSequence(
+    sender: string,
+    sequence: warp_controller.CreateJobMsg[],
+    funds?: Fund[]
+  ): Promise<TxInfo> {
+    const nativeDenom = await nativeTokenDenom(this.wallet.lcd, this.chain.config.chainID);
 
-    const account = await this.account(sender);
-    const config = await this.config();
+    const totalReward = sequence.reduce((acc, msg) => acc.add(Big(msg.reward)), Big(0));
+    const rewardFund: Fund = { native: { denom: nativeDenom, amount: totalReward.toString() } };
+    const totalFunds = funds ? mergeFunds(funds, rewardFund) : [rewardFund];
+
+    const createAccountTx = await this.tx.createAccount(sender, totalFunds);
 
     let jobSequenceMsgComposer = JobSequenceMsgComposer.new();
-    let totalReward = Big(0);
 
     sequence.forEach((msg) => {
-      totalReward = totalReward.add(Big(msg.reward));
       jobSequenceMsgComposer = jobSequenceMsgComposer.chain(msg);
     });
 
     const jobSequenceMsg = jobSequenceMsgComposer.compose();
 
-    const nativeDenom = await nativeTokenDenom(this.wallet.lcd, this.chain.config.chainID);
-
     const txPayload = TxBuilder.new(this.chain.config)
-      .send(account.owner, account.account, {
-        [nativeDenom]: Big(totalReward).mul(Big(config.creation_fee_percentage).add(100).div(100)).toString(),
-      })
+      .tx(createAccountTx)
       .execute<Extract<warp_controller.ExecuteMsg, { create_job: {} }>>(sender, this.chain.contracts.controller, {
         create_job: jobSequenceMsg,
       })
       .build();
 
     return this.wallet.tx(txPayload);
-  }
-
-  public async createAccountIfNotExists(sender: string): Promise<warp_controller.Account> {
-    try {
-      const account = await this.account(sender);
-      return account;
-    } catch (err) {
-      // account not exists
-      await this.createAccount(sender);
-      return this.account(sender);
-    }
   }
 
   public async deleteJob(sender: string, jobId: string): Promise<TxInfo> {
@@ -453,46 +442,7 @@ export class WarpSdk {
   }
 
   public async createAccount(sender: string, funds?: Fund[]): Promise<TxInfo> {
-    let txBuilder = TxBuilder.new(this.chain.config);
-
-    if (funds) {
-      for (let fund of funds) {
-        if ('cw20' in fund) {
-          const { amount, contract_addr } = fund.cw20;
-
-          txBuilder = txBuilder.execute<TransferMsg>(sender, contract_addr, {
-            transfer: {
-              amount,
-              recipient: this.chain.contracts.controller,
-            },
-          });
-        } else if ('cw721' in fund) {
-          const { contract_addr, token_id } = fund.cw721;
-
-          txBuilder = txBuilder.execute<TransferNftMsg>(sender, contract_addr, {
-            transfer_nft: {
-              token_id,
-              recipient: this.chain.contracts.controller,
-            },
-          });
-        }
-      }
-    }
-
-    const nativeFunds = funds?.filter((fund) => 'native' in fund).map((fund) => fund.native) || [];
-
-    const txPayload = txBuilder
-      .execute<Extract<warp_controller.ExecuteMsg, { create_account: {} }>>(
-        sender,
-        this.chain.contracts.controller,
-        {
-          create_account: {
-            funds,
-          },
-        },
-        nativeFunds.reduce((acc, curr) => ({ ...acc, [curr.denom]: curr.amount }), {})
-      )
-      .build();
+    const txPayload = await this.tx.createAccount(sender, funds);
 
     return this.wallet.tx(txPayload);
   }

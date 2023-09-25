@@ -284,7 +284,8 @@ export class TxModule {
       }
     }
 
-    const nativeFunds = funds?.filter((fund) => 'native' in fund).map((fund) => fund.native) || [];
+    const nativeFunds = funds?.filter((fund) => 'native' in fund).map((fund) => 'native' in fund && fund.native) ?? [];
+    const cwFunds = (funds?.filter((fund) => !('native' in fund)) as warp_controller.Fund[]) ?? [];
 
     return txBuilder
       .execute<Extract<warp_controller.ExecuteMsg, { create_account: {} }>>(
@@ -292,7 +293,7 @@ export class TxModule {
         this.warpSdk.chain.contracts.controller,
         {
           create_account: {
-            funds,
+            funds: cwFunds,
           },
         },
         nativeFunds.reduce((acc, curr) => ({ ...acc, [curr.denom]: curr.amount }), {})

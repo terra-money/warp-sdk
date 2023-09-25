@@ -105,5 +105,6 @@ export function computeMaintenanceFee(duration_days: number, feeConfig: FeeConfi
 }
 
 export function computeBurnFee(jobReward: Big, feeConfig: FeeConfig): Big {
+  // config.create_fee_percentage
   return max(Big(feeConfig.burnFeeMin), jobReward.mul(0.25));
 }
