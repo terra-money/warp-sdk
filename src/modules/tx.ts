@@ -6,7 +6,7 @@ import Big from 'big.js';
 import { JobSequenceMsgComposer } from '../composers';
 import { resolveExternalInputs } from '../variables';
 import { WarpSdk } from '../sdk';
-import { Fund } from '../types/job';
+import { Fund, mergeFunds } from '../types/job';
 
 export class TxModule {
   private warpSdk: WarpSdk;
@@ -15,16 +15,16 @@ export class TxModule {
     this.warpSdk = warpSdk;
   }
 
-  public async createJob(sender: string, msg: warp_controller.CreateJobMsg): Promise<CreateTxOptions> {
-    const account = await this.warpSdk.account(sender);
-    const config = await this.warpSdk.config();
-
+  public async createJob(sender: string, msg: warp_controller.CreateJobMsg, funds?: Fund[]): Promise<CreateTxOptions> {
     const nativeDenom = await nativeTokenDenom(this.warpSdk.wallet.lcd, this.warpSdk.chain.config.chainID);
 
+    const rewardFund: Fund = { native: { denom: nativeDenom, amount: msg.reward } };
+    const totalFunds = funds ? mergeFunds(funds, rewardFund) : [rewardFund];
+
+    const createAccountTx = await this.createAccount(sender, totalFunds);
+
     return TxBuilder.new(this.warpSdk.chain.config)
-      .send(account.owner, account.account, {
-        [nativeDenom]: Big(msg.reward).mul(Big(config.creation_fee_percentage).add(100).div(100)).toString(),
-      })
+      .tx(createAccountTx)
       .execute<Extract<warp_controller.ExecuteMsg, { create_job: {} }>>(
         sender,
         this.warpSdk.chain.contracts.controller,
@@ -35,26 +35,29 @@ export class TxModule {
       .build();
   }
 
-  public async createJobSequence(sender: string, sequence: warp_controller.CreateJobMsg[]): Promise<CreateTxOptions> {
-    const account = await this.warpSdk.account(sender);
-    const config = await this.warpSdk.config();
+  public async createJobSequence(
+    sender: string,
+    sequence: warp_controller.CreateJobMsg[],
+    funds?: Fund[]
+  ): Promise<CreateTxOptions> {
+    const nativeDenom = await nativeTokenDenom(this.warpSdk.wallet.lcd, this.warpSdk.chain.config.chainID);
+
+    const totalReward = sequence.reduce((acc, msg) => acc.add(Big(msg.reward)), Big(0));
+    const rewardFund: Fund = { native: { denom: nativeDenom, amount: totalReward.toString() } };
+    const totalFunds = funds ? mergeFunds(funds, rewardFund) : [rewardFund];
+
+    const createAccountTx = await this.createAccount(sender, totalFunds);
 
     let jobSequenceMsgComposer = JobSequenceMsgComposer.new();
-    let totalReward = Big(0);
 
     sequence.forEach((msg) => {
-      totalReward = totalReward.add(Big(msg.reward));
       jobSequenceMsgComposer = jobSequenceMsgComposer.chain(msg);
     });
 
     const jobSequenceMsg = jobSequenceMsgComposer.compose();
 
-    const nativeDenom = await nativeTokenDenom(this.warpSdk.wallet.lcd, this.warpSdk.chain.config.chainID);
-
     return TxBuilder.new(this.warpSdk.chain.config)
-      .send(account.owner, account.account, {
-        [nativeDenom]: Big(totalReward).mul(Big(config.creation_fee_percentage).add(100).div(100)).toString(),
-      })
+      .tx(createAccountTx)
       .execute<Extract<warp_controller.ExecuteMsg, { create_job: {} }>>(
         sender,
         this.warpSdk.chain.contracts.controller,

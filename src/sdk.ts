@@ -291,20 +291,7 @@ export class WarpSdk {
   }
 
   public async createJob(sender: string, msg: warp_controller.CreateJobMsg, funds?: Fund[]): Promise<TxInfo> {
-    const nativeDenom = await nativeTokenDenom(this.wallet.lcd, this.chain.config.chainID);
-
-    const rewardFund: Fund = { native: { denom: nativeDenom, amount: msg.reward } };
-    const totalFunds = funds ? mergeFunds(funds, rewardFund) : [rewardFund];
-
-    const createAccountTx = await this.tx.createAccount(sender, totalFunds);
-
-    const txBuilder = TxBuilder.new(this.chain.config)
-      .tx(createAccountTx)
-      .execute<Extract<warp_controller.ExecuteMsg, { create_job: {} }>>(sender, this.chain.contracts.controller, {
-        create_job: msg,
-      });
-
-    const txPayload = txBuilder.build();
+    const txPayload = await this.tx.createJob(sender, msg, funds);
 
     return this.wallet.tx(txPayload);
   }
@@ -328,28 +315,7 @@ export class WarpSdk {
     sequence: warp_controller.CreateJobMsg[],
     funds?: Fund[]
   ): Promise<TxInfo> {
-    const nativeDenom = await nativeTokenDenom(this.wallet.lcd, this.chain.config.chainID);
-
-    const totalReward = sequence.reduce((acc, msg) => acc.add(Big(msg.reward)), Big(0));
-    const rewardFund: Fund = { native: { denom: nativeDenom, amount: totalReward.toString() } };
-    const totalFunds = funds ? mergeFunds(funds, rewardFund) : [rewardFund];
-
-    const createAccountTx = await this.tx.createAccount(sender, totalFunds);
-
-    let jobSequenceMsgComposer = JobSequenceMsgComposer.new();
-
-    sequence.forEach((msg) => {
-      jobSequenceMsgComposer = jobSequenceMsgComposer.chain(msg);
-    });
-
-    const jobSequenceMsg = jobSequenceMsgComposer.compose();
-
-    const txPayload = TxBuilder.new(this.chain.config)
-      .tx(createAccountTx)
-      .execute<Extract<warp_controller.ExecuteMsg, { create_job: {} }>>(sender, this.chain.contracts.controller, {
-        create_job: jobSequenceMsg,
-      })
-      .build();
+    const txPayload = await this.tx.createJobSequence(sender, sequence, funds);
 
     return this.wallet.tx(txPayload);
   }
