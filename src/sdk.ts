@@ -321,11 +321,7 @@ export class WarpSdk {
   }
 
   public async deleteJob(sender: string, jobId: string): Promise<TxInfo> {
-    const txPayload = TxBuilder.new(this.chain.config)
-      .execute<Extract<warp_controller.ExecuteMsg, { delete_job: {} }>>(sender, this.chain.contracts.controller, {
-        delete_job: { id: jobId },
-      })
-      .build();
+    const txPayload = await this.tx.deleteJob(sender, jobId);
 
     return this.wallet.tx(txPayload);
   }
@@ -343,56 +339,25 @@ export class WarpSdk {
   }
 
   public async executeJob(sender: string, jobId: string): Promise<TxInfo> {
-    const job = await this.job(jobId);
-
-    const externalInputs = await resolveExternalInputs(job.vars);
-
-    const txPayload = TxBuilder.new(this.chain.config)
-      .execute<Extract<warp_controller.ExecuteMsg, { execute_job: {} }>>(sender, this.chain.contracts.controller, {
-        execute_job: { id: job.id, external_inputs: externalInputs },
-      })
-      .build();
+    const txPayload = await this.tx.executeJob(sender, jobId);
 
     return this.wallet.tx(txPayload);
   }
 
   public async submitTemplate(sender: string, msg: warp_templates.SubmitTemplateMsg): Promise<TxInfo> {
-    const config = await this.config();
-
-    const nativeDenom = await nativeTokenDenom(this.wallet.lcd, this.chain.config.chainID);
-
-    const txPayload = TxBuilder.new(this.chain.config)
-      .execute<Extract<warp_templates.ExecuteMsg, { submit_template: {} }>>(
-        sender,
-        this.chain.contracts.templates,
-        {
-          submit_template: msg,
-        },
-        {
-          [nativeDenom]: config.template_fee,
-        }
-      )
-      .build();
+    const txPayload = await this.tx.submitTemplate(sender, msg);
 
     return this.wallet.tx(txPayload);
   }
 
   public async deleteTemplate(sender: string, templateId: string): Promise<TxInfo> {
-    const txPayload = TxBuilder.new(this.chain.config)
-      .execute<Extract<warp_templates.ExecuteMsg, { delete_template: {} }>>(sender, this.chain.contracts.templates, {
-        delete_template: { id: templateId },
-      })
-      .build();
+    const txPayload = await this.tx.deleteTemplate(sender, templateId);
 
     return this.wallet.tx(txPayload);
   }
 
   public async editTemplate(sender: string, msg: warp_templates.EditTemplateMsg): Promise<TxInfo> {
-    const txPayload = TxBuilder.new(this.chain.config)
-      .execute<Extract<warp_templates.ExecuteMsg, { edit_template: {} }>>(sender, this.chain.contracts.templates, {
-        edit_template: msg,
-      })
-      .build();
+    const txPayload = await this.tx.editTemplate(sender, msg);
 
     return this.wallet.tx(txPayload);
   }
@@ -404,87 +369,19 @@ export class WarpSdk {
   }
 
   public async withdrawAssets(sender: string, msg: warp_account.WithdrawAssetsMsg): Promise<TxInfo> {
-    const { account } = await this.account(sender);
-
-    const tx = TxBuilder.new(this.chain.config)
-      .execute<Extract<warp_account.ExecuteMsg, { withdraw_assets: {} }>>(sender, account, {
-        withdraw_assets: msg,
-      })
-      .build();
-
-    return this.wallet.tx(tx);
-  }
-
-  // deposit token (supports native, ibc and cw20 token type) from sender to warp account
-  // warp account can be owned by anyone
-  public async depositToAccount(sender: string, account: string, token: Token, amount: string): Promise<TxInfo> {
-    let txPayload: CreateTxOptions;
-    if (token.type === 'cw20') {
-      txPayload = TxBuilder.new(this.chain.config)
-        .execute<TransferMsg>(sender, token.token, {
-          transfer: {
-            amount,
-            recipient: account,
-          },
-        })
-        .build();
-    } else {
-      txPayload = TxBuilder.new(this.chain.config)
-        .send(sender, account, { [token.denom]: amount })
-        .build();
-    }
+    const txPayload = await this.tx.withdrawAssets(sender, msg);
 
     return this.wallet.tx(txPayload);
   }
 
-  // withdraw token (supports native, ibc and cw20 token type) from sender's warp account to receiver
-  // receiver can be anyone
-  public async withdrawFromAccount(sender: string, receiver: string, token: Token, amount: string): Promise<TxInfo> {
-    const { account } = await this.account(sender);
-    let txPayload: CreateTxOptions;
-    if (token.type === 'cw20') {
-      const transferMsg = {
-        transfer: {
-          amount,
-          recipient: receiver,
-        },
-      };
+  public async depositToAccount(sender: string, account: string, token: Token, amount: string): Promise<TxInfo> {
+    const txPayload = await this.tx.depositToAccount(sender, account, token, amount);
 
-      txPayload = TxBuilder.new(this.chain.config)
-        .execute<warp_account.ExecuteMsg>(sender, account, {
-          generic: {
-            msgs: [
-              {
-                wasm: {
-                  execute: {
-                    contract_addr: token.token,
-                    msg: base64encode(transferMsg),
-                    funds: [],
-                  },
-                },
-              },
-            ],
-          },
-        })
-        .build();
-    } else {
-      txPayload = TxBuilder.new(this.chain.config)
-        .execute<warp_account.ExecuteMsg>(sender, account, {
-          generic: {
-            msgs: [
-              {
-                bank: {
-                  send: {
-                    amount: [{ amount, denom: token.denom }],
-                    to_address: receiver,
-                  },
-                },
-              },
-            ],
-          },
-        })
-        .build();
-    }
+    return this.wallet.tx(txPayload);
+  }
+
+  public async withdrawFromAccount(sender: string, receiver: string, token: Token, amount: string): Promise<TxInfo> {
+    const txPayload = await this.tx.withdrawFromAccount(sender, receiver, token, amount);
 
     return this.wallet.tx(txPayload);
   }
