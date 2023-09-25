@@ -82,14 +82,13 @@ export class TxModule {
 
   public async updateJob(sender: string, msg: warp_controller.UpdateJobMsg): Promise<CreateTxOptions> {
     const account = await this.warpSdk.account(sender);
-    const config = await this.warpSdk.config();
     const nativeDenom = await nativeTokenDenom(this.warpSdk.wallet.lcd, this.warpSdk.chain.config.chainID);
 
     let txBuilder = TxBuilder.new(this.warpSdk.chain.config);
 
     if (msg.added_reward) {
       txBuilder = txBuilder.send(account.owner, account.account, {
-        [nativeDenom]: Big(msg.added_reward).mul(Big(config.creation_fee_percentage).add(100).div(100)).toString(),
+        [nativeDenom]: Big(msg.added_reward).toString(),
       });
     }
 

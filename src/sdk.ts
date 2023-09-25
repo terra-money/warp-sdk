@@ -331,23 +331,13 @@ export class WarpSdk {
   }
 
   public async updateJob(sender: string, msg: warp_controller.UpdateJobMsg): Promise<TxInfo> {
-    const txPayload = TxBuilder.new(this.chain.config)
-      .execute<Extract<warp_controller.ExecuteMsg, { update_job: {} }>>(sender, this.chain.contracts.controller, {
-        update_job: msg,
-      })
-      .build();
+    const txPayload = await this.tx.updateJob(sender, msg);
 
     return this.wallet.tx(txPayload);
   }
 
   public async evictJob(sender: string, jobId: string): Promise<TxInfo> {
-    const txPayload = TxBuilder.new(this.chain.config)
-      .execute<Extract<warp_controller.ExecuteMsg, { evict_job: {} }>>(sender, this.chain.contracts.controller, {
-        evict_job: {
-          id: jobId,
-        },
-      })
-      .build();
+    const txPayload = await this.tx.evictJob(sender, jobId);
 
     return this.wallet.tx(txPayload);
   }
