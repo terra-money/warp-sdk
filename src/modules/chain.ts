@@ -58,9 +58,9 @@ const mainnetConfig: Record<string, LCDClientConfig> = {
     },
     prefix: 'neutron',
   },
-  'nibiru-1': {
-    chainID: 'nibiru-1',
-    lcd: 'https://lcd.nibiru.fi',
+  'nibiru-itn-2': {
+    chainID: 'nibiru-itn-2',
+    lcd: 'https://lcd.itn-2.nibiru.fi',
     gasAdjustment: 1.75,
     gasPrices: {
       unibi: 0.15,
@@ -137,8 +137,8 @@ export const NIBIRU_CHAIN: ChainMetadata = {
   name: 'nibiru',
   testnet: 'nibiru-itn-2',
   testnetConfig: testnetConfig['nibiru-itn-2'],
-  mainnet: 'nibiru-1',
-  mainnetConfig: mainnetConfig['nibiru-1'],
+  mainnet: 'nibiru-itn-2',
+  mainnetConfig: mainnetConfig['nibiru-itn-2'],
   refs: refsNibiru,
 };
 
