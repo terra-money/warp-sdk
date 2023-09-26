@@ -1,30 +1,30 @@
 {
   "testnet": {
     "warp-controller": {
-      "codeId": "9264",
-      "address": "terra1fqcfh8vpqsl7l5yjjtq5wwu6sv989txncq5fa756tv7lywqexraq5vnjvt"
+      "codeId": "13",
+      "address": "nibi1gclfrvam6a33yhpw3ut3arajyqs06esdvt9pfvluzwsslap9p6uq2fveuy"
     },
     "warp-resolver": {
-      "codeId": "9263",
-      "address": "terra1lxfx6n792aw3hg47tchmyuhv5t30f334gus67pc250qx5zljadws65elnf"
+      "codeId": "12",
+      "address": "nibi1m7wqgq02e95anl7jk2qruvtdl7afyff0d6pddr0zhqmgsvle70ls95yy7c"
     },
     "warp-templates": {
-      "codeId": "9263",
-      "address": "terra17xm2ewyg60y7eypnwav33fwm23hxs3qyd8qk9tnntj4d0rp2vvhsgkpwwp"
+      "codeId": "15",
+      "address": "nibi1cyd63pk2wuvjkqmhlvp9884z4h89rqtn8w8xgz9m28hjd2kzj2cq0q8fv4"
     }
   },
   "mainnet": {
     "warp-controller": {
-      "codeId": "1617",
-      "address": "terra1mg93d4g69tsf3x6sa9nkmkzc9wl38gdrygu0sewwcwj6l2a4089sdd7fgj"
+      "codeId": "13",
+      "address": "nibi1gclfrvam6a33yhpw3ut3arajyqs06esdvt9pfvluzwsslap9p6uq2fveuy"
     },
     "warp-resolver": {
-      "codeId": "1616",
-      "address": "terra13taf05fedehdfsguu0v24ssmrs9xfzn6wewwkxxlsdy2qmudhwfsvvgdm5"
+      "codeId": "12",
+      "address": "nibi1m7wqgq02e95anl7jk2qruvtdl7afyff0d6pddr0zhqmgsvle70ls95yy7c"
     },
     "warp-templates": {
-      "codeId": "1787",
-      "address": "terra1mcfu3tkd5h9zdwuserl3v6uzetv9xke8wyaaf9vx07p7shk6xlws3styfk"
+      "codeId": "15",
+      "address": "nibi1cyd63pk2wuvjkqmhlvp9884z4h89rqtn8w8xgz9m28hjd2kzj2cq0q8fv4"
     }
   }
 }
