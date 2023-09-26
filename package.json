@@ -25,6 +25,7 @@
     "bot-terra": "esbuild src/bot.ts --bundle --platform=node --outdir=dist --outbase=src && node ./dist/bot.js ./config.terra.json",
     "bot-neutron": "esbuild src/bot.ts --bundle --platform=node --outdir=dist --outbase=src && node ./dist/bot.js ./config.neutron.json",
     "bot-injective": "esbuild src/bot.ts --bundle --platform=node --outdir=dist --outbase=src && node ./dist/bot.js ./config.injective.json",
+    "bot-nibiru": "esbuild src/bot.ts --bundle --platform=node --outdir=dist --outbase=src && node ./dist/bot.js ./config.nibiru.json",
     "format": "prettier --write \"src/**/*.{js,ts,tsx}\"",
     "generate-types": "node --experimental-specifier-resolution=node --loader ts-node/esm ./scripts/generate-types.js warp-protocol",
     "postinstall": "husky install",
