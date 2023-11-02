@@ -2,31 +2,27 @@ import { warp_account, warp_controller, warp_resolver } from './types/contracts'
 import { WalletLike, Wallet, wallet } from './wallet';
 import { Condition } from './condition';
 import {
-  base64encode,
   contractQuery,
   nativeTokenDenom,
   Token,
-  TransferMsg,
-  TransferNftMsg,
   computeBurnFee,
   computeCreationFee,
   computeMaintenanceFee,
-  feeConfigByChainId,
 } from './utils';
-import { CreateTxOptions, TxInfo, LCDClientConfig, LCDClient } from '@terra-money/feather.js';
-import { TxBuilder } from './tx';
+import { TxInfo, LCDClientConfig, LCDClient } from '@terra-money/feather.js';
 import Big from 'big.js';
-import { JobSequenceMsgComposer } from './composers';
-import { resolveExternalInputs } from './variables';
 import { TxModule, ChainModule, ChainName, NetworkName } from './modules';
 import { cosmosMsgToCreateTxMsg } from './utils';
 import { warp_templates } from './types/contracts/warp_templates';
-import { Fund, Job, mergeFunds, parseJob } from './types/job';
+import { Fund, Job, parseJob } from './types/job';
 
 const FEE_ADJUSTMENT_FACTOR = 3;
 
-export type EstimateJobMsg = Omit<warp_controller.CreateJobMsg, 'reward'> & {
-  duration_days: number;
+export type EstimateJobMsg = {
+  vars: string;
+  recurring: boolean;
+  executions: warp_controller.Execution[];
+  duration_days: string;
 };
 
 export class WarpSdk {
@@ -198,14 +194,42 @@ export class WarpSdk {
     return { ...controllerState };
   }
 
+  public async estimateJobFee(sender: string, estimateJobMsg: EstimateJobMsg): Promise<Big> {
+    const state = await this.state();
+    const config = await this.config();
+    const jobReward = await this.estimateJobReward(sender, estimateJobMsg);
+
+    const burnFee = computeBurnFee(jobReward, config);
+    const maintenanceFee = computeMaintenanceFee(Big(estimateJobMsg.duration_days), config);
+    const creationFee = computeCreationFee(Big(state.q), config);
+
+    const totalFee = jobReward.add(burnFee).add(creationFee).add(maintenanceFee);
+
+    return totalFee;
+  }
+
   public async estimateJobReward(sender: string, estimateJobMsg: EstimateJobMsg): Promise<Big> {
+    let estimatedReward = Big(0);
+
+    for (let execution of estimateJobMsg.executions) {
+      estimatedReward = estimatedReward.add(await this.estimateJobExecutionReward(sender, estimateJobMsg, execution));
+    }
+
+    return estimatedReward;
+  }
+
+  public async estimateJobExecutionReward(
+    sender: string,
+    estimateJobMsg: EstimateJobMsg,
+    execution: warp_controller.Execution
+  ): Promise<Big> {
     const account = await this.account(sender);
 
     const hydratedVars = await this.hydrateVars({ vars: estimateJobMsg.vars });
 
     const hydratedMsgs = await this.hydrateMsgs({
       vars: hydratedVars,
-      msgs: estimateJobMsg.msgs,
+      msgs: execution.msgs,
     });
 
     const msgs = [];
@@ -222,7 +246,7 @@ export class WarpSdk {
       ...(
         await this.tx.executeHydrateMsgs(account.account, {
           vars: hydratedVars,
-          msgs: estimateJobMsg.msgs,
+          msgs: execution.msgs,
         })
       ).msgs
     );
@@ -230,7 +254,7 @@ export class WarpSdk {
     msgs.push(
       ...(
         await this.tx.executeResolveCondition(account.account, {
-          condition: estimateJobMsg.condition,
+          condition: execution.condition,
           vars: hydratedVars,
         })
       ).msgs
@@ -267,23 +291,6 @@ export class WarpSdk {
     const denom = await this.nativeTokenDenom();
 
     return Big(fee.amount.get(denom).amount.toString()).mul(FEE_ADJUSTMENT_FACTOR);
-  }
-
-  public async estimateJobFee(sender: string, estimateJobMsg: EstimateJobMsg): Promise<Big> {
-    const state = await this.state();
-    const feeConfig = feeConfigByChainId[this.chain.config.chainID];
-
-    const jobRewardMicro = await this.estimateJobReward(sender, estimateJobMsg);
-    const jobRewardUnmicro = jobRewardMicro.div(Big(10).pow(feeConfig.nativeToken.decimals));
-
-    const burnFeeUnmicro = computeBurnFee(jobRewardUnmicro, feeConfig);
-    const maintenanceFeeUnmicro = computeMaintenanceFee(estimateJobMsg.duration_days, feeConfig);
-    const creationFeeUnmicro = computeCreationFee(Number(state.q), feeConfig);
-
-    const totalFeeUnmicro = jobRewardUnmicro.add(burnFeeUnmicro).add(creationFeeUnmicro).add(maintenanceFeeUnmicro);
-    const totalFeeMicro = totalFeeUnmicro.mul(Big(10).pow(feeConfig.nativeToken.decimals));
-
-    return totalFeeMicro;
   }
 
   public async nativeTokenDenom(): Promise<string> {

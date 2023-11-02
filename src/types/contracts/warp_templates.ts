@@ -38,7 +38,7 @@ export module warp_templates {
       };
   export type Expr =
     | {
-        string: GenExprFor_ValueFor_StringAnd_StringOp;
+        string: GenExprFor_StringValueFor_StringAnd_StringOp;
       }
     | {
         uint: GenExprFor_NumValueFor_Uint256And_NumExprOpAnd_IntFnOpAnd_NumOp;
@@ -58,13 +58,17 @@ export module warp_templates {
     | {
         bool: string;
       };
-  export type ValueFor_String =
+  export type StringValueFor_String =
     | {
         simple: string;
       }
     | {
         ref: string;
+      }
+    | {
+        env: StringEnvValue;
       };
+  export type StringEnvValue = 'warp_account_addr';
   export type StringOp = 'starts_with' | 'ends_with' | 'contains' | 'eq' | 'neq';
   export type NumValueFor_Uint256And_NumExprOpAnd_IntFnOp =
     | {
@@ -133,8 +137,7 @@ export module warp_templates {
     | {
         query: QueryVariable;
       };
-  export type VariableKind = 'string' | 'uint' | 'int' | 'decimal' | 'timestamp' | 'bool' | 'amount' | 'asset' | 'json';
-  export type UpdateFnValue =
+  export type FnValue =
     | {
         uint: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
       }
@@ -152,7 +155,11 @@ export module warp_templates {
       }
     | {
         bool: string;
+      }
+    | {
+        string: StringValueFor_String;
       };
+  export type VariableKind = 'string' | 'uint' | 'int' | 'decimal' | 'timestamp' | 'bool' | 'amount' | 'asset' | 'json';
   export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete';
   export type QueryRequestFor_String =
     | {
@@ -267,10 +274,10 @@ export module warp_templates {
     name: string;
     vars: Variable[];
   }
-  export interface GenExprFor_ValueFor_StringAnd_StringOp {
-    left: ValueFor_String;
+  export interface GenExprFor_StringValueFor_StringAnd_StringOp {
+    left: StringValueFor_String;
     op: StringOp;
-    right: ValueFor_String;
+    right: StringValueFor_String;
   }
   export interface GenExprFor_NumValueFor_Uint256And_NumExprOpAnd_IntFnOpAnd_NumOp {
     left: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
@@ -324,14 +331,16 @@ export module warp_templates {
   }
   export interface StaticVariable {
     encode: boolean;
+    init_fn: FnValue;
     kind: VariableKind;
     name: string;
+    reinitialize: boolean;
     update_fn?: UpdateFn | null;
-    value: string;
+    value?: string | null;
   }
   export interface UpdateFn {
-    on_error?: UpdateFnValue | null;
-    on_success?: UpdateFnValue | null;
+    on_error?: FnValue | null;
+    on_success?: FnValue | null;
   }
   export interface ExternalVariable {
     encode: boolean;

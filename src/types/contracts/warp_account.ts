@@ -11,6 +11,8 @@ export module warp_account {
     accounts: Account[];
   }
   export interface Config {
+    is_sub_account: boolean;
+    main_account_addr: Addr;
     owner: Addr;
     warp_addr: Addr;
   }
@@ -23,6 +25,12 @@ export module warp_account {
       }
     | {
         ibc_transfer: IbcTransferMsg;
+      }
+    | {
+        occupy_sub_account: OccupySubAccountMsg;
+      }
+    | {
+        free_sub_account: FreeSubAccountMsg;
       };
   export type CosmosMsgFor_Empty =
     | {
@@ -261,6 +269,13 @@ export module warp_account {
     revision_height?: number | null;
     revision_number?: number | null;
   }
+  export interface OccupySubAccountMsg {
+    job_id: Uint64;
+    sub_account_addr: string;
+  }
+  export interface FreeSubAccountMsg {
+    sub_account_addr: string;
+  }
   export type Fund =
     | {
         cw20: Cw20Fund;
@@ -270,6 +285,9 @@ export module warp_account {
       };
   export interface InstantiateMsg {
     funds?: Fund[] | null;
+    is_sub_account?: boolean | null;
+    main_account_addr?: string | null;
+    msgs?: CosmosMsgFor_Empty[] | null;
     owner: string;
   }
   export interface Cw20Fund {
@@ -285,21 +303,26 @@ export module warp_account {
     job: Job;
   }
   export interface Job {
+    account: Addr;
     assets_to_withdraw: AssetInfo[];
-    condition: string;
     description: string;
+    executions: Execution[];
     id: Uint64;
     labels: string[];
     last_update_time: Uint64;
-    msgs: string;
     name: string;
     owner: Addr;
+    prev_id?: Uint64 | null;
     recurring: boolean;
     requeue_on_evict: boolean;
     reward: Uint128;
     status: JobStatus;
     terminate_condition?: string | null;
     vars: string;
+  }
+  export interface Execution {
+    condition: string;
+    msgs: string;
   }
   export interface JobsResponse {
     jobs: Job[];
