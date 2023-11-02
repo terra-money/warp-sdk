@@ -35,7 +35,7 @@ export class WarpSdk {
     this.wallet = wallet(walletLike, chainConfig);
     this.tx = new TxModule(this);
     this.chain = new ChainModule(chainConfig);
-    this.condition = new Condition(this.wallet, this.chain.contracts);
+    this.condition = new Condition(this.wallet, this.chain.contracts, this);
   }
 
   public static lcdClientConfig(
@@ -56,7 +56,16 @@ export class WarpSdk {
 
   public async isJobActive(jobId: string): Promise<boolean> {
     const job = await this.job(jobId);
-    return this.condition.resolveCond(job.condition, job.vars);
+
+    for (let execution of job.executions) {
+      const isCondActive = this.condition.resolveCond(execution.condition, job);
+
+      if (isCondActive) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   public async jobs(opts: warp_controller.QueryJobsMsg = {}): Promise<Job[]> {
