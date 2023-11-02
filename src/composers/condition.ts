@@ -19,11 +19,11 @@ export class ConditionComposer {
   }
 
   public string(
-    left: warp_resolver.ValueFor_String,
+    left: warp_resolver.StringValueFor_String,
     op: warp_resolver.StringOp,
-    right: warp_resolver.ValueFor_String
+    right: warp_resolver.StringValueFor_String
   ): warp_resolver.Condition {
-    const expr: warp_resolver.GenExprFor_ValueFor_StringAnd_StringOp = { left, op, right };
+    const expr: warp_resolver.GenExprFor_StringValueFor_StringAnd_StringOp = { left, op, right };
     return this.expr({ string: expr });
   }
 
@@ -161,37 +161,37 @@ export class DecimalValueComposer {
 }
 
 export class StringValueComposer {
-  public simple(value: string): warp_resolver.ValueFor_String {
+  public simple(value: string): warp_resolver.StringValueFor_String {
     return { simple: value };
   }
 
-  public ref(ref: warp_resolver.Variable): warp_resolver.ValueFor_String {
+  public ref(ref: warp_resolver.Variable): warp_resolver.StringValueFor_String {
     return { ref: `$warp.variable.${variableName(ref)}` };
   }
 }
 
 export class UpdateFnComposer {
-  public uint(value: warp_resolver.NumValueFor_Uint256And_NumExprOpAnd_IntFnOp): warp_resolver.UpdateFnValue {
+  public uint(value: warp_resolver.NumValueFor_Uint256And_NumExprOpAnd_IntFnOp): warp_resolver.FnValue {
     return { uint: value };
   }
 
-  public int(value: warp_resolver.NumValueForInt128And_NumExprOpAnd_IntFnOp): warp_resolver.UpdateFnValue {
+  public int(value: warp_resolver.NumValueForInt128And_NumExprOpAnd_IntFnOp): warp_resolver.FnValue {
     return { int: value };
   }
 
-  public decimal(value: warp_resolver.NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp): warp_resolver.UpdateFnValue {
+  public decimal(value: warp_resolver.NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp): warp_resolver.FnValue {
     return { decimal: value };
   }
 
-  public timestamp(value: warp_resolver.NumValueForInt128And_NumExprOpAnd_IntFnOp): warp_resolver.UpdateFnValue {
+  public timestamp(value: warp_resolver.NumValueForInt128And_NumExprOpAnd_IntFnOp): warp_resolver.FnValue {
     return { timestamp: value };
   }
 
-  public block_height(value: warp_resolver.NumValueForInt128And_NumExprOpAnd_IntFnOp): warp_resolver.UpdateFnValue {
+  public block_height(value: warp_resolver.NumValueForInt128And_NumExprOpAnd_IntFnOp): warp_resolver.FnValue {
     return { block_height: value };
   }
 
-  public bool(value: warp_resolver.Variable): warp_resolver.UpdateFnValue {
+  public bool(value: warp_resolver.Variable): warp_resolver.FnValue {
     return { bool: `$warp.variable.${variableName(value)}` };
   }
 }

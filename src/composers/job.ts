@@ -1,5 +1,7 @@
 import { warp_controller, warp_resolver } from '../types/contracts';
 
+type Execution = [warp_resolver.Condition, warp_resolver.CosmosMsgFor_Empty[]];
+
 export class JobSequenceMsgComposer {
   static new() {
     return new JobSequenceMsgComposer();
@@ -44,9 +46,9 @@ export class CreateJobMsgComposer {
   private _description: string;
   private _labels: string[];
   private _assetsToWithdraw: warp_controller.AssetInfo[] | undefined;
-  private _msgs: warp_resolver.CosmosMsgFor_Empty[] = [];
   private _vars: warp_resolver.Variable[] = [];
-  private _condition: warp_resolver.Condition | undefined;
+  private _executions: Execution[] = [];
+  private _durationDays: string;
 
   static new(): CreateJobMsgComposer {
     return new CreateJobMsgComposer();
@@ -82,23 +84,23 @@ export class CreateJobMsgComposer {
     return this;
   }
 
+  durationDays(durationDays: string): CreateJobMsgComposer {
+    this._durationDays = durationDays;
+    return this;
+  }
+
   assetsToWithdraw(assetsToWithdraw: warp_controller.AssetInfo[]): CreateJobMsgComposer {
     this._assetsToWithdraw = assetsToWithdraw;
     return this;
   }
 
-  msg(msg: warp_resolver.CosmosMsgFor_Empty): CreateJobMsgComposer {
-    this._msgs.push(msg);
+  executions(executions: Execution[]): CreateJobMsgComposer {
+    this._executions = executions;
     return this;
   }
 
-  cond(condition: warp_resolver.Condition): CreateJobMsgComposer {
-    this._condition = condition;
-    return this;
-  }
-
-  var(variable: warp_resolver.Variable): CreateJobMsgComposer {
-    this._vars.push(variable);
+  vars(vars: warp_resolver.Variable[]): CreateJobMsgComposer {
+    this._vars = vars;
     return this;
   }
 
@@ -114,10 +116,6 @@ export class CreateJobMsgComposer {
       throw new Error('All required fields must be provided');
     }
 
-    if (this._condition === undefined) {
-      throw new Error('Condition must be provided');
-    }
-
     const createJobMsg: warp_controller.CreateJobMsg = {
       name: this._name,
       recurring: this._recurring,
@@ -125,8 +123,8 @@ export class CreateJobMsgComposer {
       reward: this._reward,
       description: this._description,
       labels: this._labels,
-      condition: JSON.stringify(this._condition),
-      msgs: JSON.stringify(this._msgs),
+      executions: this._executions.map((e) => ({ condition: JSON.stringify(e[0]), msgs: JSON.stringify(e[1]) })),
+      duration_days: this._durationDays,
       vars: JSON.stringify(this._vars),
       assets_to_withdraw: this._assetsToWithdraw,
     };
