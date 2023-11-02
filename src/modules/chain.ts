@@ -1,9 +1,10 @@
 import refsTerra from '../refs.terra.json';
 import refsInjective from '../refs.injective.json';
 import refsNeutron from '../refs.neutron.json';
+import refsNibiru from '../refs.nibiru.json';
 import { LCDClient, LCDClientConfig } from '@terra-money/feather.js';
 
-export type ChainName = 'terra' | 'injective' | 'neutron';
+export type ChainName = 'terra' | 'injective' | 'neutron' | 'nibiru';
 export type NetworkName = 'testnet' | 'mainnet';
 
 interface ContractDefinition {
@@ -57,6 +58,15 @@ const mainnetConfig: Record<string, LCDClientConfig> = {
     },
     prefix: 'neutron',
   },
+  'nibiru-itn-2': {
+    chainID: 'nibiru-itn-2',
+    lcd: 'https://lcd.itn-2.nibiru.fi',
+    gasAdjustment: 1.75,
+    gasPrices: {
+      unibi: 0.15,
+    },
+    prefix: 'nibi',
+  },
 };
 
 const testnetConfig: Record<string, LCDClientConfig> = {
@@ -84,6 +94,15 @@ const testnetConfig: Record<string, LCDClientConfig> = {
       untrn: 0.05,
     },
     prefix: 'neutron',
+  },
+  'nibiru-itn-2': {
+    chainID: 'nibiru-itn-2',
+    lcd: 'https://lcd.itn-2.nibiru.fi',
+    gasAdjustment: 1.75,
+    gasPrices: {
+      unibi: 0.15,
+    },
+    prefix: 'nibi',
   },
 };
 
@@ -114,7 +133,16 @@ export const INJECTIVE_CHAIN: ChainMetadata = {
   refs: refsInjective,
 };
 
-export const SUPPORTED_CHAINS: ChainMetadata[] = [TERRA_CHAIN, INJECTIVE_CHAIN, NEUTRON_CHAIN];
+export const NIBIRU_CHAIN: ChainMetadata = {
+  name: 'nibiru',
+  testnet: 'nibiru-itn-2',
+  testnetConfig: testnetConfig['nibiru-itn-2'],
+  mainnet: 'nibiru-itn-2',
+  mainnetConfig: mainnetConfig['nibiru-itn-2'],
+  refs: refsNibiru,
+};
+
+export const SUPPORTED_CHAINS: ChainMetadata[] = [TERRA_CHAIN, INJECTIVE_CHAIN, NEUTRON_CHAIN, NIBIRU_CHAIN];
 
 export interface ContractAddresses {
   controller: string;
@@ -142,7 +170,7 @@ export class ChainModule {
 
   public static lcdClientConfig(
     networks: NetworkName[] = ['mainnet', 'testnet'],
-    chains: ChainName[] = ['terra', 'neutron', 'injective']
+    chains: ChainName[] = ChainModule.supportedChains().map((c) => c.name)
   ): Record<string, LCDClientConfig> {
     let configs: Record<string, LCDClientConfig> = {};
 

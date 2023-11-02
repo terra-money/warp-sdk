@@ -1,0 +1,30 @@
+{
+  "testnet": {
+    "warp-controller": {
+      "codeId": "13",
+      "address": "nibi1gclfrvam6a33yhpw3ut3arajyqs06esdvt9pfvluzwsslap9p6uq2fveuy"
+    },
+    "warp-resolver": {
+      "codeId": "12",
+      "address": "nibi1m7wqgq02e95anl7jk2qruvtdl7afyff0d6pddr0zhqmgsvle70ls95yy7c"
+    },
+    "warp-templates": {
+      "codeId": "15",
+      "address": "nibi1cyd63pk2wuvjkqmhlvp9884z4h89rqtn8w8xgz9m28hjd2kzj2cq0q8fv4"
+    }
+  },
+  "mainnet": {
+    "warp-controller": {
+      "codeId": "13",
+      "address": "nibi1gclfrvam6a33yhpw3ut3arajyqs06esdvt9pfvluzwsslap9p6uq2fveuy"
+    },
+    "warp-resolver": {
+      "codeId": "12",
+      "address": "nibi1m7wqgq02e95anl7jk2qruvtdl7afyff0d6pddr0zhqmgsvle70ls95yy7c"
+    },
+    "warp-templates": {
+      "codeId": "15",
+      "address": "nibi1cyd63pk2wuvjkqmhlvp9884z4h89rqtn8w8xgz9m28hjd2kzj2cq0q8fv4"
+    }
+  }
+}

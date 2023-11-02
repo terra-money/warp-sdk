@@ -39,9 +39,10 @@ export const tryExecute = async (
   } catch (error) {
     console.log({ error });
 
-    if (axios.isAxiosError(error)) {
+    if (axios.isAxiosError(error) && Boolean(error.response?.data)) {
       return `Code=${error.response.data['code']} Message=${error.response.data['message']}`;
     }
+
     return error.message;
   }
 };

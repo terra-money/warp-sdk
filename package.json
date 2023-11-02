@@ -15,7 +15,7 @@
     "url": "https://github.com/terra-money/warp-sdk/issues"
   },
   "homepage": "https://github.com/terra-money/warp-sdk#readme",
-  "version": "0.1.57",
+  "version": "0.1.62",
   "scripts": {
     "clean": "rm -rf dist",
     "build": "yarn clean && yarn build:node && yarn build:browser",
@@ -25,6 +25,7 @@
     "bot-terra": "esbuild src/bot.ts --bundle --platform=node --outdir=dist --outbase=src && node ./dist/bot.js ./config.terra.json",
     "bot-neutron": "esbuild src/bot.ts --bundle --platform=node --outdir=dist --outbase=src && node ./dist/bot.js ./config.neutron.json",
     "bot-injective": "esbuild src/bot.ts --bundle --platform=node --outdir=dist --outbase=src && node ./dist/bot.js ./config.injective.json",
+    "bot-nibiru": "esbuild src/bot.ts --bundle --platform=node --outdir=dist --outbase=src && node ./dist/bot.js ./config.nibiru.json",
     "format": "prettier --write \"src/**/*.{js,ts,tsx}\"",
     "generate-types": "node --experimental-specifier-resolution=node --loader ts-node/esm ./scripts/generate-types.js warp-protocol",
     "postinstall": "husky install",
