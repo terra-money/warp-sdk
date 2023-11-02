@@ -73,36 +73,41 @@ const createJobMsg = job
   .description('This job creates an astroport limit order.')
   .labels([])
   .reward('50000')
-  .cond(condition)
-  .var(astroReceived)
-  .msg(
-    msg.execute(
-      astroportContract,
-      {
-        execute_swap_operations: {
-          max_spread: limitOrder.maxSpread,
-          minimum_receive: limitOrder.astroPurchaseAmount,
-          operations: [
-            {
-              astro_swap: {
-                ask_asset_info: {
-                  token: {
-                    contract_addr: limitOrder.astroTokenContract,
+  .vars([astroReceived])
+  .durationDays('30')
+  .executions([
+    [
+      condition,
+      [
+        msg.execute(
+          astroportContract,
+          {
+            execute_swap_operations: {
+              max_spread: limitOrder.maxSpread,
+              minimum_receive: limitOrder.astroPurchaseAmount,
+              operations: [
+                {
+                  astro_swap: {
+                    ask_asset_info: {
+                      token: {
+                        contract_addr: limitOrder.astroTokenContract,
+                      },
+                    },
+                    offer_asset_info: {
+                      native_token: {
+                        denom: 'uluna',
+                      },
+                    },
                   },
                 },
-                offer_asset_info: {
-                  native_token: {
-                    denom: 'uluna',
-                  },
-                },
-              },
+              ],
             },
-          ],
-        },
-      },
-      [{ denom: 'uluna', amount: limitOrder.lunaOfferAmount }]
-    )
-  )
+          },
+          [{ denom: 'uluna', amount: limitOrder.lunaOfferAmount }]
+        ),
+      ],
+    ],
+  ])
   .compose();
 
 sdk.createJob(sender, createJobMsg).then((response) => {

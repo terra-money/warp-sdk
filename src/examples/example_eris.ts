@@ -38,9 +38,10 @@ const createJobMsg = job
   .recurring(true)
   .requeueOnEvict(true)
   .reward('50000')
-  .cond(condition)
-  .var(nextExecution)
-  .msg(msg.execute('terra10788fkzah89xrdm27zkj5yvhj9x3494lxawzm5qq3vvxcqz2yzaqyd3enk', { harvest: {} }))
+  .vars([nextExecution])
+  .executions([
+    [condition, [msg.execute('terra10788fkzah89xrdm27zkj5yvhj9x3494lxawzm5qq3vvxcqz2yzaqyd3enk', { harvest: {} })]],
+  ])
   .compose();
 
 sdk.createJob(sender, createJobMsg).then((response) => {
