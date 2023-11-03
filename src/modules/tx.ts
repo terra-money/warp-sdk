@@ -16,12 +16,7 @@ export class TxModule {
   }
 
   public async createJob(sender: string, msg: warp_controller.CreateJobMsg, funds?: Fund[]): Promise<CreateTxOptions> {
-    const nativeDenom = await nativeTokenDenom(this.warpSdk.wallet.lcd, this.warpSdk.chain.config.chainID);
-
-    const rewardFund: Fund = { native: { denom: nativeDenom, amount: msg.reward } };
-    const totalFunds = funds ? mergeFunds(funds, rewardFund) : [rewardFund];
-
-    const createAccountTx = await this.createAccount(sender, totalFunds);
+    const createAccountTx = await this.createAccount(sender, funds);
 
     return TxBuilder.new(this.warpSdk.chain.config)
       .tx(createAccountTx)

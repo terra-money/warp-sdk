@@ -203,10 +203,11 @@ export class WarpSdk {
     return { ...controllerState };
   }
 
-  public async estimateJobFee(sender: string, estimateJobMsg: EstimateJobMsg): Promise<Big> {
+  // if reward is not provided, reward estimate is used
+  public async estimateJobFee(sender: string, estimateJobMsg: EstimateJobMsg, reward?: string): Promise<Big> {
     const state = await this.state();
     const config = await this.config();
-    const jobReward = await this.estimateJobReward(sender, estimateJobMsg);
+    const jobReward = reward ? Big(reward) : await this.estimateJobReward(sender, estimateJobMsg);
 
     const burnFee = computeBurnFee(jobReward, config);
     const maintenanceFee = computeMaintenanceFee(Big(estimateJobMsg.duration_days), config);
