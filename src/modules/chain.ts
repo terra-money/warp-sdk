@@ -2,9 +2,10 @@ import refsTerra from '../refs.terra.json';
 import refsInjective from '../refs.injective.json';
 import refsNeutron from '../refs.neutron.json';
 import refsNibiru from '../refs.nibiru.json';
+import refsMigaloo from '../refs.migaloo.json';
 import { LCDClient, LCDClientConfig } from '@terra-money/feather.js';
 
-export type ChainName = 'terra' | 'injective' | 'neutron' | 'nibiru';
+export type ChainName = 'terra' | 'injective' | 'neutron' | 'nibiru' | 'migaloo';
 export type NetworkName = 'testnet' | 'mainnet';
 
 interface ContractDefinition {
@@ -67,6 +68,15 @@ const mainnetConfig: Record<string, LCDClientConfig> = {
     },
     prefix: 'nibi',
   },
+  'migaloo-1': {
+    chainID: 'migaloo-1',
+    lcd: 'https://ww-migaloo-rest.polkachu.com',
+    gasAdjustment: 1.75,
+    gasPrices: {
+      uwhale: 1,
+    },
+    prefix: 'migaloo',
+  },
 };
 
 const testnetConfig: Record<string, LCDClientConfig> = {
@@ -103,6 +113,15 @@ const testnetConfig: Record<string, LCDClientConfig> = {
       unibi: 0.15,
     },
     prefix: 'nibi',
+  },
+  'narwhal-1': {
+    chainID: 'narwhal-1',
+    lcd: 'https://migaloo-testnet-api.polkachu.com',
+    gasAdjustment: 2,
+    gasPrices: {
+      uwhale: 0.015,
+    },
+    prefix: 'migaloo',
   },
 };
 
@@ -142,7 +161,22 @@ export const NIBIRU_CHAIN: ChainMetadata = {
   refs: refsNibiru,
 };
 
-export const SUPPORTED_CHAINS: ChainMetadata[] = [TERRA_CHAIN, INJECTIVE_CHAIN, NEUTRON_CHAIN, NIBIRU_CHAIN];
+export const MIGALOO_CHAIN: ChainMetadata = {
+  name: 'migaloo',
+  testnet: 'narwhal-1',
+  testnetConfig: testnetConfig['narwhal-1'],
+  mainnet: 'migaloo-1',
+  mainnetConfig: mainnetConfig['migaloo-1'],
+  refs: refsMigaloo,
+};
+
+export const SUPPORTED_CHAINS: ChainMetadata[] = [
+  TERRA_CHAIN,
+  INJECTIVE_CHAIN,
+  NEUTRON_CHAIN,
+  NIBIRU_CHAIN,
+  MIGALOO_CHAIN,
+];
 
 export interface ContractAddresses {
   controller: string;
