@@ -9,7 +9,7 @@ import {
   computeCreationFee,
   computeMaintenanceFee,
 } from './utils';
-import { TxInfo, LCDClientConfig, LCDClient, Coins } from '@terra-money/feather.js';
+import { TxInfo, LCDClientConfig, LCDClient, Coins, Coin } from '@terra-money/feather.js';
 import Big from 'big.js';
 import { TxModule, ChainModule, ChainName, NetworkName } from './modules';
 import { cosmosMsgToCreateTxMsg } from './utils';
@@ -229,22 +229,25 @@ export class WarpSdk {
   }
 
   // if reward is not provided, reward estimate is used
-  public async estimateJobFee(sender: string, estimateJobMsg: EstimateJobMsg, reward?: string): Promise<Big> {
+  public async estimateJobFee(sender: string, estimateJobMsg: EstimateJobMsg, reward?: string): Promise<Coin> {
     const state = await this.state();
     const config = await this.config();
-    const jobReward = reward ? Big(reward) : await this.estimateJobReward(sender, estimateJobMsg);
+    const denom = await this.nativeTokenDenom();
+    const jobReward: Coin = reward ? new Coin(denom, reward) : await this.estimateJobReward(sender, estimateJobMsg);
 
-    const burnFee = computeBurnFee(jobReward, config);
+    const jobRewardAmount = Big(jobReward.amount.toString());
+    const burnFee = computeBurnFee(jobRewardAmount, config);
     const maintenanceFee = computeMaintenanceFee(Big(estimateJobMsg.duration_days), config);
     const creationFee = computeCreationFee(Big(state.q), config);
 
-    const totalFee = jobReward.add(burnFee).add(creationFee).add(maintenanceFee);
+    const totalFee = jobRewardAmount.add(burnFee).add(creationFee).add(maintenanceFee);
 
-    return totalFee;
+    return new Coin(denom, totalFee.toString());
   }
 
-  public async estimateJobReward(sender: string, estimateJobMsg: EstimateJobMsg): Promise<Big> {
-    let estimatedReward = Big(0);
+  public async estimateJobReward(sender: string, estimateJobMsg: EstimateJobMsg): Promise<Coin> {
+    const denom = await this.nativeTokenDenom();
+    let estimatedReward = new Coin(denom, 0);
 
     for (let execution of estimateJobMsg.executions) {
       estimatedReward = estimatedReward.add(await this.estimateJobExecutionReward(sender, estimateJobMsg, execution));
@@ -257,7 +260,7 @@ export class WarpSdk {
     sender: string,
     estimateJobMsg: EstimateJobMsg,
     execution: warp_controller.Execution
-  ): Promise<Big> {
+  ): Promise<Coin> {
     // const account = await this.account(sender);
     // TODO: check if this works, as before first job is created, no account is assigned to free job accounts
     const response = await this.freeJobAccounts({ account_owner_addr: sender });
@@ -328,7 +331,7 @@ export class WarpSdk {
 
     const denom = await this.nativeTokenDenom();
 
-    return Big(fee.amount.get(denom).amount.toString()).mul(FEE_ADJUSTMENT_FACTOR);
+    return new Coin(denom, Big(fee.amount.get(denom).amount.toString()).mul(FEE_ADJUSTMENT_FACTOR).toString());
   }
 
   public async nativeTokenDenom(): Promise<string> {
