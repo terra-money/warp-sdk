@@ -68,7 +68,7 @@ const loop = async () => {
   let startAfter = 0;
   const limit = 50;
   // TODO: Update to current max job id on testnet/mainnet
-  const maxJobId = 1000;
+  const maxJobId = 1500;
 
   while (startAfter <= maxJobId) {
     try {

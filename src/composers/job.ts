@@ -41,7 +41,6 @@ export class JobSequenceMsgComposer {
 export class CreateJobMsgComposer {
   private _name: string | undefined;
   private _recurring: boolean | undefined;
-  private _requeue_on_evict: boolean | undefined;
   private _reward: warp_controller.Uint128 | undefined;
   private _description: string;
   private _labels: string[];
@@ -61,11 +60,6 @@ export class CreateJobMsgComposer {
 
   recurring(recurring: boolean): CreateJobMsgComposer {
     this._recurring = recurring;
-    return this;
-  }
-
-  requeueOnEvict(requeue_on_evict: boolean): CreateJobMsgComposer {
-    this._requeue_on_evict = requeue_on_evict;
     return this;
   }
 
@@ -108,7 +102,6 @@ export class CreateJobMsgComposer {
     if (
       this._name === undefined ||
       this._recurring === undefined ||
-      this._requeue_on_evict === undefined ||
       this._reward === undefined ||
       this._description === undefined ||
       this._labels === undefined
@@ -119,7 +112,6 @@ export class CreateJobMsgComposer {
     const createJobMsg: warp_controller.CreateJobMsg = {
       name: this._name,
       recurring: this._recurring,
-      requeue_on_evict: this._requeue_on_evict,
       reward: this._reward,
       description: this._description,
       labels: this._labels,

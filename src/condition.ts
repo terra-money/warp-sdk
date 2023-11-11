@@ -103,8 +103,7 @@ export class Condition {
 
     if ('env' in value) {
       if (value.env === 'warp_account_addr') {
-        const account = await this.sdk.account(job.owner);
-        return account.account;
+        return job.account;
       }
     }
 

@@ -1,4 +1,4 @@
-import { warp_account, warp_controller, warp_resolver } from './types/contracts';
+import { warp_legacy_account, warp_controller, warp_resolver, warp_job_account } from './types/contracts';
 import { WalletLike, Wallet, wallet } from './wallet';
 import { Condition } from './condition';
 import {
@@ -9,12 +9,13 @@ import {
   computeCreationFee,
   computeMaintenanceFee,
 } from './utils';
-import { TxInfo, LCDClientConfig, LCDClient } from '@terra-money/feather.js';
+import { TxInfo, LCDClientConfig, LCDClient, Coins } from '@terra-money/feather.js';
 import Big from 'big.js';
 import { TxModule, ChainModule, ChainName, NetworkName } from './modules';
 import { cosmosMsgToCreateTxMsg } from './utils';
 import { warp_templates } from './types/contracts/warp_templates';
-import { Fund, Job, parseJob } from './types/job';
+import { Job, parseJob } from './types/job';
+import { warp_job_account_tracker } from 'types/contracts';
 
 const FEE_ADJUSTMENT_FACTOR = 3;
 
@@ -162,20 +163,44 @@ export class WarpSdk {
     return response;
   }
 
-  public async account(owner: string): Promise<warp_controller.Account> {
+  public async takenJobAccounts(
+    msg: warp_job_account_tracker.QueryTakenAccountsMsg
+  ): Promise<warp_job_account_tracker.AccountsResponse> {
+    const response = await contractQuery<
+      Extract<warp_job_account_tracker.QueryMsg, { query_taken_accounts: {} }>,
+      warp_job_account_tracker.AccountsResponse
+    >(this.wallet.lcd, this.chain.contracts.jobAccountTracker, { query_taken_accounts: msg });
+
+    return response;
+  }
+
+  public async freeJobAccounts(
+    msg: warp_job_account_tracker.QueryFreeAccountsMsg
+  ): Promise<warp_job_account_tracker.AccountsResponse> {
+    const response = await contractQuery<
+      Extract<warp_job_account_tracker.QueryMsg, { query_free_accounts: {} }>,
+      warp_job_account_tracker.AccountsResponse
+    >(this.wallet.lcd, this.chain.contracts.jobAccountTracker, { query_free_accounts: msg });
+
+    return response;
+  }
+
+  // Legacy account support
+
+  public async legacyAccount(owner: string): Promise<warp_controller.LegacyAccount> {
     const { account } = await contractQuery<
-      Extract<warp_controller.QueryMsg, { query_account: {} }>,
-      warp_controller.AccountResponse
-    >(this.wallet.lcd, this.chain.contracts.controller, { query_account: { owner } });
+      Extract<warp_controller.QueryMsg, { query_legacy_account: {} }>,
+      warp_controller.LegacyAccountResponse
+    >(this.wallet.lcd, this.chain.contracts.controller, { query_legacy_account: { owner } });
 
     return account;
   }
 
-  public async accounts(opts: warp_controller.QueryAccountsMsg): Promise<warp_controller.Account[]> {
+  public async legacyAccounts(opts: warp_controller.QueryLegacyAccountsMsg): Promise<warp_controller.LegacyAccount[]> {
     const { accounts } = await contractQuery<
-      Extract<warp_controller.QueryMsg, { query_accounts: {} }>,
-      warp_controller.AccountsResponse
-    >(this.wallet.lcd, this.chain.contracts.controller, { query_accounts: opts });
+      Extract<warp_controller.QueryMsg, { query_legacy_accounts: {} }>,
+      warp_controller.LegacyAccountsResponse
+    >(this.wallet.lcd, this.chain.contracts.controller, { query_legacy_accounts: opts });
 
     return accounts;
   }
@@ -233,7 +258,10 @@ export class WarpSdk {
     estimateJobMsg: EstimateJobMsg,
     execution: warp_controller.Execution
   ): Promise<Big> {
-    const account = await this.account(sender);
+    // const account = await this.account(sender);
+    // TODO: check if this works, as before first job is created, no account is assigned to free job accounts
+    const response = await this.freeJobAccounts({ account_owner_addr: sender });
+    const account = response.accounts[0].addr;
 
     const hydratedVars = await this.hydrateVars({ vars: estimateJobMsg.vars });
 
@@ -246,7 +274,7 @@ export class WarpSdk {
 
     msgs.push(
       ...(
-        await this.tx.executeHydrateVars(account.account, {
+        await this.tx.executeHydrateVars(account, {
           vars: hydratedVars,
         })
       ).msgs
@@ -254,7 +282,7 @@ export class WarpSdk {
 
     msgs.push(
       ...(
-        await this.tx.executeHydrateMsgs(account.account, {
+        await this.tx.executeHydrateMsgs(account, {
           vars: hydratedVars,
           msgs: execution.msgs,
         })
@@ -263,7 +291,7 @@ export class WarpSdk {
 
     msgs.push(
       ...(
-        await this.tx.executeResolveCondition(account.account, {
+        await this.tx.executeResolveCondition(account, {
           condition: execution.condition,
           vars: hydratedVars,
         })
@@ -273,7 +301,7 @@ export class WarpSdk {
     if (estimateJobMsg.recurring) {
       msgs.push(
         ...(
-          await this.tx.executeApplyVarFn(account.account, {
+          await this.tx.executeApplyVarFn(account, {
             vars: hydratedVars,
             status: 'Executed',
           })
@@ -281,9 +309,9 @@ export class WarpSdk {
       );
     }
 
-    msgs.push(...hydratedMsgs.map((msg) => cosmosMsgToCreateTxMsg(account.account, msg)));
+    msgs.push(...hydratedMsgs.map((msg) => cosmosMsgToCreateTxMsg(account, msg)));
 
-    const accountInfo = await this.wallet.lcd.auth.accountInfo(account.account);
+    const accountInfo = await this.wallet.lcd.auth.accountInfo(account);
 
     const fee = await this.wallet.lcd.tx.estimateFee(
       [
@@ -307,8 +335,8 @@ export class WarpSdk {
     return nativeTokenDenom(this.wallet.lcd, this.chain.config.chainID);
   }
 
-  public async createJob(sender: string, msg: warp_controller.CreateJobMsg, funds?: Fund[]): Promise<TxInfo> {
-    const txPayload = await this.tx.createJob(sender, msg, funds);
+  public async createJob(sender: string, msg: warp_controller.CreateJobMsg, coins?: Coins.Input): Promise<TxInfo> {
+    const txPayload = await this.tx.createJob(sender, msg, coins);
 
     return this.wallet.tx(txPayload);
   }
@@ -330,9 +358,9 @@ export class WarpSdk {
   public async createJobSequence(
     sender: string,
     sequence: warp_controller.CreateJobMsg[],
-    funds?: Fund[]
+    coins?: Coins.Input
   ): Promise<TxInfo> {
-    const txPayload = await this.tx.createJobSequence(sender, sequence, funds);
+    const txPayload = await this.tx.createJobSequence(sender, sequence, coins);
 
     return this.wallet.tx(txPayload);
   }
@@ -379,26 +407,37 @@ export class WarpSdk {
     return this.wallet.tx(txPayload);
   }
 
-  public async createAccount(sender: string, funds?: Fund[]): Promise<TxInfo> {
-    const txPayload = await this.tx.createAccount(sender, funds);
+  public async withdrawAssets(
+    sender: string,
+    job_id: string,
+    msg: warp_job_account.WithdrawAssetsMsg
+  ): Promise<TxInfo> {
+    const txPayload = await this.tx.withdrawAssets(sender, job_id, msg);
 
     return this.wallet.tx(txPayload);
   }
 
-  public async withdrawAssets(sender: string, msg: warp_account.WithdrawAssetsMsg): Promise<TxInfo> {
-    const txPayload = await this.tx.withdrawAssets(sender, msg);
+  // legacy account support
+
+  public async legacyWithdrawAssets(sender: string, msg: warp_legacy_account.WithdrawAssetsMsg): Promise<TxInfo> {
+    const txPayload = await this.tx.legacyWithdrawAssets(sender, msg);
 
     return this.wallet.tx(txPayload);
   }
 
-  public async depositToAccount(sender: string, account: string, token: Token, amount: string): Promise<TxInfo> {
-    const txPayload = await this.tx.depositToAccount(sender, account, token, amount);
+  public async legacyDepositToAccount(sender: string, account: string, token: Token, amount: string): Promise<TxInfo> {
+    const txPayload = await this.tx.legacyDepositToAccount(sender, account, token, amount);
 
     return this.wallet.tx(txPayload);
   }
 
-  public async withdrawFromAccount(sender: string, receiver: string, token: Token, amount: string): Promise<TxInfo> {
-    const txPayload = await this.tx.withdrawFromAccount(sender, receiver, token, amount);
+  public async legacyWithdrawFromAccount(
+    sender: string,
+    receiver: string,
+    token: Token,
+    amount: string
+  ): Promise<TxInfo> {
+    const txPayload = await this.tx.legacyWithdrawFromAccount(sender, receiver, token, amount);
 
     return this.wallet.tx(txPayload);
   }

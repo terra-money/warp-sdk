@@ -168,7 +168,6 @@ const createJobMsg = job
   .name('swap-and-send')
   .description('')
   .recurring(true)
-  .requeueOnEvict(true)
   .reward('1000')
   .vars([untrnAmount, timeoutTimestamp, simulateAstroAmount, transferVariable, swapVariable, routedSwapVariable])
   .executions([

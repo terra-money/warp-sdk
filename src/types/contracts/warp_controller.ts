@@ -1,17 +1,7 @@
 export module warp_controller {
-  export type Addr = string;
-  export interface AccountResponse {
-    account: Account;
-  }
-  export interface Account {
-    account: Addr;
-    owner: Addr;
-  }
-  export interface AccountsResponse {
-    accounts: Account[];
-  }
   export type Uint128 = string;
   export type Uint64 = string;
+  export type Addr = string;
   export interface Config {
     a_max: Uint128;
     a_min: Uint128;
@@ -21,17 +11,18 @@ export module warp_controller {
     creation_fee_max: Uint128;
     creation_fee_min: Uint128;
     creation_fee_percentage: Uint64;
-    duration_days_left: Uint128;
-    duration_days_right: Uint128;
+    duration_days_left: Uint64;
+    duration_days_right: Uint64;
     fee_collector: Addr;
     fee_denom: string;
+    job_account_tracker_address: Addr;
     maintenance_fee_max: Uint128;
     maintenance_fee_min: Uint128;
     minimum_reward: Uint128;
     owner: Addr;
     q_max: Uint64;
-    queue_size_left: Uint128;
-    queue_size_right: Uint128;
+    queue_size_left: Uint64;
+    queue_size_right: Uint64;
     resolver_address: Addr;
     t_max: Uint64;
     t_min: Uint64;
@@ -57,13 +48,16 @@ export module warp_controller {
         evict_job: EvictJobMsg;
       }
     | {
-        create_account: CreateAccountMsg;
-      }
-    | {
         update_config: UpdateConfigMsg;
       }
     | {
-        migrate_accounts: MigrateAccountsMsg;
+        migrate_legacy_accounts: MigrateLegacyAccountsMsg;
+      }
+    | {
+        migrate_free_job_accounts: MigrateJobAccountsMsg;
+      }
+    | {
+        migrate_taken_job_accounts: MigrateJobAccountsMsg;
       }
     | {
         migrate_pending_jobs: MigrateJobsMsg;
@@ -262,7 +256,7 @@ export module warp_controller {
          */
         cw721: [Addr, string];
       };
-  export type Fund =
+  export type CwFund =
     | {
         cw20: Cw20Fund;
       }
@@ -272,13 +266,13 @@ export module warp_controller {
   export interface CreateJobMsg {
     account_msgs?: CosmosMsgFor_Empty[] | null;
     assets_to_withdraw?: AssetInfo[] | null;
+    cw_funds?: CwFund[] | null;
     description: string;
-    duration_days: Uint128;
+    duration_days: Uint64;
     executions: Execution[];
     labels: string[];
     name: string;
     recurring: boolean;
-    requeue_on_evict: boolean;
     reward: Uint128;
     terminate_condition?: string | null;
     vars: string;
@@ -302,6 +296,14 @@ export module warp_controller {
      */
     revision: number;
   }
+  export interface Cw20Fund {
+    amount: Uint128;
+    contract_addr: string;
+  }
+  export interface Cw721Fund {
+    contract_addr: string;
+    token_id: string;
+  }
   export interface Execution {
     condition: string;
     msgs: string;
@@ -310,7 +312,6 @@ export module warp_controller {
     id: Uint64;
   }
   export interface UpdateJobMsg {
-    added_reward?: Uint128 | null;
     description?: string | null;
     id: Uint64;
     labels?: string[] | null;
@@ -326,18 +327,6 @@ export module warp_controller {
   }
   export interface EvictJobMsg {
     id: Uint64;
-  }
-  export interface CreateAccountMsg {
-    funds?: Fund[] | null;
-    msgs?: CosmosMsgFor_Empty[] | null;
-  }
-  export interface Cw20Fund {
-    amount: Uint128;
-    contract_addr: string;
-  }
-  export interface Cw721Fund {
-    contract_addr: string;
-    token_id: string;
   }
   export interface UpdateConfigMsg {
     a_max?: Uint128 | null;
@@ -361,10 +350,16 @@ export module warp_controller {
     t_max?: Uint64 | null;
     t_min?: Uint64 | null;
   }
-  export interface MigrateAccountsMsg {
+  export interface MigrateLegacyAccountsMsg {
     limit: number;
     start_after?: string | null;
-    warp_account_code_id: Uint64;
+    warp_legacy_account_code_id: Uint64;
+  }
+  export interface MigrateJobAccountsMsg {
+    account_owner_addr: string;
+    limit: number;
+    start_after?: string | null;
+    warp_job_account_code_id: Uint64;
   }
   export interface MigrateJobsMsg {
     limit: number;
@@ -379,17 +374,18 @@ export module warp_controller {
     creation_fee: Uint64;
     creation_fee_max: Uint128;
     creation_fee_min: Uint128;
-    duration_days_left: Uint128;
-    duration_days_right: Uint128;
+    duration_days_left: Uint64;
+    duration_days_right: Uint64;
     fee_collector?: string | null;
     fee_denom: string;
+    job_account_tracker_address: string;
     maintenance_fee_max: Uint128;
     maintenance_fee_min: Uint128;
     minimum_reward: Uint128;
     owner?: string | null;
     q_max: Uint64;
-    queue_size_left: Uint128;
-    queue_size_right: Uint128;
+    queue_size_left: Uint64;
+    queue_size_right: Uint64;
     resolver_address: string;
     t_max: Uint64;
     t_min: Uint64;
@@ -402,7 +398,9 @@ export module warp_controller {
   export interface Job {
     account: Addr;
     assets_to_withdraw: AssetInfo[];
+    created_at_time: Uint64;
     description: string;
+    duration_days: Uint64;
     executions: Execution[];
     id: Uint64;
     labels: string[];
@@ -411,7 +409,6 @@ export module warp_controller {
     owner: Addr;
     prev_id?: Uint64 | null;
     recurring: boolean;
-    requeue_on_evict: boolean;
     reward: Uint128;
     status: JobStatus;
     terminate_condition?: string | null;
@@ -421,6 +418,16 @@ export module warp_controller {
     jobs: Job[];
     total_count: number;
   }
+  export interface LegacyAccountResponse {
+    account: LegacyAccount;
+  }
+  export interface LegacyAccount {
+    account: Addr;
+    owner: Addr;
+  }
+  export interface LegacyAccountsResponse {
+    accounts: LegacyAccount[];
+  }
   export type QueryMsg =
     | {
         query_job: QueryJobMsg;
@@ -429,10 +436,10 @@ export module warp_controller {
         query_jobs: QueryJobsMsg;
       }
     | {
-        query_account: QueryAccountMsg;
+        query_legacy_account: QueryLegacyAccountMsg;
       }
     | {
-        query_accounts: QueryAccountsMsg;
+        query_legacy_accounts: QueryLegacyAccountsMsg;
       }
     | {
         query_config: QueryConfigMsg;
@@ -457,10 +464,10 @@ export module warp_controller {
     _0: Uint128;
     _1: Uint64;
   }
-  export interface QueryAccountMsg {
+  export interface QueryLegacyAccountMsg {
     owner: string;
   }
-  export interface QueryAccountsMsg {
+  export interface QueryLegacyAccountsMsg {
     limit?: number | null;
     start_after?: string | null;
   }

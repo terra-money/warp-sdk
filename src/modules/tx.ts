@@ -1,12 +1,16 @@
-import { warp_account, warp_controller, warp_resolver, warp_templates } from '../types/contracts';
+import {
+  warp_controller,
+  warp_job_account,
+  warp_legacy_account,
+  warp_resolver,
+  warp_templates,
+} from '../types/contracts';
 import { base64encode, nativeTokenDenom, Token, TransferMsg, TransferNftMsg } from '../utils';
-import { CreateTxOptions } from '@terra-money/feather.js';
+import { Coins, CreateTxOptions } from '@terra-money/feather.js';
 import { TxBuilder } from '../tx';
-import Big from 'big.js';
 import { JobSequenceMsgComposer } from '../composers';
 import { resolveExternalInputs } from '../variables';
 import { WarpSdk } from '../sdk';
-import { Fund, mergeFunds } from '../types/job';
 
 export class TxModule {
   private warpSdk: WarpSdk;
@@ -15,17 +19,22 @@ export class TxModule {
     this.warpSdk = warpSdk;
   }
 
-  public async createJob(sender: string, msg: warp_controller.CreateJobMsg, funds?: Fund[]): Promise<CreateTxOptions> {
-    const createAccountTx = await this.createAccount(sender, funds);
+  public async createJob(
+    sender: string,
+    msg: warp_controller.CreateJobMsg,
+    coins?: Coins.Input
+  ): Promise<CreateTxOptions> {
+    const transferCwToControllerTx = await this.transferCwToController(sender, msg.cw_funds ?? []);
 
     return TxBuilder.new(this.warpSdk.chain.config)
-      .tx(createAccountTx)
+      .tx(transferCwToControllerTx)
       .execute<Extract<warp_controller.ExecuteMsg, { create_job: {} }>>(
         sender,
         this.warpSdk.chain.contracts.controller,
         {
           create_job: msg,
-        }
+        },
+        coins
       )
       .build();
   }
@@ -33,32 +42,26 @@ export class TxModule {
   public async createJobSequence(
     sender: string,
     sequence: warp_controller.CreateJobMsg[],
-    funds?: Fund[]
+    coins?: Coins.Input
   ): Promise<CreateTxOptions> {
-    const nativeDenom = await nativeTokenDenom(this.warpSdk.wallet.lcd, this.warpSdk.chain.config.chainID);
-
-    const totalReward = sequence.reduce((acc, msg) => acc.add(Big(msg.reward)), Big(0));
-    const rewardFund: Fund = { native: { denom: nativeDenom, amount: totalReward.toString() } };
-    const totalFunds = funds ? mergeFunds(funds, rewardFund) : [rewardFund];
-
-    const createAccountTx = await this.createAccount(sender, totalFunds);
-
+    let txBuilder = TxBuilder.new(this.warpSdk.chain.config);
     let jobSequenceMsgComposer = JobSequenceMsgComposer.new();
 
-    sequence.forEach((msg) => {
+    sequence.forEach(async (msg) => {
       jobSequenceMsgComposer = jobSequenceMsgComposer.chain(msg);
+      txBuilder = txBuilder.tx(await this.transferCwToController(sender, msg.cw_funds ?? []));
     });
 
     const jobSequenceMsg = jobSequenceMsgComposer.compose();
 
-    return TxBuilder.new(this.warpSdk.chain.config)
-      .tx(createAccountTx)
+    return txBuilder
       .execute<Extract<warp_controller.ExecuteMsg, { create_job: {} }>>(
         sender,
         this.warpSdk.chain.contracts.controller,
         {
           create_job: jobSequenceMsg,
-        }
+        },
+        coins
       )
       .build();
   }
@@ -76,25 +79,14 @@ export class TxModule {
   }
 
   public async updateJob(sender: string, msg: warp_controller.UpdateJobMsg): Promise<CreateTxOptions> {
-    const account = await this.warpSdk.account(sender);
-    const nativeDenom = await nativeTokenDenom(this.warpSdk.wallet.lcd, this.warpSdk.chain.config.chainID);
-
     let txBuilder = TxBuilder.new(this.warpSdk.chain.config);
-
-    if (msg.added_reward) {
-      txBuilder = txBuilder.send(account.owner, account.account, {
-        [nativeDenom]: Big(msg.added_reward).toString(),
-      });
-    }
 
     return txBuilder
       .execute<Extract<warp_controller.ExecuteMsg, { update_job: {} }>>(
         sender,
         this.warpSdk.chain.contracts.controller,
         {
-          update_job: {
-            ...msg,
-          },
+          update_job: msg,
         }
       )
       .build();
@@ -254,51 +246,35 @@ export class TxModule {
       .build();
   }
 
-  public async createAccount(sender: string, funds?: Fund[]): Promise<CreateTxOptions> {
+  public async transferCwToController(sender: string, funds: warp_controller.CwFund[]): Promise<CreateTxOptions> {
     let txBuilder = TxBuilder.new(this.warpSdk.chain.config);
 
-    if (funds) {
-      for (let fund of funds) {
-        if ('cw20' in fund) {
-          const { amount, contract_addr } = fund.cw20;
+    for (let fund of funds) {
+      if ('cw20' in fund) {
+        const { amount, contract_addr } = fund.cw20;
 
-          txBuilder = txBuilder.execute<TransferMsg>(sender, contract_addr, {
-            transfer: {
-              amount,
-              recipient: this.warpSdk.chain.contracts.controller,
-            },
-          });
-        } else if ('cw721' in fund) {
-          const { contract_addr, token_id } = fund.cw721;
+        txBuilder = txBuilder.execute<TransferMsg>(sender, contract_addr, {
+          transfer: {
+            amount,
+            recipient: this.warpSdk.chain.contracts.controller,
+          },
+        });
+      } else if ('cw721' in fund) {
+        const { contract_addr, token_id } = fund.cw721;
 
-          txBuilder = txBuilder.execute<TransferNftMsg>(sender, contract_addr, {
-            transfer_nft: {
-              token_id,
-              recipient: this.warpSdk.chain.contracts.controller,
-            },
-          });
-        }
+        txBuilder = txBuilder.execute<TransferNftMsg>(sender, contract_addr, {
+          transfer_nft: {
+            token_id,
+            recipient: this.warpSdk.chain.contracts.controller,
+          },
+        });
       }
     }
 
-    const nativeFunds = funds?.filter((fund) => 'native' in fund).map((fund) => 'native' in fund && fund.native) ?? [];
-    const cwFunds = (funds?.filter((fund) => !('native' in fund)) as warp_controller.Fund[]) ?? [];
-
-    return txBuilder
-      .execute<Extract<warp_controller.ExecuteMsg, { create_account: {} }>>(
-        sender,
-        this.warpSdk.chain.contracts.controller,
-        {
-          create_account: {
-            funds: cwFunds,
-          },
-        },
-        nativeFunds.reduce((acc, curr) => ({ ...acc, [curr.denom]: curr.amount }), {})
-      )
-      .build();
+    return txBuilder.build();
   }
 
-  public async depositToAccount(
+  public async legacyDepositToAccount(
     sender: string,
     account: string,
     token: Token,
@@ -324,11 +300,14 @@ export class TxModule {
     return txPayload;
   }
 
-  public async withdrawAssets(sender: string, msg: warp_account.WithdrawAssetsMsg): Promise<CreateTxOptions> {
-    const { account } = await this.warpSdk.account(sender);
+  public async legacyWithdrawAssets(
+    sender: string,
+    msg: warp_legacy_account.WithdrawAssetsMsg
+  ): Promise<CreateTxOptions> {
+    const { account } = await this.warpSdk.legacyAccount(sender);
 
     const txPayload = TxBuilder.new(this.warpSdk.chain.config)
-      .execute<Extract<warp_account.ExecuteMsg, { withdraw_assets: {} }>>(sender, account, {
+      .execute<Extract<warp_legacy_account.ExecuteMsg, { withdraw_assets: {} }>>(sender, account, {
         withdraw_assets: msg,
       })
       .build();
@@ -336,13 +315,29 @@ export class TxModule {
     return txPayload;
   }
 
-  public async withdrawFromAccount(
+  public async withdrawAssets(
+    sender: string,
+    job_id: string,
+    msg: warp_job_account.WithdrawAssetsMsg
+  ): Promise<CreateTxOptions> {
+    const job = await this.warpSdk.job(job_id);
+
+    const txPayload = TxBuilder.new(this.warpSdk.chain.config)
+      .execute<Extract<warp_job_account.ExecuteMsg, { withdraw_assets: {} }>>(sender, job.account, {
+        withdraw_assets: msg,
+      })
+      .build();
+
+    return txPayload;
+  }
+
+  public async legacyWithdrawFromAccount(
     sender: string,
     receiver: string,
     token: Token,
     amount: string
   ): Promise<CreateTxOptions> {
-    const { account } = await this.warpSdk.account(sender);
+    const { account } = await this.warpSdk.legacyAccount(sender);
     let txPayload: CreateTxOptions;
 
     if (token.type === 'cw20') {
@@ -354,7 +349,7 @@ export class TxModule {
       };
 
       txPayload = TxBuilder.new(this.warpSdk.chain.config)
-        .execute<warp_account.ExecuteMsg>(sender, account, {
+        .execute<warp_legacy_account.ExecuteMsg>(sender, account, {
           generic: {
             msgs: [
               {
@@ -372,7 +367,7 @@ export class TxModule {
         .build();
     } else {
       txPayload = TxBuilder.new(this.warpSdk.chain.config)
-        .execute<warp_account.ExecuteMsg>(sender, account, {
+        .execute<warp_legacy_account.ExecuteMsg>(sender, account, {
           generic: {
             msgs: [
               {

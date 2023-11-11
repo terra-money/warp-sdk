@@ -11,6 +11,10 @@
     "warp-templates": {
       "codeId": "2530",
       "address": "inj1lqe55634npthzavxd9stfpz0snr5hh0qxhhsgp"
+    },
+    "warp-job-account-tracker": {
+      "codeId": "11630",
+      "address": "inj1zzgg30ygltd5s3xtescfquwmm2jktaq28t37f2j9h5wwswpxtyyspugek8"
     }
   },
   "mainnet": {
@@ -25,6 +29,10 @@
     "warp-templates": {
       "codeId": "82",
       "address": "inj1nxp6uvz0506u32hf438uqy3cqs023k9wq6kxp8"
+    },
+    "warp-job-account-tracker": {
+      "codeId": "11630",
+      "address": "inj1zzgg30ygltd5s3xtescfquwmm2jktaq28t37f2j9h5wwswpxtyyspugek8"
     }
   }
 }

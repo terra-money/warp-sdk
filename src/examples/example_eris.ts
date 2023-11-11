@@ -36,7 +36,6 @@ const createJobMsg = job
   .description('This job harvests rewards for eris protoocl vaults each day.')
   .labels([])
   .recurring(true)
-  .requeueOnEvict(true)
   .reward('50000')
   .vars([nextExecution])
   .executions([

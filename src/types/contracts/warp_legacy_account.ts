@@ -1,18 +1,6 @@
-export module warp_account {
+export module warp_legacy_account {
   export type Addr = string;
-  export interface AccountResponse {
-    account: Account;
-  }
-  export interface Account {
-    account: Addr;
-    owner: Addr;
-  }
-  export interface AccountsResponse {
-    accounts: Account[];
-  }
   export interface Config {
-    is_sub_account: boolean;
-    main_account_addr: Addr;
     owner: Addr;
     warp_addr: Addr;
   }
@@ -25,12 +13,6 @@ export module warp_account {
       }
     | {
         ibc_transfer: IbcTransferMsg;
-      }
-    | {
-        occupy_sub_account: OccupySubAccountMsg;
-      }
-    | {
-        free_sub_account: FreeSubAccountMsg;
       };
   export type CosmosMsgFor_Empty =
     | {
@@ -269,14 +251,7 @@ export module warp_account {
     revision_height?: number | null;
     revision_number?: number | null;
   }
-  export interface OccupySubAccountMsg {
-    job_id: Uint64;
-    sub_account_addr: string;
-  }
-  export interface FreeSubAccountMsg {
-    sub_account_addr: string;
-  }
-  export type Fund =
+  export type CwFund =
     | {
         cw20: Cw20Fund;
       }
@@ -284,10 +259,7 @@ export module warp_account {
         cw721: Cw721Fund;
       };
   export interface InstantiateMsg {
-    funds?: Fund[] | null;
-    is_sub_account?: boolean | null;
-    main_account_addr?: string | null;
-    msgs?: CosmosMsgFor_Empty[] | null;
+    funds?: CwFund[] | null;
     owner: string;
   }
   export interface Cw20Fund {
@@ -298,34 +270,5 @@ export module warp_account {
     contract_addr: string;
     token_id: string;
   }
-  export type JobStatus = 'Pending' | 'Executed' | 'Failed' | 'Cancelled' | 'Evicted';
-  export interface JobResponse {
-    job: Job;
-  }
-  export interface Job {
-    account: Addr;
-    assets_to_withdraw: AssetInfo[];
-    description: string;
-    executions: Execution[];
-    id: Uint64;
-    labels: string[];
-    last_update_time: Uint64;
-    name: string;
-    owner: Addr;
-    prev_id?: Uint64 | null;
-    recurring: boolean;
-    requeue_on_evict: boolean;
-    reward: Uint128;
-    status: JobStatus;
-    terminate_condition?: string | null;
-    vars: string;
-  }
-  export interface Execution {
-    condition: string;
-    msgs: string;
-  }
-  export interface JobsResponse {
-    jobs: Job[];
-    total_count: number;
-  }
+  export type QueryMsg = 'config';
 }

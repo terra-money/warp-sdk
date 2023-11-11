@@ -67,7 +67,6 @@ const condition = cond.uint(uint.ref(astroReceived), 'gte', uint.simple(limitOrd
 const createJobMsg = job
   .create()
   .name('astroport-limit-order')
-  .requeueOnEvict(true)
   .reward('50000')
   .recurring(false)
   .description('This job creates an astroport limit order.')

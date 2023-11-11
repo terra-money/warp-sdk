@@ -42,9 +42,11 @@
   "generate-types": {
     "contracts": [
       "warp-controller",
-      "warp-account",
+      "warp-legacy-account",
       "warp-resolver",
-      "warp-templates"
+      "warp-templates",
+      "warp-job-account",
+      "warp-job-account-tracker"
     ],
     "output": "src/types/contracts"
   },
