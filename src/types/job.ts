@@ -2,7 +2,7 @@ import { warp_controller, warp_resolver } from './contracts';
 
 export type Execution = {
   condition: warp_resolver.Condition;
-  msgs: warp_resolver.CosmosMsgFor_Empty[];
+  msgs: warp_resolver.WarpMsg[];
 };
 
 export type Job = Omit<warp_controller.Job, 'executions' | 'vars'> & {
@@ -21,7 +21,7 @@ export type JobsResponse = {
 
 export const parseExecution = (execution: warp_controller.Execution): Execution => {
   return {
-    msgs: JSON.parse(execution.msgs) as warp_resolver.CosmosMsgFor_Empty[],
+    msgs: JSON.parse(execution.msgs) as warp_resolver.WarpMsg[],
     condition: JSON.parse(execution.condition) as warp_resolver.Condition,
   };
 };

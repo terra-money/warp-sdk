@@ -154,10 +154,10 @@ export class WarpSdk {
     return response;
   }
 
-  public async hydrateMsgs(msg: warp_resolver.QueryHydrateMsgsMsg): Promise<warp_resolver.CosmosMsgFor_Empty[]> {
+  public async hydrateMsgs(msg: warp_resolver.QueryHydrateMsgsMsg): Promise<warp_resolver.WarpMsg[]> {
     const response = await contractQuery<
       Extract<warp_resolver.QueryMsg, { query_hydrate_msgs: {} }>,
-      warp_resolver.CosmosMsgFor_Empty[]
+      warp_resolver.WarpMsg[]
     >(this.wallet.lcd, this.chain.contracts.resolver, { query_hydrate_msgs: msg });
 
     return response;
@@ -312,7 +312,18 @@ export class WarpSdk {
       );
     }
 
-    msgs.push(...hydratedMsgs.map((msg) => cosmosMsgToCreateTxMsg(account, msg)));
+    // TODO: query transformed msgs from contracts
+    let transformedMsgs: warp_resolver.CosmosMsgFor_Empty[] = hydratedMsgs
+      .map((m) => {
+        if ('generic' in m) {
+          return m.generic;
+        }
+
+        return null;
+      })
+      .filter(Boolean);
+
+    msgs.push(...transformedMsgs.map((msg) => cosmosMsgToCreateTxMsg(account, msg)));
 
     const accountInfo = await this.wallet.lcd.auth.accountInfo(account);
 

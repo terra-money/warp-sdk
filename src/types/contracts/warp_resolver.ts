@@ -656,4 +656,51 @@ export module warp_resolver {
     query: QueryRequestFor_String;
     selector: string;
   }
+  export type WarpMsg =
+    | {
+        generic: CosmosMsgFor_Empty;
+      }
+    | {
+        ibc_transfer: IbcTransferMsg;
+      }
+    | {
+        withdraw_assets: WithdrawAssetsMsg;
+      };
+  export type AssetInfo =
+    | {
+        native: string;
+      }
+    | {
+        cw20: Addr;
+      }
+    | {
+        /**
+         * @minItems 2
+         * @maxItems 2
+         */
+        cw721: [Addr, string];
+      };
+  export type Addr = string;
+  export interface IbcTransferMsg {
+    timeout_block_delta?: number | null;
+    timeout_timestamp_seconds_delta?: number | null;
+    transfer_msg: TransferMsg;
+  }
+  export interface TransferMsg {
+    memo: string;
+    receiver: string;
+    sender: string;
+    source_channel: string;
+    source_port: string;
+    timeout_block?: TimeoutBlock | null;
+    timeout_timestamp?: number | null;
+    token?: Coin | null;
+  }
+  export interface TimeoutBlock {
+    revision_height?: number | null;
+    revision_number?: number | null;
+  }
+  export interface WithdrawAssetsMsg {
+    asset_infos: AssetInfo[];
+  }
 }

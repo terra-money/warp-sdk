@@ -75,13 +75,13 @@ const swapVariable = variable
   .encode(true)
   .compose();
 
-const routedSwapMsg = account.generic([
+const routedSwapMsg = account.msgs([
   msg.execute(neutronRouter, variable.ref(swapVariable), [
     { denom: 'untrn', amount: '$warp.variable.neutron_balance' },
   ]),
 ]);
 
-const transferMsg = account.generic([
+const transferMsg = account.msgs([
   msg.transfer({ denom: astro, amount: '1' }, transferChannel, { timestamp: '1692915449102000000' }, terraRecipient),
 ]);
 

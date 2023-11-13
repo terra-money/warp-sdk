@@ -6,6 +6,9 @@ export module warp_job_account {
   }
   export type ExecuteMsg =
     | {
+        warp_msgs: WarpMsgs;
+      }
+    | {
         generic: GenericMsg;
       }
     | {
@@ -13,6 +16,16 @@ export module warp_job_account {
       }
     | {
         ibc_transfer: IbcTransferMsg;
+      };
+  export type WarpMsg =
+    | {
+        generic: CosmosMsgFor_Empty;
+      }
+    | {
+        ibc_transfer: IbcTransferMsg;
+      }
+    | {
+        withdraw_assets: WithdrawAssetsMsg;
       };
   export type CosmosMsgFor_Empty =
     | {
@@ -207,8 +220,8 @@ export module warp_job_account {
          */
         cw721: [Addr, string];
       };
-  export interface GenericMsg {
-    msgs: CosmosMsgFor_Empty[];
+  export interface WarpMsgs {
+    msgs: WarpMsg[];
   }
   export interface Coin {
     amount: Uint128;
@@ -229,9 +242,6 @@ export module warp_job_account {
      */
     revision: number;
   }
-  export interface WithdrawAssetsMsg {
-    asset_infos: AssetInfo[];
-  }
   export interface IbcTransferMsg {
     timeout_block_delta?: number | null;
     timeout_timestamp_seconds_delta?: number | null;
@@ -251,6 +261,12 @@ export module warp_job_account {
     revision_height?: number | null;
     revision_number?: number | null;
   }
+  export interface WithdrawAssetsMsg {
+    asset_infos: AssetInfo[];
+  }
+  export interface GenericMsg {
+    msgs: CosmosMsgFor_Empty[];
+  }
   export type CwFund =
     | {
         cw20: Cw20Fund;
@@ -261,7 +277,7 @@ export module warp_job_account {
   export interface InstantiateMsg {
     cw_funds: CwFund[];
     job_id: Uint64;
-    msgs: CosmosMsgFor_Empty[];
+    msgs: WarpMsg[];
     native_funds: Coin[];
     owner: string;
   }

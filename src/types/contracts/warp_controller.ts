@@ -65,6 +65,16 @@ export module warp_controller {
     | {
         migrate_finished_jobs: MigrateJobsMsg;
       };
+  export type WarpMsg =
+    | {
+        generic: CosmosMsgFor_Empty;
+      }
+    | {
+        ibc_transfer: IbcTransferMsg;
+      }
+    | {
+        withdraw_assets: WithdrawAssetsMsg;
+      };
   export type CosmosMsgFor_Empty =
     | {
         bank: BankMsg;
@@ -264,7 +274,7 @@ export module warp_controller {
         cw721: Cw721Fund;
       };
   export interface CreateJobMsg {
-    account_msgs?: CosmosMsgFor_Empty[] | null;
+    account_msgs?: WarpMsg[] | null;
     assets_to_withdraw?: AssetInfo[] | null;
     cw_funds?: CwFund[] | null;
     description: string;
@@ -295,6 +305,28 @@ export module warp_controller {
      * the version that the client is currently on (eg. after reseting the chain this could increment 1 as height drops to 0)
      */
     revision: number;
+  }
+  export interface IbcTransferMsg {
+    timeout_block_delta?: number | null;
+    timeout_timestamp_seconds_delta?: number | null;
+    transfer_msg: TransferMsg;
+  }
+  export interface TransferMsg {
+    memo: string;
+    receiver: string;
+    sender: string;
+    source_channel: string;
+    source_port: string;
+    timeout_block?: TimeoutBlock | null;
+    timeout_timestamp?: number | null;
+    token?: Coin | null;
+  }
+  export interface TimeoutBlock {
+    revision_height?: number | null;
+    revision_number?: number | null;
+  }
+  export interface WithdrawAssetsMsg {
+    asset_infos: AssetInfo[];
   }
   export interface Cw20Fund {
     amount: Uint128;

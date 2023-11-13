@@ -1,6 +1,6 @@
 import { warp_controller, warp_resolver } from '../types/contracts';
 
-type Execution = [warp_resolver.Condition, warp_resolver.CosmosMsgFor_Empty[]];
+type Execution = [warp_resolver.Condition, warp_resolver.WarpMsg[]];
 
 export class JobSequenceMsgComposer {
   static new() {
