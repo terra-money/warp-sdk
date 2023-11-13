@@ -1,13 +1,13 @@
 export module warp_job_account_tracker {
   export type Addr = string;
   export type Uint64 = string;
-  export interface AccountsResponse {
-    accounts: Account[];
-    total_count: number;
-  }
   export interface Account {
     addr: Addr;
     taken_by_job_id?: Uint64 | null;
+  }
+  export interface AccountsResponse {
+    accounts: Account[];
+    total_count: number;
   }
   export interface Config {
     admin: Addr;
