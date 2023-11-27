@@ -38,7 +38,7 @@ const mainnetConfig: Record<string, LCDClientConfig> = {
     chainID: 'phoenix-1',
     lcd: 'https://phoenix-lcd.terra.dev',
     gasAdjustment: 1.75,
-    gasPrices: { uluna: 0.15 },
+    gasPrices: { uluna: 0.015 },
     prefix: 'terra',
   },
   'injective-1': {
@@ -84,7 +84,7 @@ const testnetConfig: Record<string, LCDClientConfig> = {
     lcd: 'https://pisco-lcd.terra.dev',
     chainID: 'pisco-1',
     gasAdjustment: 1.75,
-    gasPrices: { uluna: 0.15 },
+    gasPrices: { uluna: 0.015 },
     prefix: 'terra',
   },
   'injective-888': {
