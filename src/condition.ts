@@ -214,7 +214,7 @@ export class Condition {
   public resolveExprBool(ref: string, vars: warp_resolver.Variable[]): Promise<boolean> {
     const v = this.variable(ref, vars);
 
-    return this.resolveVariable(v, (val) => Boolean(val));
+    return this.resolveVariable(v, (val) => (val === 'true' ? true : false));
   }
 
   public async resolveVariable<T>(variable: warp_resolver.Variable, cast: (val: string) => T): Promise<T> {
@@ -250,7 +250,7 @@ export class Condition {
     >(this.wallet.lcd, this.contracts.resolver, { simulate_query: { query: query.init_fn.query } });
     const extracted = JSONPath({ path: query.init_fn.selector, json: JSON.parse(resp.response) });
 
-    if (extracted[0] == null) {
+    if (extracted[0] === null) {
       return null;
     } else {
       return String(extracted[0]);
@@ -258,7 +258,7 @@ export class Condition {
   }
 
   public resolveStringOp = async (left: string, right: string, op: warp_resolver.StringOp): Promise<boolean> => {
-    if (left == null || right == null) {
+    if (left === null || right === null) {
       return false;
     }
 
@@ -277,7 +277,7 @@ export class Condition {
   };
 
   public resolveNumOp = async (left: Big, right: Big, op: warp_resolver.NumOp): Promise<boolean> => {
-    if (left == null || right == null) {
+    if (left === null || right === null) {
       return false;
     }
 

@@ -43,7 +43,7 @@ export const resolveExternalVariable = async (external: warp_resolver.ExternalVa
     const resp = await axios.request({ ...options, responseType: 'json' });
     const extracted = JSONPath({ path: selector, json: resp.data });
 
-    if (extracted[0] == null) {
+    if (extracted[0] === null) {
       return null;
     } else {
       const v = extracted[0];
