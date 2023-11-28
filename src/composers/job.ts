@@ -1,6 +1,7 @@
+import { EstimateJobMsg } from 'sdk';
 import { warp_controller, warp_resolver } from '../types/contracts';
 
-type Execution = [warp_resolver.Condition, warp_resolver.WarpMsg[]];
+export type ExecutionInput = [warp_resolver.Condition, warp_resolver.WarpMsg[]];
 
 export class JobSequenceMsgComposer {
   static new() {
@@ -46,8 +47,9 @@ export class CreateJobMsgComposer {
   private _labels: string[];
   private _assetsToWithdraw: warp_controller.AssetInfo[] | undefined;
   private _vars: warp_resolver.Variable[] = [];
-  private _executions: Execution[] = [];
+  private _executions: ExecutionInput[] = [];
   private _durationDays: string;
+  private _operationalAmount: warp_controller.Uint128 | undefined;
 
   static new(): CreateJobMsgComposer {
     return new CreateJobMsgComposer();
@@ -83,12 +85,17 @@ export class CreateJobMsgComposer {
     return this;
   }
 
+  operationalAmount(operationalAmount: warp_controller.Uint128): CreateJobMsgComposer {
+    this._operationalAmount = operationalAmount;
+    return this;
+  }
+
   assetsToWithdraw(assetsToWithdraw: warp_controller.AssetInfo[]): CreateJobMsgComposer {
     this._assetsToWithdraw = assetsToWithdraw;
     return this;
   }
 
-  executions(executions: Execution[]): CreateJobMsgComposer {
+  executions(executions: ExecutionInput[]): CreateJobMsgComposer {
     this._executions = executions;
     return this;
   }
@@ -104,7 +111,8 @@ export class CreateJobMsgComposer {
       this._recurring === undefined ||
       this._reward === undefined ||
       this._description === undefined ||
-      this._labels === undefined
+      this._labels === undefined ||
+      this._operationalAmount == undefined
     ) {
       throw new Error('All required fields must be provided');
     }
@@ -119,14 +127,65 @@ export class CreateJobMsgComposer {
       duration_days: this._durationDays,
       vars: JSON.stringify(this._vars),
       assets_to_withdraw: this._assetsToWithdraw,
+      operational_amount: this._operationalAmount,
     };
 
     return createJobMsg;
   }
 }
 
+export class EstimateJobMsgComposer {
+  private _recurring: boolean | undefined;
+  private _vars: warp_resolver.Variable[] = [];
+  private _executions: ExecutionInput[] = [];
+  private _durationDays: string;
+
+  static new(): EstimateJobMsgComposer {
+    return new EstimateJobMsgComposer();
+  }
+
+  recurring(recurring: boolean): EstimateJobMsgComposer {
+    this._recurring = recurring;
+    return this;
+  }
+
+  durationDays(durationDays: string): EstimateJobMsgComposer {
+    this._durationDays = durationDays;
+    return this;
+  }
+
+  executions(executions: ExecutionInput[]): EstimateJobMsgComposer {
+    this._executions = executions;
+    return this;
+  }
+
+  vars(vars: warp_resolver.Variable[]): EstimateJobMsgComposer {
+    this._vars = vars;
+    return this;
+  }
+
+  compose(): EstimateJobMsg {
+    if (this._recurring === undefined || this._durationDays === undefined) {
+      throw new Error('All required fields must be provided');
+    }
+
+    const estimateJobMsg: EstimateJobMsg = {
+      recurring: this._recurring,
+      executions: this._executions.map((e) => ({ condition: JSON.stringify(e[0]), msgs: JSON.stringify(e[1]) })),
+      duration_days: this._durationDays,
+      vars: JSON.stringify(this._vars),
+    };
+
+    return estimateJobMsg;
+  }
+}
+
 export class JobComposer {
   create(): CreateJobMsgComposer {
     return new CreateJobMsgComposer();
+  }
+
+  estimate(): EstimateJobMsgComposer {
+    return new EstimateJobMsgComposer();
   }
 }

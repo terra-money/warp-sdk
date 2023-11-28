@@ -2,7 +2,7 @@ export { TerraTxError } from '../wallet/utils';
 import dotenv from 'dotenv';
 import { LCDClient, LCDClientConfig, MnemonicKey, Wallet } from '@terra-money/feather.js';
 import { WarpSdk } from '../sdk';
-import { uint, cond, msg, variable, job, query, account } from '../composers';
+import { uint, cond, msg, variable, job, query, account, ExecutionInput } from '../composers';
 import { addYears } from 'date-fns';
 
 dotenv.config();
@@ -163,25 +163,45 @@ const transferVariable = variable
 
 const condition = cond.uint(uint.ref(untrnAmount), 'gt', uint.simple('10000'));
 
+const executions: ExecutionInput[] = [
+  [
+    condition,
+    [
+      msg.execute(neutronBurnAccount, variable.ref(routedSwapVariable)),
+      msg.execute(neutronBurnAccount, variable.ref(transferVariable)),
+    ],
+  ],
+];
+
+const recurring = true;
+const durationDays = '30';
+const vars = [untrnAmount, timeoutTimestamp, simulateAstroAmount, transferVariable, swapVariable, routedSwapVariable];
+
+const estimateJobRewardMsg = job
+  .estimate()
+  .recurring(recurring)
+  .durationDays(durationDays)
+  .vars(vars)
+  .executions(executions)
+  .compose();
+
+const reward = await sdk.estimateJobReward(sender, estimateJobRewardMsg);
+
+const operationalAmount = await sdk.estimateJobFee(sender, estimateJobRewardMsg, reward.amount.toString());
+
 const createJobMsg = job
   .create()
   .name('swap-and-send')
   .description('')
-  .recurring(true)
-  .reward('1000')
-  .vars([untrnAmount, timeoutTimestamp, simulateAstroAmount, transferVariable, swapVariable, routedSwapVariable])
-  .executions([
-    [
-      condition,
-      [
-        msg.execute(neutronBurnAccount, variable.ref(routedSwapVariable)),
-        msg.execute(neutronBurnAccount, variable.ref(transferVariable)),
-      ],
-    ],
-  ])
+  .recurring(recurring)
+  .reward(reward.amount.toString())
+  .operationalAmount(operationalAmount.amount.toString())
+  .vars(vars)
+  .executions(executions)
+  .durationDays(durationDays)
   .labels([])
   .compose();
 
-sdk.createJob(sender, createJobMsg).then((response) => {
+sdk.createJob(sender, createJobMsg, [operationalAmount]).then((response) => {
   console.log(response);
 });
