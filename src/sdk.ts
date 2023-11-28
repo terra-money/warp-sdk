@@ -15,7 +15,7 @@ import { TxModule, ChainModule, ChainName, NetworkName } from './modules';
 import { cosmosMsgToCreateTxMsg } from './utils';
 import { warp_templates } from './types/contracts/warp_templates';
 import { Job, parseJob } from './types/job';
-import { warp_job_account_tracker } from 'types/contracts';
+import { warp_job_account_tracker } from './types/contracts';
 
 const FEE_ADJUSTMENT_FACTOR = 3;
 
@@ -185,6 +185,17 @@ export class WarpSdk {
     return response;
   }
 
+  public async fundingAccounts(
+    msg: warp_job_account_tracker.QueryFundingAccountsMsg
+  ): Promise<warp_job_account_tracker.FundingAccountsResponse> {
+    const response = await contractQuery<
+      Extract<warp_job_account_tracker.QueryMsg, { query_funding_accounts: {} }>,
+      warp_job_account_tracker.FundingAccountsResponse
+    >(this.wallet.lcd, this.chain.contracts.jobAccountTracker, { query_funding_accounts: msg });
+
+    return response;
+  }
+
   // Legacy account support
 
   public async legacyAccount(owner: string): Promise<warp_controller.LegacyAccount> {
@@ -312,7 +323,7 @@ export class WarpSdk {
       );
     }
 
-    // TODO: query transformed msgs from contracts
+    // check only cosmos msg for estimation
     let transformedMsgs: warp_resolver.CosmosMsgFor_Empty[] = hydratedMsgs
       .map((m) => {
         if ('generic' in m) {
@@ -399,6 +410,12 @@ export class WarpSdk {
 
   public async executeJob(sender: string, jobId: string): Promise<TxInfo> {
     const txPayload = await this.tx.executeJob(sender, jobId);
+
+    return this.wallet.tx(txPayload);
+  }
+
+  public async createFundingAccount(sender: string): Promise<TxInfo> {
+    const txPayload = await this.tx.createFundingAccount(sender);
 
     return this.wallet.tx(txPayload);
   }

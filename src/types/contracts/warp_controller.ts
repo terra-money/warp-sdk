@@ -64,6 +64,9 @@ export module warp_controller {
       }
     | {
         migrate_finished_jobs: MigrateJobsMsg;
+      }
+    | {
+        create_funding_account: CreateFundingAccountMsg;
       };
   export type WarpMsg =
     | {
@@ -280,8 +283,10 @@ export module warp_controller {
     description: string;
     duration_days: Uint64;
     executions: Execution[];
+    funding_account?: Addr | null;
     labels: string[];
     name: string;
+    operational_amount: Uint128;
     recurring: boolean;
     reward: Uint128;
     terminate_condition?: string | null;
@@ -397,6 +402,7 @@ export module warp_controller {
     limit: number;
     start_after?: Uint64 | null;
   }
+  export interface CreateFundingAccountMsg {}
   export interface InstantiateMsg {
     a_max: Uint128;
     a_min: Uint128;
@@ -410,7 +416,7 @@ export module warp_controller {
     duration_days_right: Uint64;
     fee_collector?: string | null;
     fee_denom: string;
-    job_account_tracker_address: string;
+    job_account_tracker_code_id: Uint64;
     maintenance_fee_max: Uint128;
     maintenance_fee_min: Uint128;
     minimum_reward: Uint128;
@@ -434,10 +440,12 @@ export module warp_controller {
     description: string;
     duration_days: Uint64;
     executions: Execution[];
+    funding_account?: Addr | null;
     id: Uint64;
     labels: string[];
     last_update_time: Uint64;
     name: string;
+    operational_amount: Uint128;
     owner: Addr;
     prev_id?: Uint64 | null;
     recurring: boolean;

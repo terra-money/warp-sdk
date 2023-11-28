@@ -122,6 +122,18 @@ export class TxModule {
       .build();
   }
 
+  public async createFundingAccount(sender: string): Promise<CreateTxOptions> {
+    return TxBuilder.new(this.warpSdk.chain.config)
+      .execute<Extract<warp_controller.ExecuteMsg, { create_funding_account: {} }>>(
+        sender,
+        this.warpSdk.chain.contracts.controller,
+        {
+          create_funding_account: {},
+        }
+      )
+      .build();
+  }
+
   public async submitTemplate(sender: string, msg: warp_templates.SubmitTemplateMsg): Promise<CreateTxOptions> {
     const config = await this.warpSdk.config();
 
@@ -323,8 +335,10 @@ export class TxModule {
     const job = await this.warpSdk.job(job_id);
 
     const txPayload = TxBuilder.new(this.warpSdk.chain.config)
-      .execute<Extract<warp_job_account.ExecuteMsg, { withdraw_assets: {} }>>(sender, job.account, {
-        withdraw_assets: msg,
+      .execute<Extract<warp_job_account.ExecuteMsg, { warp_msgs: {} }>>(sender, job.account, {
+        warp_msgs: {
+          msgs: [{ withdraw_assets: msg }],
+        },
       })
       .build();
 

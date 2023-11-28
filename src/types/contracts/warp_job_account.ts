@@ -4,19 +4,9 @@ export module warp_job_account {
     creator_addr: Addr;
     owner: Addr;
   }
-  export type ExecuteMsg =
-    | {
-        warp_msgs: WarpMsgs;
-      }
-    | {
-        generic: GenericMsg;
-      }
-    | {
-        withdraw_assets: WithdrawAssetsMsg;
-      }
-    | {
-        ibc_transfer: IbcTransferMsg;
-      };
+  export type ExecuteMsg = {
+    warp_msgs: WarpMsgs;
+  };
   export type WarpMsg =
     | {
         generic: CosmosMsgFor_Empty;
@@ -263,9 +253,6 @@ export module warp_job_account {
   }
   export interface WithdrawAssetsMsg {
     asset_infos: AssetInfo[];
-  }
-  export interface GenericMsg {
-    msgs: CosmosMsgFor_Empty[];
   }
   export type CwFund =
     | {
