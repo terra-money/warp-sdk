@@ -2,7 +2,7 @@ export { TerraTxError } from '../wallet/utils';
 import dotenv from 'dotenv';
 import { LCDClient, LCDClientConfig, MnemonicKey, Wallet } from '@terra-money/feather.js';
 import { WarpSdk } from '../sdk';
-import { uint, cond, msg, variable, job, query, account, ExecutionInput } from '../composers';
+import { uint, cond, msg, variable, job, query, account } from '../composers';
 import { addYears } from 'date-fns';
 
 dotenv.config();
@@ -163,14 +163,14 @@ const transferVariable = variable
 
 const condition = cond.uint(uint.ref(untrnAmount), 'gt', uint.simple('10000'));
 
-const executions: ExecutionInput[] = [
-  [
+const executions = [
+  {
     condition,
-    [
+    msgs: [
       msg.execute(neutronBurnAccount, variable.ref(routedSwapVariable)),
       msg.execute(neutronBurnAccount, variable.ref(transferVariable)),
     ],
-  ],
+  },
 ];
 
 const recurring = true;

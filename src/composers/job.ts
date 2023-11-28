@@ -1,7 +1,6 @@
 import { EstimateJobMsg } from 'sdk';
+import { Execution } from '../types';
 import { warp_controller, warp_resolver } from '../types/contracts';
-
-export type ExecutionInput = [warp_resolver.Condition, warp_resolver.WarpMsg[]];
 
 export class JobSequenceMsgComposer {
   static new() {
@@ -47,7 +46,7 @@ export class CreateJobMsgComposer {
   private _labels: string[];
   private _assetsToWithdraw: warp_controller.AssetInfo[] | undefined;
   private _vars: warp_resolver.Variable[] = [];
-  private _executions: ExecutionInput[] = [];
+  private _executions: Execution[] = [];
   private _durationDays: string;
   private _operationalAmount: warp_controller.Uint128 | undefined;
 
@@ -95,7 +94,7 @@ export class CreateJobMsgComposer {
     return this;
   }
 
-  executions(executions: ExecutionInput[]): CreateJobMsgComposer {
+  executions(executions: Execution[]): CreateJobMsgComposer {
     this._executions = executions;
     return this;
   }
@@ -123,7 +122,10 @@ export class CreateJobMsgComposer {
       reward: this._reward,
       description: this._description,
       labels: this._labels,
-      executions: this._executions.map((e) => ({ condition: JSON.stringify(e[0]), msgs: JSON.stringify(e[1]) })),
+      executions: this._executions.map((e) => ({
+        condition: JSON.stringify(e.condition),
+        msgs: JSON.stringify(e.msgs),
+      })),
       duration_days: this._durationDays,
       vars: JSON.stringify(this._vars),
       assets_to_withdraw: this._assetsToWithdraw,
@@ -137,7 +139,7 @@ export class CreateJobMsgComposer {
 export class EstimateJobMsgComposer {
   private _recurring: boolean | undefined;
   private _vars: warp_resolver.Variable[] = [];
-  private _executions: ExecutionInput[] = [];
+  private _executions: Execution[] = [];
   private _durationDays: string;
 
   static new(): EstimateJobMsgComposer {
@@ -154,7 +156,7 @@ export class EstimateJobMsgComposer {
     return this;
   }
 
-  executions(executions: ExecutionInput[]): EstimateJobMsgComposer {
+  executions(executions: Execution[]): EstimateJobMsgComposer {
     this._executions = executions;
     return this;
   }
@@ -171,7 +173,10 @@ export class EstimateJobMsgComposer {
 
     const estimateJobMsg: EstimateJobMsg = {
       recurring: this._recurring,
-      executions: this._executions.map((e) => ({ condition: JSON.stringify(e[0]), msgs: JSON.stringify(e[1]) })),
+      executions: this._executions.map((e) => ({
+        condition: JSON.stringify(e.condition),
+        msgs: JSON.stringify(e.msgs),
+      })),
       duration_days: this._durationDays,
       vars: JSON.stringify(this._vars),
     };

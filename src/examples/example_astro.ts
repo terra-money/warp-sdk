@@ -2,7 +2,7 @@ export { TerraTxError } from '../wallet/utils';
 import dotenv from 'dotenv';
 import { LCDClient, LCDClientConfig, MnemonicKey, Wallet } from '@terra-money/feather.js';
 import { WarpSdk } from '../sdk';
-import { uint, cond, msg, variable, job, query, ExecutionInput } from '../composers';
+import { uint, cond, msg, variable, job, query } from '../composers';
 
 dotenv.config();
 
@@ -64,10 +64,10 @@ const astroReceived = variable
 
 const condition = cond.uint(uint.ref(astroReceived), 'gte', uint.simple(limitOrder.astroPurchaseAmount));
 
-const executions: ExecutionInput[] = [
-  [
+const executions = [
+  {
     condition,
-    [
+    msgs: [
       msg.execute(
         astroportContract,
         {
@@ -95,7 +95,7 @@ const executions: ExecutionInput[] = [
         [{ denom: 'uluna', amount: limitOrder.lunaOfferAmount }]
       ),
     ],
-  ],
+  },
 ];
 
 const recurring = false;

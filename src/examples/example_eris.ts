@@ -1,6 +1,6 @@
 import { LCDClient, LCDClientConfig, MnemonicKey, Wallet } from '@terra-money/feather.js';
 import { WarpSdk } from '../sdk';
-import { uint, cond, fn, msg, variable, job, ts, ExecutionInput } from '../composers';
+import { uint, cond, fn, msg, variable, job, ts } from '../composers';
 
 const piscoLcdClientConfig: LCDClientConfig = {
   lcd: 'https://pisco-lcd.terra.dev',
@@ -30,8 +30,11 @@ const nextExecution = variable
 
 const condition = cond.uint(uint.env('time'), 'gt', uint.ref(nextExecution));
 
-const executions: ExecutionInput[] = [
-  [condition, [msg.execute('terra10788fkzah89xrdm27zkj5yvhj9x3494lxawzm5qq3vvxcqz2yzaqyd3enk', { harvest: {} })]],
+const executions = [
+  {
+    condition,
+    msgs: [msg.execute('terra10788fkzah89xrdm27zkj5yvhj9x3494lxawzm5qq3vvxcqz2yzaqyd3enk', { harvest: {} })],
+  },
 ];
 
 const recurring = true;

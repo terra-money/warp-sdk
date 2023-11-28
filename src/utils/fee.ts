@@ -1,5 +1,5 @@
 import Big from 'big.js';
-import { warp_controller } from 'types';
+import { warp_controller } from '../types';
 
 export function computeCreationFee(queueSize: Big, config: warp_controller.Config): Big {
   const x1 = Big(config.queue_size_left);
