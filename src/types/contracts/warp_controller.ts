@@ -1,10 +1,11 @@
 export module warp_controller {
   export type Uint128 = string;
-  export type Uint64 = string;
   export type Addr = string;
+  export type Uint64 = string;
   export interface Config {
     a_max: Uint128;
     a_min: Uint128;
+    account_tracker_address: Addr;
     burn_fee_min: Uint128;
     burn_fee_rate: Uint128;
     cancellation_fee_percentage: Uint64;
@@ -15,7 +16,6 @@ export module warp_controller {
     duration_days_right: Uint64;
     fee_collector: Addr;
     fee_denom: string;
-    job_account_tracker_address: Addr;
     maintenance_fee_max: Uint128;
     maintenance_fee_min: Uint128;
     minimum_reward: Uint128;
@@ -51,13 +51,10 @@ export module warp_controller {
         update_config: UpdateConfigMsg;
       }
     | {
-        migrate_legacy_accounts: MigrateLegacyAccountsMsg;
+        migrate_free_accounts: MigrateAccountsMsg;
       }
     | {
-        migrate_free_job_accounts: MigrateJobAccountsMsg;
-      }
-    | {
-        migrate_taken_job_accounts: MigrateJobAccountsMsg;
+        migrate_taken_accounts: MigrateAccountsMsg;
       }
     | {
         migrate_pending_jobs: MigrateJobsMsg;
@@ -387,16 +384,11 @@ export module warp_controller {
     t_max?: Uint64 | null;
     t_min?: Uint64 | null;
   }
-  export interface MigrateLegacyAccountsMsg {
-    limit: number;
-    start_after?: string | null;
-    warp_legacy_account_code_id: Uint64;
-  }
-  export interface MigrateJobAccountsMsg {
+  export interface MigrateAccountsMsg {
     account_owner_addr: string;
     limit: number;
     start_after?: string | null;
-    warp_job_account_code_id: Uint64;
+    warp_account_code_id: Uint64;
   }
   export interface MigrateJobsMsg {
     limit: number;
@@ -406,6 +398,7 @@ export module warp_controller {
   export interface InstantiateMsg {
     a_max: Uint128;
     a_min: Uint128;
+    account_tracker_code_id: Uint64;
     burn_fee_min: Uint128;
     burn_fee_rate: Uint128;
     cancellation_fee: Uint64;
@@ -416,7 +409,6 @@ export module warp_controller {
     duration_days_right: Uint64;
     fee_collector?: string | null;
     fee_denom: string;
-    job_account_tracker_code_id: Uint64;
     maintenance_fee_max: Uint128;
     maintenance_fee_min: Uint128;
     minimum_reward: Uint128;
@@ -458,28 +450,12 @@ export module warp_controller {
     jobs: Job[];
     total_count: number;
   }
-  export interface LegacyAccountResponse {
-    account: LegacyAccount;
-  }
-  export interface LegacyAccount {
-    account: Addr;
-    owner: Addr;
-  }
-  export interface LegacyAccountsResponse {
-    accounts: LegacyAccount[];
-  }
   export type QueryMsg =
     | {
         query_job: QueryJobMsg;
       }
     | {
         query_jobs: QueryJobsMsg;
-      }
-    | {
-        query_legacy_account: QueryLegacyAccountMsg;
-      }
-    | {
-        query_legacy_accounts: QueryLegacyAccountsMsg;
       }
     | {
         query_config: QueryConfigMsg;
@@ -503,13 +479,6 @@ export module warp_controller {
   export interface JobIndex {
     _0: Uint128;
     _1: Uint64;
-  }
-  export interface QueryLegacyAccountMsg {
-    owner: string;
-  }
-  export interface QueryLegacyAccountsMsg {
-    limit?: number | null;
-    start_after?: string | null;
   }
   export interface QueryConfigMsg {}
   export interface QueryStateMsg {}

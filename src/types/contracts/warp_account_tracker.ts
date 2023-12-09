@@ -1,4 +1,4 @@
-export module warp_job_account_tracker {
+export module warp_account_tracker {
   export type Addr = string;
   export type Uint64 = string;
   export interface Account {
@@ -87,9 +87,6 @@ export module warp_job_account_tracker {
         query_first_free_account: QueryFirstFreeAccountMsg;
       }
     | {
-        query_free_account: QueryFreeAccountMsg;
-      }
-    | {
         query_first_free_funding_account: QueryFirstFreeFundingAccountMsg;
       }
     | {
@@ -111,9 +108,6 @@ export module warp_job_account_tracker {
   }
   export interface QueryFirstFreeAccountMsg {
     account_owner_addr: string;
-  }
-  export interface QueryFreeAccountMsg {
-    account_addr: string;
   }
   export interface QueryFirstFreeFundingAccountMsg {
     account_owner_addr: string;

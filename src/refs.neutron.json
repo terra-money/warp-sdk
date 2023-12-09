@@ -12,7 +12,7 @@
       "codeId": "1475",
       "address": "neutron1a29vd6lltycyr2cfku0w4km3axeexcxut53t3wx397dw8jndfq4swlxw9d"
     },
-    "warp-job-account-tracker": {
+    "warp-account-tracker": {
       "codeId": "11630",
       "address": "neutron1zzgg30ygltd5s3xtescfquwmm2jktaq28t37f2j9h5wwswpxtyyspugek8"
     }
@@ -30,7 +30,7 @@
       "codeId": "202",
       "address": "neutron1hn43q3v92y4dgdgtc5p7g684zx9dn6ejr74gchntdnppsljd89usxqs2s9"
     },
-    "warp-job-account-tracker": {
+    "warp-account-tracker": {
       "codeId": "11630",
       "address": "neutron1zzgg30ygltd5s3xtescfquwmm2jktaq28t37f2j9h5wwswpxtyyspugek8"
     }

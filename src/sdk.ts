@@ -1,4 +1,4 @@
-import { warp_legacy_account, warp_controller, warp_resolver, warp_job_account } from './types/contracts';
+import { warp_controller, warp_resolver, warp_account } from './types/contracts';
 import { WalletLike, Wallet, wallet } from './wallet';
 import { Condition } from './condition';
 import {
@@ -15,7 +15,7 @@ import { TxModule, ChainModule, ChainName, NetworkName } from './modules';
 import { cosmosMsgToCreateTxMsg } from './utils';
 import { warp_templates } from './types/contracts/warp_templates';
 import { Job, parseJob } from './types/job';
-import { warp_job_account_tracker } from './types/contracts';
+import { warp_account_tracker } from './types/contracts';
 
 const FEE_ADJUSTMENT_FACTOR = 3;
 
@@ -163,57 +163,37 @@ export class WarpSdk {
     return response;
   }
 
-  public async takenJobAccounts(
-    msg: warp_job_account_tracker.QueryTakenAccountsMsg
-  ): Promise<warp_job_account_tracker.AccountsResponse> {
+  public async takenAccounts(
+    msg: warp_account_tracker.QueryTakenAccountsMsg
+  ): Promise<warp_account_tracker.AccountsResponse> {
     const response = await contractQuery<
-      Extract<warp_job_account_tracker.QueryMsg, { query_taken_accounts: {} }>,
-      warp_job_account_tracker.AccountsResponse
+      Extract<warp_account_tracker.QueryMsg, { query_taken_accounts: {} }>,
+      warp_account_tracker.AccountsResponse
     >(this.wallet.lcd, this.chain.contracts.jobAccountTracker, { query_taken_accounts: msg });
 
     return response;
   }
 
-  public async freeJobAccounts(
-    msg: warp_job_account_tracker.QueryFreeAccountsMsg
-  ): Promise<warp_job_account_tracker.AccountsResponse> {
+  public async freeAccounts(
+    msg: warp_account_tracker.QueryFreeAccountsMsg
+  ): Promise<warp_account_tracker.AccountsResponse> {
     const response = await contractQuery<
-      Extract<warp_job_account_tracker.QueryMsg, { query_free_accounts: {} }>,
-      warp_job_account_tracker.AccountsResponse
+      Extract<warp_account_tracker.QueryMsg, { query_free_accounts: {} }>,
+      warp_account_tracker.AccountsResponse
     >(this.wallet.lcd, this.chain.contracts.jobAccountTracker, { query_free_accounts: msg });
 
     return response;
   }
 
   public async fundingAccounts(
-    msg: warp_job_account_tracker.QueryFundingAccountsMsg
-  ): Promise<warp_job_account_tracker.FundingAccountsResponse> {
+    msg: warp_account_tracker.QueryFundingAccountsMsg
+  ): Promise<warp_account_tracker.FundingAccountsResponse> {
     const response = await contractQuery<
-      Extract<warp_job_account_tracker.QueryMsg, { query_funding_accounts: {} }>,
-      warp_job_account_tracker.FundingAccountsResponse
+      Extract<warp_account_tracker.QueryMsg, { query_funding_accounts: {} }>,
+      warp_account_tracker.FundingAccountsResponse
     >(this.wallet.lcd, this.chain.contracts.jobAccountTracker, { query_funding_accounts: msg });
 
     return response;
-  }
-
-  // Legacy account support
-
-  public async legacyAccount(owner: string): Promise<warp_controller.LegacyAccount> {
-    const { account } = await contractQuery<
-      Extract<warp_controller.QueryMsg, { query_legacy_account: {} }>,
-      warp_controller.LegacyAccountResponse
-    >(this.wallet.lcd, this.chain.contracts.controller, { query_legacy_account: { owner } });
-
-    return account;
-  }
-
-  public async legacyAccounts(opts: warp_controller.QueryLegacyAccountsMsg): Promise<warp_controller.LegacyAccount[]> {
-    const { accounts } = await contractQuery<
-      Extract<warp_controller.QueryMsg, { query_legacy_accounts: {} }>,
-      warp_controller.LegacyAccountsResponse
-    >(this.wallet.lcd, this.chain.contracts.controller, { query_legacy_accounts: opts });
-
-    return accounts;
   }
 
   public async config(): Promise<warp_controller.Config & warp_templates.Config> {
@@ -274,8 +254,8 @@ export class WarpSdk {
   ): Promise<Coin> {
     // const account = await this.account(sender);
     // TODO: check if this works, as before first job is created, no account is assigned to free job accounts
-    const response = await this.freeJobAccounts({ account_owner_addr: sender });
-    const account = response.accounts[0].addr;
+    const response = await this.freeAccounts({ account_owner_addr: sender });
+    const account = response.accounts.length === 0 ? sender : response.accounts[0].addr;
 
     const hydratedVars = await this.hydrateVars({ vars: estimateJobMsg.vars });
 
@@ -438,37 +418,8 @@ export class WarpSdk {
     return this.wallet.tx(txPayload);
   }
 
-  public async withdrawAssets(
-    sender: string,
-    job_id: string,
-    msg: warp_job_account.WithdrawAssetsMsg
-  ): Promise<TxInfo> {
+  public async withdrawAssets(sender: string, job_id: string, msg: warp_account.WithdrawAssetsMsg): Promise<TxInfo> {
     const txPayload = await this.tx.withdrawAssets(sender, job_id, msg);
-
-    return this.wallet.tx(txPayload);
-  }
-
-  // legacy account support
-
-  public async legacyWithdrawAssets(sender: string, msg: warp_legacy_account.WithdrawAssetsMsg): Promise<TxInfo> {
-    const txPayload = await this.tx.legacyWithdrawAssets(sender, msg);
-
-    return this.wallet.tx(txPayload);
-  }
-
-  public async legacyDepositToAccount(sender: string, account: string, token: Token, amount: string): Promise<TxInfo> {
-    const txPayload = await this.tx.legacyDepositToAccount(sender, account, token, amount);
-
-    return this.wallet.tx(txPayload);
-  }
-
-  public async legacyWithdrawFromAccount(
-    sender: string,
-    receiver: string,
-    token: Token,
-    amount: string
-  ): Promise<TxInfo> {
-    const txPayload = await this.tx.legacyWithdrawFromAccount(sender, receiver, token, amount);
 
     return this.wallet.tx(txPayload);
   }

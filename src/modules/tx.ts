@@ -1,11 +1,5 @@
-import {
-  warp_controller,
-  warp_job_account,
-  warp_legacy_account,
-  warp_resolver,
-  warp_templates,
-} from '../types/contracts';
-import { base64encode, nativeTokenDenom, Token, TransferMsg, TransferNftMsg } from '../utils';
+import { warp_controller, warp_account, warp_resolver, warp_templates } from '../types/contracts';
+import { nativeTokenDenom, TransferMsg, TransferNftMsg } from '../utils';
 import { Coins, CreateTxOptions } from '@terra-money/feather.js';
 import { TxBuilder } from '../tx';
 import { JobSequenceMsgComposer } from '../composers';
@@ -286,117 +280,20 @@ export class TxModule {
     return txBuilder.build();
   }
 
-  public async legacyDepositToAccount(
-    sender: string,
-    account: string,
-    token: Token,
-    amount: string
-  ): Promise<CreateTxOptions> {
-    let txPayload: CreateTxOptions;
-
-    if (token.type === 'cw20') {
-      txPayload = TxBuilder.new(this.warpSdk.chain.config)
-        .execute<TransferMsg>(sender, token.token, {
-          transfer: {
-            amount,
-            recipient: account,
-          },
-        })
-        .build();
-    } else {
-      txPayload = TxBuilder.new(this.warpSdk.chain.config)
-        .send(sender, account, { [token.denom]: amount })
-        .build();
-    }
-
-    return txPayload;
-  }
-
-  public async legacyWithdrawAssets(
-    sender: string,
-    msg: warp_legacy_account.WithdrawAssetsMsg
-  ): Promise<CreateTxOptions> {
-    const { account } = await this.warpSdk.legacyAccount(sender);
-
-    const txPayload = TxBuilder.new(this.warpSdk.chain.config)
-      .execute<Extract<warp_legacy_account.ExecuteMsg, { withdraw_assets: {} }>>(sender, account, {
-        withdraw_assets: msg,
-      })
-      .build();
-
-    return txPayload;
-  }
-
   public async withdrawAssets(
     sender: string,
     job_id: string,
-    msg: warp_job_account.WithdrawAssetsMsg
+    msg: warp_account.WithdrawAssetsMsg
   ): Promise<CreateTxOptions> {
     const job = await this.warpSdk.job(job_id);
 
     const txPayload = TxBuilder.new(this.warpSdk.chain.config)
-      .execute<Extract<warp_job_account.ExecuteMsg, { warp_msgs: {} }>>(sender, job.account, {
+      .execute<Extract<warp_account.ExecuteMsg, { warp_msgs: {} }>>(sender, job.account, {
         warp_msgs: {
           msgs: [{ withdraw_assets: msg }],
         },
       })
       .build();
-
-    return txPayload;
-  }
-
-  public async legacyWithdrawFromAccount(
-    sender: string,
-    receiver: string,
-    token: Token,
-    amount: string
-  ): Promise<CreateTxOptions> {
-    const { account } = await this.warpSdk.legacyAccount(sender);
-    let txPayload: CreateTxOptions;
-
-    if (token.type === 'cw20') {
-      const transferMsg = {
-        transfer: {
-          amount,
-          recipient: receiver,
-        },
-      };
-
-      txPayload = TxBuilder.new(this.warpSdk.chain.config)
-        .execute<warp_legacy_account.ExecuteMsg>(sender, account, {
-          generic: {
-            msgs: [
-              {
-                wasm: {
-                  execute: {
-                    contract_addr: token.token,
-                    msg: base64encode(transferMsg),
-                    funds: [],
-                  },
-                },
-              },
-            ],
-          },
-        })
-        .build();
-    } else {
-      txPayload = TxBuilder.new(this.warpSdk.chain.config)
-        .execute<warp_legacy_account.ExecuteMsg>(sender, account, {
-          generic: {
-            msgs: [
-              {
-                bank: {
-                  send: {
-                    amount: [{ amount, denom: token.denom }],
-                    to_address: receiver,
-                  },
-                },
-              },
-            ],
-          },
-        })
-        .build();
-    }
 
     return txPayload;
   }

@@ -1,18 +1,22 @@
-export module warp_legacy_account {
+export module warp_account {
   export type Addr = string;
   export interface Config {
+    creator_addr: Addr;
     owner: Addr;
-    warp_addr: Addr;
   }
-  export type ExecuteMsg =
+  export type ExecuteMsg = {
+    warp_msgs: WarpMsgs;
+  };
+  export type Uint64 = string;
+  export type WarpMsg =
     | {
-        generic: GenericMsg;
-      }
-    | {
-        withdraw_assets: WithdrawAssetsMsg;
+        generic: CosmosMsgFor_Empty;
       }
     | {
         ibc_transfer: IbcTransferMsg;
+      }
+    | {
+        withdraw_assets: WithdrawAssetsMsg;
       };
   export type CosmosMsgFor_Empty =
     | {
@@ -130,7 +134,6 @@ export module warp_legacy_account {
         };
       };
   export type Timestamp = Uint64;
-  export type Uint64 = string;
   export type WasmMsg =
     | {
         execute: {
@@ -207,8 +210,9 @@ export module warp_legacy_account {
          */
         cw721: [Addr, string];
       };
-  export interface GenericMsg {
-    msgs: CosmosMsgFor_Empty[];
+  export interface WarpMsgs {
+    job_id?: Uint64 | null;
+    msgs: WarpMsg[];
   }
   export interface Coin {
     amount: Uint128;
@@ -229,9 +233,6 @@ export module warp_legacy_account {
      */
     revision: number;
   }
-  export interface WithdrawAssetsMsg {
-    asset_infos: AssetInfo[];
-  }
   export interface IbcTransferMsg {
     timeout_block_delta?: number | null;
     timeout_timestamp_seconds_delta?: number | null;
@@ -251,6 +252,9 @@ export module warp_legacy_account {
     revision_height?: number | null;
     revision_number?: number | null;
   }
+  export interface WithdrawAssetsMsg {
+    asset_infos: AssetInfo[];
+  }
   export type CwFund =
     | {
         cw20: Cw20Fund;
@@ -259,7 +263,10 @@ export module warp_legacy_account {
         cw721: Cw721Fund;
       };
   export interface InstantiateMsg {
-    funds?: CwFund[] | null;
+    cw_funds: CwFund[];
+    job_id: Uint64;
+    msgs: WarpMsg[];
+    native_funds: Coin[];
     owner: string;
   }
   export interface Cw20Fund {
@@ -270,5 +277,8 @@ export module warp_legacy_account {
     contract_addr: string;
     token_id: string;
   }
-  export type QueryMsg = 'config';
+  export type QueryMsg = {
+    query_config: QueryConfigMsg;
+  };
+  export interface QueryConfigMsg {}
 }
