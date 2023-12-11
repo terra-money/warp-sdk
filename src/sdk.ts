@@ -185,6 +185,28 @@ export class WarpSdk {
     return response;
   }
 
+  public async firstFreeAccount(
+    msg: warp_account_tracker.QueryFirstFreeAccountMsg
+  ): Promise<warp_account_tracker.AccountResponse> {
+    const response = await contractQuery<
+      Extract<warp_account_tracker.QueryMsg, { query_first_free_account: {} }>,
+      warp_account_tracker.AccountResponse
+    >(this.wallet.lcd, this.chain.contracts.accountTracker, { query_first_free_account: msg });
+
+    return response;
+  }
+
+  public async firstFreeFundingAccount(
+    msg: warp_account_tracker.QueryFirstFreeAccountMsg
+  ): Promise<warp_account_tracker.FundingAccountResponse> {
+    const response = await contractQuery<
+      Extract<warp_account_tracker.QueryMsg, { query_first_free_funding_account: {} }>,
+      warp_account_tracker.FundingAccountResponse
+    >(this.wallet.lcd, this.chain.contracts.accountTracker, { query_first_free_funding_account: msg });
+
+    return response;
+  }
+
   public async fundingAccounts(
     msg: warp_account_tracker.QueryFundingAccountsMsg
   ): Promise<warp_account_tracker.FundingAccountsResponse> {
