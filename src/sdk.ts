@@ -255,7 +255,7 @@ export class WarpSdk {
 
     const totalFee = jobRewardAmount.add(burnFee).add(creationFee).add(maintenanceFee);
 
-    return new Coin(denom, totalFee.toString());
+    return new Coin(denom, totalFee.toFixed(0));
   }
 
   public async estimateJobReward(sender: string, estimateJobMsg: EstimateJobMsg): Promise<Coin> {
@@ -264,6 +264,12 @@ export class WarpSdk {
 
     for (let execution of estimateJobMsg.executions) {
       estimatedReward = estimatedReward.add(await this.estimateJobExecutionReward(sender, estimateJobMsg, execution));
+    }
+
+    const config = await this.config();
+
+    if (Big(config.minimum_reward).gte(estimatedReward.amount.toString())) {
+      return new Coin(denom, config.minimum_reward);
     }
 
     return estimatedReward;
