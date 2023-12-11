@@ -23,53 +23,38 @@ export module warp_templates {
     | {
         update_config: UpdateConfigMsg;
       };
-  export type Condition =
+  export type Variable =
     | {
-        and: Condition[];
+        static: StaticVariable;
       }
     | {
-        or: Condition[];
+        external: ExternalVariable;
       }
     | {
-        not: Condition;
-      }
-    | {
-        expr: Expr;
+        query: QueryVariable;
       };
-  export type Expr =
+  export type FnValue =
     | {
-        string: GenExprFor_StringValueFor_StringAnd_StringOp;
+        uint: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
       }
     | {
-        uint: GenExprFor_NumValueFor_Uint256And_NumExprOpAnd_IntFnOpAnd_NumOp;
+        int: NumValueForInt128And_NumExprOpAnd_IntFnOp;
       }
     | {
-        int: GenExprFor_NumValueForInt128And_NumExprOpAnd_IntFnOpAnd_NumOp;
+        decimal: NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
       }
     | {
-        decimal: GenExprFor_NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOpAnd_NumOp;
+        timestamp: NumValueForInt128And_NumExprOpAnd_IntFnOp;
       }
     | {
-        timestamp: TimeExpr;
-      }
-    | {
-        block_height: BlockExpr;
+        block_height: NumValueForInt128And_NumExprOpAnd_IntFnOp;
       }
     | {
         bool: string;
-      };
-  export type StringValueFor_String =
-    | {
-        simple: string;
       }
     | {
-        ref: string;
-      }
-    | {
-        env: StringEnvValue;
+        string: StringValueFor_String;
       };
-  export type StringEnvValue = 'warp_account_addr';
-  export type StringOp = 'starts_with' | 'ends_with' | 'contains' | 'eq' | 'neq';
   export type NumValueFor_Uint256And_NumExprOpAnd_IntFnOp =
     | {
         simple: Uint256;
@@ -90,7 +75,6 @@ export module warp_templates {
   export type NumExprOp = 'add' | 'sub' | 'div' | 'mul' | 'mod';
   export type IntFnOp = 'abs' | 'neg';
   export type NumEnvValue = 'time' | 'block_height';
-  export type NumOp = 'eq' | 'neq' | 'lt' | 'gt' | 'gte' | 'lte';
   export type NumValueForInt128And_NumExprOpAnd_IntFnOp =
     | {
         simple: number;
@@ -125,40 +109,17 @@ export module warp_templates {
       };
   export type Decimal256 = string;
   export type DecimalFnOp = 'abs' | 'neg' | 'floor' | 'sqrt' | 'ceil';
-  export type Uint64 = string;
-  export type TimeOp = 'lt' | 'gt';
-  export type Variable =
+  export type StringValueFor_String =
     | {
-        static: StaticVariable;
+        simple: string;
       }
     | {
-        external: ExternalVariable;
+        ref: string;
       }
     | {
-        query: QueryVariable;
+        env: StringEnvValue;
       };
-  export type FnValue =
-    | {
-        uint: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
-      }
-    | {
-        int: NumValueForInt128And_NumExprOpAnd_IntFnOp;
-      }
-    | {
-        decimal: NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
-      }
-    | {
-        timestamp: NumValueForInt128And_NumExprOpAnd_IntFnOp;
-      }
-    | {
-        block_height: NumValueForInt128And_NumExprOpAnd_IntFnOp;
-      }
-    | {
-        bool: string;
-      }
-    | {
-        string: StringValueFor_String;
-      };
+  export type StringEnvValue = 'warp_account_addr';
   export type VariableKind = 'string' | 'uint' | 'int' | 'decimal' | 'timestamp' | 'bool' | 'amount' | 'asset' | 'json';
   export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete';
   export type QueryRequestFor_String =
@@ -267,22 +228,25 @@ export module warp_templates {
           contract_addr: string;
         };
       };
+  export type Uint64 = string;
   export interface SubmitTemplateMsg {
-    condition?: Condition | null;
+    executions: Execution[];
     formatted_str: string;
-    msg: string;
     name: string;
     vars: Variable[];
   }
-  export interface GenExprFor_StringValueFor_StringAnd_StringOp {
-    left: StringValueFor_String;
-    op: StringOp;
-    right: StringValueFor_String;
+  export interface Execution {
+    condition: string;
+    msgs: string;
   }
-  export interface GenExprFor_NumValueFor_Uint256And_NumExprOpAnd_IntFnOpAnd_NumOp {
-    left: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
-    op: NumOp;
-    right: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
+  export interface StaticVariable {
+    encode: boolean;
+    init_fn: FnValue;
+    kind: VariableKind;
+    name: string;
+    reinitialize: boolean;
+    update_fn?: UpdateFn | null;
+    value?: string | null;
   }
   export interface NumExprValueFor_Uint256And_NumExprOpAnd_IntFnOp {
     left: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
@@ -293,11 +257,6 @@ export module warp_templates {
     op: IntFnOp;
     right: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
   }
-  export interface GenExprFor_NumValueForInt128And_NumExprOpAnd_IntFnOpAnd_NumOp {
-    left: NumValueForInt128And_NumExprOpAnd_IntFnOp;
-    op: NumOp;
-    right: NumValueForInt128And_NumExprOpAnd_IntFnOp;
-  }
   export interface NumExprValueForInt128And_NumExprOpAnd_IntFnOp {
     left: NumValueForInt128And_NumExprOpAnd_IntFnOp;
     op: NumExprOp;
@@ -307,11 +266,6 @@ export module warp_templates {
     op: IntFnOp;
     right: NumValueForInt128And_NumExprOpAnd_IntFnOp;
   }
-  export interface GenExprFor_NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOpAnd_NumOp {
-    left: NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
-    op: NumOp;
-    right: NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
-  }
   export interface NumExprValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp {
     left: NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
     op: NumExprOp;
@@ -320,23 +274,6 @@ export module warp_templates {
   export interface NumFnValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp {
     op: DecimalFnOp;
     right: NumValueFor_Decimal256And_NumExprOpAnd_DecimalFnOp;
-  }
-  export interface TimeExpr {
-    comparator: Uint64;
-    op: TimeOp;
-  }
-  export interface BlockExpr {
-    comparator: Uint64;
-    op: NumOp;
-  }
-  export interface StaticVariable {
-    encode: boolean;
-    init_fn: FnValue;
-    kind: VariableKind;
-    name: string;
-    reinitialize: boolean;
-    update_fn?: UpdateFn | null;
-    value?: string | null;
   }
   export interface UpdateFn {
     on_error?: FnValue | null;
@@ -393,10 +330,9 @@ export module warp_templates {
     templates: Template[];
   }
   export interface Template {
-    condition?: Condition | null;
+    executions: Execution[];
     formatted_str: string;
     id: Uint64;
-    msg: string;
     name: string;
     owner: Addr;
     vars: Variable[];

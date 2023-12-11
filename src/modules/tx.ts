@@ -1,5 +1,5 @@
 import { warp_controller, warp_account, warp_resolver, warp_templates } from '../types/contracts';
-import { nativeTokenDenom, TransferMsg, TransferNftMsg } from '../utils';
+import { base64encode, nativeTokenDenom, Token, TransferMsg, TransferNftMsg } from '../utils';
 import { Coins, CreateTxOptions } from '@terra-money/feather.js';
 import { TxBuilder } from '../tx';
 import { JobSequenceMsgComposer } from '../composers';
@@ -294,6 +294,92 @@ export class TxModule {
         },
       })
       .build();
+
+    return txPayload;
+  }
+
+  public async depositToAccount(
+    sender: string,
+    account: string,
+    token: Token,
+    amount: string
+  ): Promise<CreateTxOptions> {
+    let txPayload: CreateTxOptions;
+
+    if (token.type === 'cw20') {
+      txPayload = TxBuilder.new(this.warpSdk.chain.config)
+        .execute<TransferMsg>(sender, token.token, {
+          transfer: {
+            amount,
+            recipient: account,
+          },
+        })
+        .build();
+    } else {
+      txPayload = TxBuilder.new(this.warpSdk.chain.config)
+        .send(sender, account, { [token.denom]: amount })
+        .build();
+    }
+
+    return txPayload;
+  }
+
+  public async withdrawFromAccount(
+    sender: string,
+    account: string,
+    receiver: string,
+    token: Token,
+    amount: string
+  ): Promise<CreateTxOptions> {
+    let txPayload: CreateTxOptions;
+
+    if (token.type === 'cw20') {
+      const transferMsg = {
+        transfer: {
+          amount,
+          recipient: receiver,
+        },
+      };
+
+      txPayload = TxBuilder.new(this.warpSdk.chain.config)
+        .execute<warp_account.ExecuteMsg>(sender, account, {
+          warp_msgs: {
+            msgs: [
+              {
+                generic: {
+                  wasm: {
+                    execute: {
+                      contract_addr: token.token,
+                      msg: base64encode(transferMsg),
+                      funds: [],
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        })
+        .build();
+    } else {
+      txPayload = TxBuilder.new(this.warpSdk.chain.config)
+        .execute<warp_account.ExecuteMsg>(sender, account, {
+          warp_msgs: {
+            msgs: [
+              {
+                generic: {
+                  bank: {
+                    send: {
+                      amount: [{ amount, denom: token.denom }],
+                      to_address: receiver,
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        })
+        .build();
+    }
 
     return txPayload;
   }

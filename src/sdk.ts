@@ -423,4 +423,22 @@ export class WarpSdk {
 
     return this.wallet.tx(txPayload);
   }
+
+  public async depositToAccount(sender: string, account: string, token: Token, amount: string): Promise<TxInfo> {
+    const txPayload = await this.tx.depositToAccount(sender, account, token, amount);
+
+    return this.wallet.tx(txPayload);
+  }
+
+  public async withdrawFromAccount(
+    sender: string,
+    account: string,
+    receiver: string,
+    token: Token,
+    amount: string
+  ): Promise<TxInfo> {
+    const txPayload = await this.tx.withdrawFromAccount(sender, account, receiver, token, amount);
+
+    return this.wallet.tx(txPayload);
+  }
 }
