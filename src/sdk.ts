@@ -169,7 +169,7 @@ export class WarpSdk {
     const response = await contractQuery<
       Extract<warp_account_tracker.QueryMsg, { query_taken_accounts: {} }>,
       warp_account_tracker.AccountsResponse
-    >(this.wallet.lcd, this.chain.contracts.jobAccountTracker, { query_taken_accounts: msg });
+    >(this.wallet.lcd, this.chain.contracts.accountTracker, { query_taken_accounts: msg });
 
     return response;
   }
@@ -180,7 +180,7 @@ export class WarpSdk {
     const response = await contractQuery<
       Extract<warp_account_tracker.QueryMsg, { query_free_accounts: {} }>,
       warp_account_tracker.AccountsResponse
-    >(this.wallet.lcd, this.chain.contracts.jobAccountTracker, { query_free_accounts: msg });
+    >(this.wallet.lcd, this.chain.contracts.accountTracker, { query_free_accounts: msg });
 
     return response;
   }
@@ -191,7 +191,7 @@ export class WarpSdk {
     const response = await contractQuery<
       Extract<warp_account_tracker.QueryMsg, { query_funding_accounts: {} }>,
       warp_account_tracker.FundingAccountsResponse
-    >(this.wallet.lcd, this.chain.contracts.jobAccountTracker, { query_funding_accounts: msg });
+    >(this.wallet.lcd, this.chain.contracts.accountTracker, { query_funding_accounts: msg });
 
     return response;
   }
