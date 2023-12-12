@@ -17,7 +17,7 @@ import { warp_templates } from './types/contracts/warp_templates';
 import { Job, parseJob } from './types/job';
 import { warp_account_tracker } from './types/contracts';
 
-const FEE_ADJUSTMENT_FACTOR = 3;
+const FEE_ADJUSTMENT_FACTOR = 4;
 
 export type EstimateJobMsg = {
   vars: string;
@@ -280,11 +280,6 @@ export class WarpSdk {
     estimateJobMsg: EstimateJobMsg,
     execution: warp_controller.Execution
   ): Promise<Coin> {
-    // const account = await this.account(sender);
-    // TODO: check if this works, as before first job is created, no account is assigned to free job accounts
-    const response = await this.freeAccounts({ account_owner_addr: sender });
-    const account = response.accounts.length === 0 ? sender : response.accounts[0].addr;
-
     const hydratedVars = await this.hydrateVars({ vars: estimateJobMsg.vars });
 
     const hydratedMsgs = await this.hydrateMsgs({
@@ -296,7 +291,7 @@ export class WarpSdk {
 
     msgs.push(
       ...(
-        await this.tx.executeHydrateVars(account, {
+        await this.tx.executeHydrateVars(sender, {
           vars: hydratedVars,
         })
       ).msgs
@@ -304,7 +299,7 @@ export class WarpSdk {
 
     msgs.push(
       ...(
-        await this.tx.executeHydrateMsgs(account, {
+        await this.tx.executeHydrateMsgs(sender, {
           vars: hydratedVars,
           msgs: execution.msgs,
         })
@@ -313,7 +308,7 @@ export class WarpSdk {
 
     msgs.push(
       ...(
-        await this.tx.executeResolveCondition(account, {
+        await this.tx.executeResolveCondition(sender, {
           condition: execution.condition,
           vars: hydratedVars,
         })
@@ -323,7 +318,7 @@ export class WarpSdk {
     if (estimateJobMsg.recurring) {
       msgs.push(
         ...(
-          await this.tx.executeApplyVarFn(account, {
+          await this.tx.executeApplyVarFn(sender, {
             vars: hydratedVars,
             status: 'Executed',
           })
@@ -342,9 +337,10 @@ export class WarpSdk {
       })
       .filter(Boolean);
 
-    msgs.push(...transformedMsgs.map((msg) => cosmosMsgToCreateTxMsg(account, msg)));
+    // works only for cosmos msgs
+    msgs.push(...transformedMsgs.map((msg) => cosmosMsgToCreateTxMsg(sender, msg)));
 
-    const accountInfo = await this.wallet.lcd.auth.accountInfo(account);
+    const accountInfo = await this.wallet.lcd.auth.accountInfo(sender);
 
     const fee = await this.wallet.lcd.tx.estimateFee(
       [
