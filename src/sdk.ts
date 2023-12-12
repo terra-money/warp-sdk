@@ -163,34 +163,23 @@ export class WarpSdk {
     return response;
   }
 
-  public async takenJobAccounts(
-    msg: warp_account_tracker.QueryTakenJobAccountsMsg
-  ): Promise<warp_account_tracker.AccountsResponse> {
+  public async jobAccounts(
+    msg: warp_account_tracker.QueryJobAccountsMsg
+  ): Promise<warp_account_tracker.JobAccountsResponse> {
     const response = await contractQuery<
-      Extract<warp_account_tracker.QueryMsg, { query_taken_job_accounts: {} }>,
-      warp_account_tracker.AccountsResponse
-    >(this.wallet.lcd, this.chain.contracts.accountTracker, { query_taken_job_accounts: msg });
-
-    return response;
-  }
-
-  public async freeJobAccounts(
-    msg: warp_account_tracker.QueryFreeJobAccountsMsg
-  ): Promise<warp_account_tracker.AccountsResponse> {
-    const response = await contractQuery<
-      Extract<warp_account_tracker.QueryMsg, { query_free_job_accounts: {} }>,
-      warp_account_tracker.AccountsResponse
-    >(this.wallet.lcd, this.chain.contracts.accountTracker, { query_free_job_accounts: msg });
+      Extract<warp_account_tracker.QueryMsg, { query_job_accounts: {} }>,
+      warp_account_tracker.JobAccountsResponse
+    >(this.wallet.lcd, this.chain.contracts.accountTracker, { query_job_accounts: msg });
 
     return response;
   }
 
   public async firstFreeJobAccount(
     msg: warp_account_tracker.QueryFirstFreeJobAccountMsg
-  ): Promise<warp_account_tracker.AccountResponse> {
+  ): Promise<warp_account_tracker.JobAccountResponse> {
     const response = await contractQuery<
       Extract<warp_account_tracker.QueryMsg, { query_first_free_job_account: {} }>,
-      warp_account_tracker.AccountResponse
+      warp_account_tracker.JobAccountResponse
     >(this.wallet.lcd, this.chain.contracts.accountTracker, { query_first_free_job_account: msg });
 
     return response;

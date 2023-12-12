@@ -51,10 +51,7 @@ export module warp_controller {
         update_config: UpdateConfigMsg;
       }
     | {
-        migrate_free_job_accounts: MigrateAccountsMsg;
-      }
-    | {
-        migrate_taken_job_accounts: MigrateAccountsMsg;
+        migrate_accounts: MigrateAccountsMsg;
       }
     | {
         migrate_pending_jobs: MigrateJobsMsg;
