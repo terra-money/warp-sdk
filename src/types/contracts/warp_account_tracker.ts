@@ -21,10 +21,10 @@ export module warp_account_tracker {
   }
   export type ExecuteMsg =
     | {
-        take_account: TakeAccountMsg;
+        take_job_account: TakeJobAccountMsg;
       }
     | {
-        free_account: FreeAccountMsg;
+        free_job_account: FreeJobAccountMsg;
       }
     | {
         take_funding_account: TakeFundingAccountMsg;
@@ -35,12 +35,12 @@ export module warp_account_tracker {
     | {
         add_funding_account: AddFundingAccountMsg;
       };
-  export interface TakeAccountMsg {
+  export interface TakeJobAccountMsg {
     account_addr: string;
     account_owner_addr: string;
     job_id: Uint64;
   }
-  export interface FreeAccountMsg {
+  export interface FreeJobAccountMsg {
     account_addr: string;
     account_owner_addr: string;
     last_job_id: Uint64;
@@ -78,13 +78,13 @@ export module warp_account_tracker {
         query_config: QueryConfigMsg;
       }
     | {
-        query_taken_accounts: QueryTakenAccountsMsg;
+        query_taken_job_accounts: QueryTakenJobAccountsMsg;
       }
     | {
-        query_free_accounts: QueryFreeAccountsMsg;
+        query_free_job_accounts: QueryFreeJobAccountsMsg;
       }
     | {
-        query_first_free_account: QueryFirstFreeAccountMsg;
+        query_first_free_job_account: QueryFirstFreeJobAccountMsg;
       }
     | {
         query_first_free_funding_account: QueryFirstFreeFundingAccountMsg;
@@ -96,17 +96,17 @@ export module warp_account_tracker {
         query_funding_account: QueryFundingAccountMsg;
       };
   export interface QueryConfigMsg {}
-  export interface QueryTakenAccountsMsg {
+  export interface QueryTakenJobAccountsMsg {
     account_owner_addr: string;
     limit?: number | null;
     start_after?: string | null;
   }
-  export interface QueryFreeAccountsMsg {
+  export interface QueryFreeJobAccountsMsg {
     account_owner_addr: string;
     limit?: number | null;
     start_after?: string | null;
   }
-  export interface QueryFirstFreeAccountMsg {
+  export interface QueryFirstFreeJobAccountMsg {
     account_owner_addr: string;
   }
   export interface QueryFirstFreeFundingAccountMsg {
