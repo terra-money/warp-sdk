@@ -48,6 +48,7 @@ export class CreateJobMsgComposer {
   private _vars: warp_resolver.Variable[] = [];
   private _executions: Execution[] = [];
   private _durationDays: string;
+  private _fundingAccount: string;
   private _operationalAmount: warp_controller.Uint128 | undefined;
 
   static new(): CreateJobMsgComposer {
@@ -81,6 +82,11 @@ export class CreateJobMsgComposer {
 
   durationDays(durationDays: string): CreateJobMsgComposer {
     this._durationDays = durationDays;
+    return this;
+  }
+
+  fundingAccount(fundingAccount: string): CreateJobMsgComposer {
+    this._fundingAccount = fundingAccount;
     return this;
   }
 
@@ -130,6 +136,7 @@ export class CreateJobMsgComposer {
       vars: JSON.stringify(this._vars),
       assets_to_withdraw: this._assetsToWithdraw,
       operational_amount: this._operationalAmount,
+      funding_account: this._fundingAccount,
     };
 
     return createJobMsg;

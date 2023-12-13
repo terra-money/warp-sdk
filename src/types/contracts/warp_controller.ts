@@ -416,7 +416,6 @@ export module warp_controller {
     labels: string[];
     last_update_time: Uint64;
     name: string;
-    operational_amount: Uint128;
     owner: Addr;
     prev_id?: Uint64 | null;
     recurring: boolean;
