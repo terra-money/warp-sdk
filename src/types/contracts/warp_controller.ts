@@ -1,31 +1,25 @@
 export module warp_controller {
-  export type Uint128 = string;
   export type Addr = string;
+  export type Uint128 = string;
   export type Uint64 = string;
   export interface Config {
-    a_max: Uint128;
-    a_min: Uint128;
     account_tracker_address: Addr;
     burn_fee_min: Uint128;
     burn_fee_rate: Uint128;
-    cancellation_fee_percentage: Uint64;
+    cancellation_fee_rate: Uint64;
     creation_fee_max: Uint128;
     creation_fee_min: Uint128;
-    creation_fee_percentage: Uint64;
-    duration_days_left: Uint64;
-    duration_days_right: Uint64;
+    duration_days_max: Uint64;
+    duration_days_min: Uint64;
     fee_collector: Addr;
     fee_denom: string;
     maintenance_fee_max: Uint128;
     maintenance_fee_min: Uint128;
     minimum_reward: Uint128;
     owner: Addr;
-    q_max: Uint64;
     queue_size_left: Uint64;
     queue_size_right: Uint64;
     resolver_address: Addr;
-    t_max: Uint64;
-    t_min: Uint64;
     warp_account_code_id: Uint64;
   }
   export interface ConfigResponse {
@@ -360,26 +354,20 @@ export module warp_controller {
     id: Uint64;
   }
   export interface UpdateConfigMsg {
-    a_max?: Uint128 | null;
-    a_min?: Uint128 | null;
     burn_fee_min?: Uint128 | null;
     burn_fee_rate?: Uint128 | null;
-    cancellation_fee_percentage?: Uint64 | null;
+    cancellation_fee_rate?: Uint64 | null;
     creation_fee_max?: Uint128 | null;
     creation_fee_min?: Uint128 | null;
-    creation_fee_percentage?: Uint64 | null;
-    duration_days_left?: Uint128 | null;
-    duration_days_right?: Uint128 | null;
+    duration_days_max?: Uint64 | null;
+    duration_days_min?: Uint64 | null;
     fee_collector?: string | null;
     maintenance_fee_max?: Uint128 | null;
     maintenance_fee_min?: Uint128 | null;
     minimum_reward?: Uint128 | null;
     owner?: string | null;
-    q_max?: Uint64 | null;
-    queue_size_left?: Uint128 | null;
-    queue_size_right?: Uint128 | null;
-    t_max?: Uint64 | null;
-    t_min?: Uint64 | null;
+    queue_size_left?: Uint64 | null;
+    queue_size_right?: Uint64 | null;
   }
   export interface MigrateAccountsMsg {
     account_owner_addr: string;
@@ -393,29 +381,23 @@ export module warp_controller {
   }
   export interface CreateFundingAccountMsg {}
   export interface InstantiateMsg {
-    a_max: Uint128;
-    a_min: Uint128;
     account_tracker_code_id: Uint64;
     burn_fee_min: Uint128;
     burn_fee_rate: Uint128;
-    cancellation_fee: Uint64;
-    creation_fee: Uint64;
+    cancellation_fee_rate: Uint64;
     creation_fee_max: Uint128;
     creation_fee_min: Uint128;
-    duration_days_left: Uint64;
-    duration_days_right: Uint64;
+    duration_days_max: Uint64;
+    duration_days_min: Uint64;
     fee_collector?: string | null;
     fee_denom: string;
     maintenance_fee_max: Uint128;
     maintenance_fee_min: Uint128;
     minimum_reward: Uint128;
     owner?: string | null;
-    q_max: Uint64;
     queue_size_left: Uint64;
     queue_size_right: Uint64;
     resolver_address: string;
-    t_max: Uint64;
-    t_min: Uint64;
     warp_account_code_id: Uint64;
   }
   export type JobStatus = 'Pending' | 'Executed' | 'Failed' | 'Cancelled' | 'Evicted';

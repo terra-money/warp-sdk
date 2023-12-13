@@ -19,9 +19,9 @@ export function computeCreationFee(queueSize: Big, config: warp_controller.Confi
 }
 
 export function computeMaintenanceFee(durationDays: Big, config: warp_controller.Config): Big {
-  const x1 = Big(config.duration_days_left);
+  const x1 = Big(config.duration_days_min);
   const y1 = Big(config.maintenance_fee_min);
-  const x2 = Big(config.duration_days_right);
+  const x2 = Big(config.duration_days_max);
   const y2 = Big(config.maintenance_fee_max);
 
   const slope = y2.minus(y1).div(x2.minus(x1));
