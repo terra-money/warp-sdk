@@ -51,6 +51,15 @@ export module warp_controller {
       }
     | {
         update_config: UpdateConfigMsg;
+      }
+    | {
+        migrate_accounts: MigrateAccountsMsg;
+      }
+    | {
+        migrate_pending_jobs: MigrateJobsMsg;
+      }
+    | {
+        migrate_finished_jobs: MigrateJobsMsg;
       };
   export type AssetInfo =
     | {
@@ -129,6 +138,15 @@ export module warp_controller {
     q_max?: Uint64 | null;
     t_max?: Uint64 | null;
     t_min?: Uint64 | null;
+  }
+  export interface MigrateAccountsMsg {
+    limit: number;
+    start_after?: string | null;
+    warp_account_code_id: Uint64;
+  }
+  export interface MigrateJobsMsg {
+    limit: number;
+    start_after?: Uint64 | null;
   }
   export interface InstantiateMsg {
     a_max: Uint128;
