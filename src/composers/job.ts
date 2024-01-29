@@ -85,7 +85,7 @@ export class CreateJobMsgComposer {
     return this;
   }
 
-  fundingAccount(fundingAccount: string): CreateJobMsgComposer {
+  fundingAccount(fundingAccount?: string): CreateJobMsgComposer {
     this._fundingAccount = fundingAccount;
     return this;
   }
