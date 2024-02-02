@@ -407,8 +407,8 @@ export class WarpSdk {
     return this.wallet.tx(txPayload);
   }
 
-  public async createFundingAccount(sender: string): Promise<TxInfo> {
-    const txPayload = await this.tx.createFundingAccount(sender);
+  public async createFundingAccount(sender: string, funds?: Coins.Input): Promise<TxInfo> {
+    const txPayload = await this.tx.createFundingAccount(sender, funds);
 
     return this.wallet.tx(txPayload);
   }

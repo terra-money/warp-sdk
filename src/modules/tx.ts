@@ -116,14 +116,15 @@ export class TxModule {
       .build();
   }
 
-  public async createFundingAccount(sender: string): Promise<CreateTxOptions> {
+  public async createFundingAccount(sender: string, funds?: Coins.Input): Promise<CreateTxOptions> {
     return TxBuilder.new(this.warpSdk.chain.config)
       .execute<Extract<warp_controller.ExecuteMsg, { create_funding_account: {} }>>(
         sender,
         this.warpSdk.chain.contracts.controller,
         {
           create_funding_account: {},
-        }
+        },
+        funds
       )
       .build();
   }
