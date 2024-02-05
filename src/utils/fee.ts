@@ -45,3 +45,13 @@ export function computeBurnFee(jobReward: Big, config: warp_controller.Config): 
     return minFee;
   }
 }
+
+export function calculateDurationDaysAdjustmentFactor(durationDays: Big): Big {
+  if (durationDays.lte(7)) {
+    return Big(1);
+  } else if (durationDays.gte(90)) {
+    return Big(2);
+  }
+
+  return Big(1).add(durationDays.sub(7).mul(Big(1).div(83)));
+}

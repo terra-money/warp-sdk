@@ -8,6 +8,7 @@ import {
   computeBurnFee,
   computeCreationFee,
   computeMaintenanceFee,
+  calculateDurationDaysAdjustmentFactor,
 } from './utils';
 import { TxInfo, LCDClientConfig, LCDClient, Coins, Coin } from '@terra-money/feather.js';
 import Big from 'big.js';
@@ -346,7 +347,15 @@ export class WarpSdk {
 
     const denom = await this.nativeTokenDenom();
 
-    return new Coin(denom, Big(fee.amount.get(denom).amount.toString()).mul(FEE_ADJUSTMENT_FACTOR).toString());
+    const durationDaysAdjustmentFactor = calculateDurationDaysAdjustmentFactor(Big(estimateJobMsg.duration_days));
+
+    return new Coin(
+      denom,
+      Big(fee.amount.get(denom).amount.toString())
+        .mul(FEE_ADJUSTMENT_FACTOR)
+        .mul(durationDaysAdjustmentFactor)
+        .toString()
+    );
   }
 
   public async nativeTokenDenom(): Promise<string> {
