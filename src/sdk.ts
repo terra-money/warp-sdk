@@ -17,7 +17,7 @@ import { warp_templates } from './types/contracts/warp_templates';
 import { Job, parseJob } from './types/job';
 import { warp_account_tracker } from './types/contracts';
 
-const FEE_ADJUSTMENT_FACTOR = 4;
+const FEE_ADJUSTMENT_FACTOR = 8;
 
 export type EstimateJobMsg = {
   vars: string;
