@@ -262,7 +262,7 @@ export class WarpSdk {
       return new Coin(denom, config.minimum_reward);
     }
 
-    return estimatedReward;
+    return new Coin(denom, estimatedReward.amount.toFixed(0));
   }
 
   public async estimateJobExecutionReward(
