@@ -1,6 +1,10 @@
 # warp-sdk
 
-WarpSdk provides a Typescript API for interacting with warp protocol, the automation protocol for the Cosmos ecosystem. The SDK provides a simple way to interact with the warp protocol's contracts, allowing developers to perform operations such as creating and managing jobs, templates, and accounts.
+The Warp SDK provides a Typescript API for interacting with Warp Protocol, the decentralized automation tool for the Cosmos ecosystem. Warp allows developers to create novel features or experiences for their users through cost-efficient, on-chain automation—no smart contract changes necessary.
+
+The SDK provides a simple way to interact with Warp Protocol's contracts to automatically execute transactions in the future based on any available on-chain data. The trigger for execution is referred to as a condition, and the corresponding job encompasses the executable message. Warp jobs are submitted to a job queue, where participants called keepers monitor the conditions and—once met—execute the pre-signed job message.
+
+Read on below, check out the [docs](https://docs.warp.money/) for more information, or [get in touch](https://docs.google.com/forms/d/e/1FAIpQLSeYGdWL9tIHC3BP2riYXtT_cyZVDMGKrrSH0JCPCdV3PtZGyg/viewform) with the team to start building with Warp.
 
 ## Installation
 
@@ -30,7 +34,7 @@ const lcd = new LCDClient({
   'pisco-1': piscoLcdClientConfig,
 });
 
-const wallet = new Wallet(lcd, new MnemonicKey({ mnemonic: '<your mnemonic here>' }));
+const wallet = new Wallet(lcd, new MnemonicKey({ mnemonic: '...' }));
 
 const sdk = new WarpSdk(wallet, piscoLcdClientConfig);
 const sender = wallet.key.accAddress(piscoLcdClientConfig.prefix);
@@ -46,20 +50,43 @@ const nextExecution = variable
 
 const condition = cond.uint(uint.env('time'), 'gt', uint.ref(nextExecution));
 
+const executions = [
+  {
+    condition,
+    msgs: [msg.execute('terra10788fkzah89xrdm27zkj5yvhj9x3494lxawzm5qq3vvxcqz2yzaqyd3enk', { harvest: {} })],
+  },
+];
+
+const recurring = true;
+const durationDays = '30';
+const vars = [nextExecution];
+
+const estimateJobRewardMsg = job
+  .estimate()
+  .recurring(recurring)
+  .durationDays(durationDays)
+  .vars(vars)
+  .executions(executions)
+  .compose();
+
+const reward = await sdk.estimateJobReward(sender, estimateJobRewardMsg);
+
+const operationalAmount = await sdk.estimateJobFee(sender, estimateJobRewardMsg, reward.amount.toString());
+
 const createJobMsg = job
   .create()
   .name('eris-harvest')
   .description('This job harvests rewards for eris protoocl vaults each day.')
   .labels([])
-  .recurring(true)
-  .requeueOnEvict(true)
-  .reward('50000')
-  .cond(condition)
-  .var(nextExecution)
-  .msg(msg.execute('terra10788fkzah89xrdm27zkj5yvhj9x3494lxawzm5qq3vvxcqz2yzaqyd3enk', { harvest: {} }))
+  .recurring(recurring)
+  .reward(reward.amount.toString())
+  .operationalAmount(operationalAmount.amount.toString())
+  .vars(vars)
+  .durationDays(durationDays)
+  .executions(executions)
   .compose();
 
-sdk.createJob(sender, createJobMsg).then((response) => {
+sdk.createJob(sender, createJobMsg, [operationalAmount]).then((response) => {
   console.log(response);
 });
 
