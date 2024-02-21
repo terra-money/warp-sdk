@@ -9,6 +9,7 @@ export module warp_controller {
     cancellation_fee_rate: Uint64;
     creation_fee_max: Uint128;
     creation_fee_min: Uint128;
+    duration_days_limit: Uint64;
     duration_days_max: Uint64;
     duration_days_min: Uint64;
     fee_collector: Addr;
@@ -52,6 +53,9 @@ export module warp_controller {
       }
     | {
         migrate_finished_jobs: MigrateJobsMsg;
+      }
+    | {
+        create_funding_account: CreateFundingAccountMsg;
       };
   export type WarpMsg =
     | {
@@ -356,6 +360,7 @@ export module warp_controller {
     cancellation_fee_rate?: Uint64 | null;
     creation_fee_max?: Uint128 | null;
     creation_fee_min?: Uint128 | null;
+    duration_days_limit?: Uint64 | null;
     duration_days_max?: Uint64 | null;
     duration_days_min?: Uint64 | null;
     fee_collector?: string | null;
@@ -384,6 +389,7 @@ export module warp_controller {
     cancellation_fee_rate: Uint64;
     creation_fee_max: Uint128;
     creation_fee_min: Uint128;
+    duration_days_limit: Uint64;
     duration_days_max: Uint64;
     duration_days_min: Uint64;
     fee_collector?: string | null;

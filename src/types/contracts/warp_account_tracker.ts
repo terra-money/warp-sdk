@@ -28,6 +28,9 @@ export module warp_account_tracker {
       }
     | {
         free_funding_account: FreeFundingAccountMsg;
+      }
+    | {
+        update_config: UpdateConfigMsg;
       };
   export type Uint64 = string;
   export interface TakeJobAccountMsg {
@@ -49,6 +52,9 @@ export module warp_account_tracker {
     account_addr: string;
     account_owner_addr: string;
     job_id: Uint64;
+  }
+  export interface UpdateConfigMsg {
+    admin?: string | null;
   }
   export type AccountStatus = 'free' | 'taken';
   export interface FundingAccountResponse {
