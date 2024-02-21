@@ -1,0 +1,30 @@
+{
+  "testnet": {
+    "warp-controller": {
+      "codeId": "204",
+      "address": "migaloo1jqxpd2f43tfxmvacss9les5l65z474ddj5spx4ek432wewwx39csydntcw"
+    },
+    "warp-resolver": {
+      "codeId": "205",
+      "address": "migaloo1rutwat2fvm33y8znxdmy86ldf8h3qy8q4fkxdntk7fpj6vz8pzhsh30v82"
+    },
+    "warp-templates": {
+      "codeId": "206",
+      "address": "migaloo1kauyy87ps5hfxx4mrxd2spu782evuqy9symhl2tkyafff3csuusqeg4zvl"
+    }
+  },
+  "mainnet": {
+    "warp-controller": {
+      "codeId": "1617",
+      "address": "migaloo1mg93d4g69tsf3x6sa9nkmkzc9wl38gdrygu0sewwcwj6l2a4089sdd7fgj"
+    },
+    "warp-resolver": {
+      "codeId": "1616",
+      "address": "migaloo13taf05fedehdfsguu0v24ssmrs9xfzn6wewwkxxlsdy2qmudhwfsvvgdm5"
+    },
+    "warp-templates": {
+      "codeId": "1787",
+      "address": "migaloo1mcfu3tkd5h9zdwuserl3v6uzetv9xke8wyaaf9vx07p7shk6xlws3styfk"
+    }
+  }
+}

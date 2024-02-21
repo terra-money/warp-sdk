@@ -66,10 +66,10 @@ const createMigrateJobsMsg = (startAfter: string, limit: number) => {
 
 const loop = async () => {
   let startAfter = 0;
-  const limit = 50;
+  const limit = 20;
 
   // TODO: Update to current max job id on testnet/mainnet
-  const maxJobId = 1500;
+  const maxJobId = 6000;
 
   while (startAfter <= maxJobId) {
     try {
@@ -84,8 +84,8 @@ const loop = async () => {
       break; // Stop the loop if there is an error
     }
 
-    console.log('Sleeping for 1 second...');
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    console.log('Sleeping for 10 seconds...');
+    await new Promise((resolve) => setTimeout(resolve, 10000));
   }
 
   console.log('Migration process has completed.');

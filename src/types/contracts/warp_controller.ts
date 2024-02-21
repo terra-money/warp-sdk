@@ -52,9 +52,6 @@ export module warp_controller {
       }
     | {
         migrate_finished_jobs: MigrateJobsMsg;
-      }
-    | {
-        create_funding_account: CreateFundingAccountMsg;
       };
   export type WarpMsg =
     | {

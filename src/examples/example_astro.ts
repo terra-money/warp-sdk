@@ -10,7 +10,7 @@ const piscoLcdClientConfig: LCDClientConfig = {
   lcd: 'https://pisco-lcd.terra.dev',
   chainID: 'pisco-1',
   gasAdjustment: 1.75,
-  gasPrices: { uluna: 0.15 },
+  gasPrices: { uluna: 0.015 },
   prefix: 'terra',
 };
 
