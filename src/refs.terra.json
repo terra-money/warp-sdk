@@ -1,30 +1,41 @@
 {
   "testnet": {
+    "warp-account": {
+      "codeId": "12858"
+    },
     "warp-controller": {
-      "codeId": "12696",
-      "address": "terra1sa5xql5v097surc5nrc3gehgq95x56z0qn86fts6qq5r87c505fq3mzg8t"
+      "codeId": "12861",
+      "address": "terra1mmsl3mxq9n8a6dgye05pn0qlup7r24e2vyjkqgpe32pv3ehjgnes0jz5nc"
     },
     "warp-resolver": {
-      "codeId": "12694",
-      "address": "terra1m0fphjm43v34pgjywsuaa2pxsf27dyk5qqd8x6tpa9da7mqcp2esm6jkkc"
+      "codeId": "12859",
+      "address": "terra1kjv3e7v7m03kk8lrjqr2j604vusxrpxadg6xjz89jucladh5m5gqqag8q7"
     },
     "warp-templates": {
-      "codeId": "12695",
-      "address": "terra1h79anmpmg6gfa6zpg2apurje3yxrv4r80aj3lzwnhtxs0tld8zrsyhe7au"
+      "codeId": "12860",
+      "address": "terra155wp5wwvquqzg30r6luu4e9d95p7pexe3xjszhflcsqe5gpayd6smz5w6k"
+    },
+    "warp-account-tracker": {
+      "codeId": "12862",
+      "address": "terra15yefd9r33wad527jrxphef8r0jr7n4chg4ehgq0lmrwsfsflaajq5ps2jz"
     }
   },
   "mainnet": {
     "warp-controller": {
-      "codeId": "2495",
-      "address": "terra1mg93d4g69tsf3x6sa9nkmkzc9wl38gdrygu0sewwcwj6l2a4089sdd7fgj"
+      "codeId": "2624",
+      "address": "terra1w6j6w9kx29h6kssqstupppm8vytvh2phpul72wsz8ylluqdd44us5u95ny"
     },
     "warp-resolver": {
-      "codeId": "1616",
-      "address": "terra13taf05fedehdfsguu0v24ssmrs9xfzn6wewwkxxlsdy2qmudhwfsvvgdm5"
+      "codeId": "2625",
+      "address": "terra1t7zxwt5a2aheyh5ykg9j6ax20kz2q6v9q5ty7t0vdshsadnjegjqu6yjd6"
     },
     "warp-templates": {
-      "codeId": "1787",
-      "address": "terra1mcfu3tkd5h9zdwuserl3v6uzetv9xke8wyaaf9vx07p7shk6xlws3styfk"
+      "codeId": "2626",
+      "address": "terra1s94r56gkyyavx5xxea9kgzemh9yeh6q9h065sf3ngc2pfd7ua67srrq5gh"
+    },
+    "warp-account-tracker": {
+      "codeId": "2623",
+      "address": "terra1mwrmemx45mmqylz3j2wsq0cscnajeynlxval8rqq6vxh30fqyassajfvdq"
     }
   }
 }

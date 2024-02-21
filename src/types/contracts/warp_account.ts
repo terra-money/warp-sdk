@@ -1,28 +1,22 @@
 export module warp_account {
   export type Addr = string;
-  export interface AccountResponse {
-    account: Account;
-  }
-  export interface Account {
-    account: Addr;
-    owner: Addr;
-  }
-  export interface AccountsResponse {
-    accounts: Account[];
-  }
   export interface Config {
+    creator_addr: Addr;
     owner: Addr;
-    warp_addr: Addr;
   }
-  export type ExecuteMsg =
+  export type ExecuteMsg = {
+    warp_msgs: WarpMsgs;
+  };
+  export type Uint64 = string;
+  export type WarpMsg =
     | {
-        generic: GenericMsg;
-      }
-    | {
-        withdraw_assets: WithdrawAssetsMsg;
+        generic: CosmosMsgFor_Empty;
       }
     | {
         ibc_transfer: IbcTransferMsg;
+      }
+    | {
+        withdraw_assets: WithdrawAssetsMsg;
       };
   export type CosmosMsgFor_Empty =
     | {
@@ -140,7 +134,6 @@ export module warp_account {
         };
       };
   export type Timestamp = Uint64;
-  export type Uint64 = string;
   export type WasmMsg =
     | {
         execute: {
@@ -217,8 +210,9 @@ export module warp_account {
          */
         cw721: [Addr, string];
       };
-  export interface GenericMsg {
-    msgs: CosmosMsgFor_Empty[];
+  export interface WarpMsgs {
+    job_id?: Uint64 | null;
+    msgs: WarpMsg[];
   }
   export interface Coin {
     amount: Uint128;
@@ -239,9 +233,6 @@ export module warp_account {
      */
     revision: number;
   }
-  export interface WithdrawAssetsMsg {
-    asset_infos: AssetInfo[];
-  }
   export interface IbcTransferMsg {
     timeout_block_delta?: number | null;
     timeout_timestamp_seconds_delta?: number | null;
@@ -261,7 +252,10 @@ export module warp_account {
     revision_height?: number | null;
     revision_number?: number | null;
   }
-  export type Fund =
+  export interface WithdrawAssetsMsg {
+    asset_infos: AssetInfo[];
+  }
+  export type CwFund =
     | {
         cw20: Cw20Fund;
       }
@@ -269,7 +263,10 @@ export module warp_account {
         cw721: Cw721Fund;
       };
   export interface InstantiateMsg {
-    funds?: Fund[] | null;
+    cw_funds: CwFund[];
+    job_id: Uint64;
+    msgs: WarpMsg[];
+    native_funds: Coin[];
     owner: string;
   }
   export interface Cw20Fund {
@@ -280,29 +277,8 @@ export module warp_account {
     contract_addr: string;
     token_id: string;
   }
-  export type JobStatus = 'Pending' | 'Executed' | 'Failed' | 'Cancelled' | 'Evicted';
-  export interface JobResponse {
-    job: Job;
-  }
-  export interface Job {
-    assets_to_withdraw: AssetInfo[];
-    condition: string;
-    description: string;
-    id: Uint64;
-    labels: string[];
-    last_update_time: Uint64;
-    msgs: string;
-    name: string;
-    owner: Addr;
-    recurring: boolean;
-    requeue_on_evict: boolean;
-    reward: Uint128;
-    status: JobStatus;
-    terminate_condition?: string | null;
-    vars: string;
-  }
-  export interface JobsResponse {
-    jobs: Job[];
-    total_count: number;
-  }
+  export type QueryMsg = {
+    query_config: QueryConfigMsg;
+  };
+  export interface QueryConfigMsg {}
 }

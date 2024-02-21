@@ -11,20 +11,28 @@
     "warp-templates": {
       "codeId": "1475",
       "address": "neutron1a29vd6lltycyr2cfku0w4km3axeexcxut53t3wx397dw8jndfq4swlxw9d"
+    },
+    "warp-account-tracker": {
+      "codeId": "11630",
+      "address": "neutron1zzgg30ygltd5s3xtescfquwmm2jktaq28t37f2j9h5wwswpxtyyspugek8"
     }
   },
   "mainnet": {
     "warp-controller": {
-      "codeId": "200",
-      "address": "neutron12aavdpccvq7lyrr8zaq5f54hk5ux0lw0q5xstqzre6sm2cvyfw5stlmlr3"
+      "codeId": "741",
+      "address": "neutron1qx2u4fqlyy8gfx9r5vfz80pzh88j07zr45whx30tfpj45usnt6eszwv9nj"
     },
     "warp-resolver": {
-      "codeId": "201",
-      "address": "neutron1dzax7rxeq7ju0t8rgr5afg8kfdaxpe296qdeymreq030ay4rcx2s6sgx9p"
+      "codeId": "742",
+      "address": "neutron1tqk6vgqyfvfk30w5khy0qpuvj0h2lnzkfeynv3hzuha3yys6s2zqwrxhje"
     },
     "warp-templates": {
-      "codeId": "202",
+      "codeId": "743",
       "address": "neutron1hn43q3v92y4dgdgtc5p7g684zx9dn6ejr74gchntdnppsljd89usxqs2s9"
+    },
+    "warp-account-tracker": {
+      "codeId": "740",
+      "address": "neutron1k889vqh8aarqs45d2c2kcm7krv6d030uzzkpfh5yd5kajqrt7x0sy52we9"
     }
   }
 }

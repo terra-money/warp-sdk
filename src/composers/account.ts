@@ -1,11 +1,9 @@
 import { warp_account, warp_resolver } from '../types';
 
-type GenericMsg = Extract<warp_account.ExecuteMsg, { generic: {} }>;
-
 export class AccountComposer {
-  generic(msgs: warp_resolver.CosmosMsgFor_Empty[]): GenericMsg {
+  msgs(msgs: warp_resolver.WarpMsg[]): Extract<warp_account.ExecuteMsg, { warp_msgs: {} }> {
     return {
-      generic: {
+      warp_msgs: {
         msgs,
       },
     };

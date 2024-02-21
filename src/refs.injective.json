@@ -11,20 +11,28 @@
     "warp-templates": {
       "codeId": "2530",
       "address": "inj1lqe55634npthzavxd9stfpz0snr5hh0qxhhsgp"
+    },
+    "warp-account-tracker": {
+      "codeId": "11630",
+      "address": "inj1zzgg30ygltd5s3xtescfquwmm2jktaq28t37f2j9h5wwswpxtyyspugek8"
     }
   },
   "mainnet": {
     "warp-controller": {
-      "codeId": "71",
-      "address": "inj1l5xlk2eerslrd8va5qu6wd8yzc8yz8hdc579fg"
+      "codeId": "504",
+      "address": "inj1rnpwwhfg4q82rt3ylr8acyv99hwc57rdrrqnt4"
     },
     "warp-resolver": {
-      "codeId": "70",
-      "address": "inj147v6a22ue68uumjxgz3t93g06w8vrlv7mmfuyf"
+      "codeId": "505",
+      "address": "inj14dln7eeucds7skjkkxqgesth46rl09zl7hlrfu"
     },
     "warp-templates": {
-      "codeId": "82",
-      "address": "inj1nxp6uvz0506u32hf438uqy3cqs023k9wq6kxp8"
+      "codeId": "506",
+      "address": "inj1872z8v0zldhckg2a2yx7yjf3nmtvfc2x5llxpd"
+    },
+    "warp-account-tracker": {
+      "codeId": "503",
+      "address": "inj1ng0hfwuan93cjmkf4xyrp95r589ryk5pk3sze0"
     }
   }
 }

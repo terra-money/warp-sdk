@@ -41,7 +41,7 @@ export const composers = {
   string,
   cond,
   fn,
-  msg,
+  msg: {},
   template,
   job,
   variable,

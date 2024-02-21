@@ -5,7 +5,7 @@ class StaticVariableComposer {
   private variable: warp_resolver.StaticVariable;
 
   constructor() {
-    this.variable = { kind: 'string', name: '', value: '', encode: false };
+    this.variable = { kind: 'string', name: '', value: '', encode: false, init_fn: null, reinitialize: false };
   }
 
   kind(kind: warp_resolver.VariableKind): StaticVariableComposer {
@@ -28,7 +28,17 @@ class StaticVariableComposer {
     return this;
   }
 
-  onSuccess(fn: warp_resolver.UpdateFnValue): StaticVariableComposer {
+  reinitialize(value: boolean): StaticVariableComposer {
+    this.variable.reinitialize = value;
+    return this;
+  }
+
+  onInit(value: warp_resolver.FnValue): StaticVariableComposer {
+    this.variable.init_fn = value;
+    return this;
+  }
+
+  onSuccess(fn: warp_resolver.FnValue): StaticVariableComposer {
     this.variable.update_fn = {
       ...(this.variable.update_fn ?? {}),
       on_success: fn,
@@ -37,7 +47,7 @@ class StaticVariableComposer {
     return this;
   }
 
-  onError(fn: warp_resolver.UpdateFnValue): StaticVariableComposer {
+  onError(fn: warp_resolver.FnValue): StaticVariableComposer {
     this.variable.update_fn = {
       ...(this.variable.update_fn ?? {}),
       on_error: fn,
@@ -59,7 +69,7 @@ class ExternalVariableComposer {
       kind: 'string',
       name: '',
       reinitialize: false,
-      init_fn: {} as warp_resolver.ExternalExpr,
+      init_fn: null,
       encode: false,
     };
   }
@@ -94,7 +104,7 @@ class ExternalVariableComposer {
     return this;
   }
 
-  onSuccess(fn: warp_resolver.UpdateFnValue): ExternalVariableComposer {
+  onSuccess(fn: warp_resolver.FnValue): ExternalVariableComposer {
     this.variable.update_fn = {
       ...(this.variable.update_fn ?? {}),
       on_success: fn,
@@ -103,7 +113,7 @@ class ExternalVariableComposer {
     return this;
   }
 
-  onError(fn: warp_resolver.UpdateFnValue): ExternalVariableComposer {
+  onError(fn: warp_resolver.FnValue): ExternalVariableComposer {
     this.variable.update_fn = {
       ...(this.variable.update_fn ?? {}),
       on_error: fn,
@@ -125,7 +135,7 @@ class QueryVariableComposer {
       kind: 'string',
       name: '',
       reinitialize: false,
-      init_fn: {} as warp_resolver.QueryExpr,
+      init_fn: null,
       encode: false,
     };
   }
@@ -160,7 +170,7 @@ class QueryVariableComposer {
     return this;
   }
 
-  onSuccess(fn: warp_resolver.UpdateFnValue): QueryVariableComposer {
+  onSuccess(fn: warp_resolver.FnValue): QueryVariableComposer {
     this.variable.update_fn = {
       ...(this.variable.update_fn ?? {}),
       on_success: fn,
@@ -169,7 +179,7 @@ class QueryVariableComposer {
     return this;
   }
 
-  onError(fn: warp_resolver.UpdateFnValue): QueryVariableComposer {
+  onError(fn: warp_resolver.FnValue): QueryVariableComposer {
     this.variable.update_fn = {
       ...(this.variable.update_fn ?? {}),
       on_error: fn,

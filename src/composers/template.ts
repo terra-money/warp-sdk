@@ -1,7 +1,7 @@
-import { warp_resolver, warp_templates } from '../types';
+import { Execution, warp_resolver, warp_templates } from '../types';
 
 export class SubmitTemplateMsgComposer {
-  private _condition: warp_resolver.Condition | undefined;
+  private _executions: Execution[] = [];
   private _formattedStr: string = '';
   private _msgs: warp_resolver.CosmosMsgFor_Empty[] = [];
   private _name: string = '';
@@ -9,11 +9,6 @@ export class SubmitTemplateMsgComposer {
 
   static new(): SubmitTemplateMsgComposer {
     return new SubmitTemplateMsgComposer();
-  }
-
-  cond(condition: warp_resolver.Condition): SubmitTemplateMsgComposer {
-    this._condition = condition;
-    return this;
   }
 
   formattedStr(formattedStr: string): SubmitTemplateMsgComposer {
@@ -31,8 +26,8 @@ export class SubmitTemplateMsgComposer {
     return this;
   }
 
-  msg(msg: warp_resolver.CosmosMsgFor_Empty): SubmitTemplateMsgComposer {
-    this._msgs.push(msg);
+  executions(executions: Execution[]): SubmitTemplateMsgComposer {
+    this._executions = executions;
     return this;
   }
 
@@ -42,9 +37,11 @@ export class SubmitTemplateMsgComposer {
     }
 
     const submitTemplateMsg: warp_templates.SubmitTemplateMsg = {
-      condition: this._condition,
       formatted_str: this._formattedStr,
-      msg: JSON.stringify(this._msgs),
+      executions: this._executions.map((e) => ({
+        condition: JSON.stringify(e.condition),
+        msgs: JSON.stringify(e.msgs),
+      })),
       name: this._name,
       vars: this._vars,
     };

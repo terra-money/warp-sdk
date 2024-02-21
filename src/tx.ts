@@ -2,14 +2,13 @@ import {
   Coins,
   ExecuteContractProposal,
   MsgExecuteContract,
+  Msg,
   MsgSend,
   MsgSubmitProposal,
   MsgVote,
   LCDClientConfig,
   CreateTxOptions,
 } from '@terra-money/feather.js';
-
-type Msg = MsgExecuteContract | MsgSubmitProposal | MsgVote | MsgSend;
 
 export enum VoteOption {
   /** VOTE_OPTION_UNSPECIFIED - VOTE_OPTION_UNSPECIFIED defines a no-op vote option. */
@@ -35,6 +34,11 @@ export class TxBuilder {
 
   constructor(chainConfig: LCDClientConfig) {
     this.chainConfig = chainConfig;
+  }
+
+  tx(createTx: CreateTxOptions) {
+    this.msgs = [...this.msgs, ...createTx.msgs];
+    return this;
   }
 
   execute<T extends {}>(sender: string, contract: string, msg: T, coins?: Coins.Input) {

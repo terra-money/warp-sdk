@@ -34,6 +34,45 @@ export type IBCToken = TokenBase & {
 
 export type Token = NativeToken | CW20Token | IBCToken;
 
+export const LUNA: NativeToken = {
+  key: 'uluna',
+  type: 'native',
+  denom: 'uluna',
+  name: 'LUNA',
+  symbol: 'LUNA',
+  decimals: 6,
+  icon: 'https://assets.terra.dev/icon/svg/LUNA.png',
+  coinGeckoId: 'terra-luna-2',
+};
+
+export const NEUTRON: NativeToken = {
+  key: 'untrn',
+  type: 'native',
+  denom: 'untrn',
+  name: 'Neutron',
+  symbol: 'NTRN',
+  decimals: 6,
+  icon: 'https://assets.terra.dev/icon/svg/ibc/ATOM.svg',
+  coinGeckoId: 'neutron',
+};
+
+export const INJ: NativeToken = {
+  key: 'inj',
+  type: 'native',
+  denom: 'inj',
+  name: 'Injective',
+  symbol: 'INJ',
+  decimals: 18,
+  icon: 'https://assets.terra.dev/icon/svg/ibc/ATOM.svg',
+  coinGeckoId: 'injective-protocol',
+};
+
+export const NATIVE_TOKENS = {
+  LUNA,
+  INJ,
+  NEUTRON,
+};
+
 type Explorer = {
   address: string;
   tx: string;

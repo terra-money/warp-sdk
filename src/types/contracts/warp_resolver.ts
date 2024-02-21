@@ -27,7 +27,7 @@ export module warp_resolver {
       };
   export type Expr =
     | {
-        string: GenExprFor_ValueFor_StringAnd_StringOp;
+        string: GenExprFor_StringValueFor_StringAnd_StringOp;
       }
     | {
         uint: GenExprFor_NumValueFor_Uint256And_NumExprOpAnd_IntFnOpAnd_NumOp;
@@ -47,13 +47,17 @@ export module warp_resolver {
     | {
         bool: string;
       };
-  export type ValueFor_String =
+  export type StringValueFor_String =
     | {
         simple: string;
       }
     | {
         ref: string;
+      }
+    | {
+        env: StringEnvValue;
       };
+  export type StringEnvValue = 'warp_account_addr';
   export type StringOp = 'starts_with' | 'ends_with' | 'contains' | 'eq' | 'neq';
   export type NumValueFor_Uint256And_NumExprOpAnd_IntFnOp =
     | {
@@ -112,10 +116,10 @@ export module warp_resolver {
   export type DecimalFnOp = 'abs' | 'neg' | 'floor' | 'sqrt' | 'ceil';
   export type Uint64 = string;
   export type TimeOp = 'lt' | 'gt';
-  export interface GenExprFor_ValueFor_StringAnd_StringOp {
-    left: ValueFor_String;
+  export interface GenExprFor_StringValueFor_StringAnd_StringOp {
+    left: StringValueFor_String;
     op: StringOp;
-    right: ValueFor_String;
+    right: StringValueFor_String;
   }
   export interface GenExprFor_NumValueFor_Uint256And_NumExprOpAnd_IntFnOpAnd_NumOp {
     left: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
@@ -382,6 +386,9 @@ export module warp_resolver {
       }
     | {
         execute_hydrate_msgs: ExecuteHydrateMsgsMsg;
+      }
+    | {
+        warp_msgs_to_cosmos_msgs: WarpMsgsToCosmosMsgsMsg;
       };
   export type QueryRequestFor_String =
     | {
@@ -489,18 +496,47 @@ export module warp_resolver {
         };
       };
   export type JobStatus = 'Pending' | 'Executed' | 'Failed' | 'Cancelled' | 'Evicted';
+  export type WarpMsg =
+    | {
+        generic: CosmosMsgFor_Empty;
+      }
+    | {
+        ibc_transfer: IbcTransferMsg;
+      }
+    | {
+        withdraw_assets: WithdrawAssetsMsg;
+      };
+  export type AssetInfo =
+    | {
+        native: string;
+      }
+    | {
+        cw20: Addr;
+      }
+    | {
+        /**
+         * @minItems 2
+         * @maxItems 2
+         */
+        cw721: [Addr, string];
+      };
+  export type Addr = string;
   export interface ExecuteSimulateQueryMsg {
     query: QueryRequestFor_String;
   }
   export interface ExecuteValidateJobCreationMsg {
-    condition: string;
-    msgs: string;
+    executions: Execution[];
     terminate_condition?: string | null;
     vars: string;
+  }
+  export interface Execution {
+    condition: string;
+    msgs: string;
   }
   export interface ExecuteHydrateVarsMsg {
     external_inputs?: ExternalInput[] | null;
     vars: string;
+    warp_account_addr?: string | null;
   }
   export interface ExternalInput {
     input: string;
@@ -509,14 +545,42 @@ export module warp_resolver {
   export interface ExecuteResolveConditionMsg {
     condition: string;
     vars: string;
+    warp_account_addr?: string | null;
   }
   export interface ExecuteApplyVarFnMsg {
     status: JobStatus;
     vars: string;
+    warp_account_addr?: string | null;
   }
   export interface ExecuteHydrateMsgsMsg {
     msgs: string;
     vars: string;
+  }
+  export interface WarpMsgsToCosmosMsgsMsg {
+    msgs: WarpMsg[];
+    owner: Addr;
+  }
+  export interface IbcTransferMsg {
+    timeout_block_delta?: number | null;
+    timeout_timestamp_seconds_delta?: number | null;
+    transfer_msg: TransferMsg;
+  }
+  export interface TransferMsg {
+    memo: string;
+    receiver: string;
+    sender: string;
+    source_channel: string;
+    source_port: string;
+    timeout_block?: TimeoutBlock | null;
+    timeout_timestamp?: number | null;
+    token?: Coin | null;
+  }
+  export interface TimeoutBlock {
+    revision_height?: number | null;
+    revision_number?: number | null;
+  }
+  export interface WithdrawAssetsMsg {
+    asset_infos: AssetInfo[];
   }
   export interface InstantiateMsg {}
   export type QueryMsg =
@@ -542,22 +606,24 @@ export module warp_resolver {
     query: QueryRequestFor_String;
   }
   export interface QueryValidateJobCreationMsg {
-    condition: string;
-    msgs: string;
+    executions: Execution[];
     terminate_condition?: string | null;
     vars: string;
   }
   export interface QueryHydrateVarsMsg {
     external_inputs?: ExternalInput[] | null;
     vars: string;
+    warp_account_addr?: string | null;
   }
   export interface QueryResolveConditionMsg {
     condition: string;
     vars: string;
+    warp_account_addr?: string | null;
   }
   export interface QueryApplyVarFnMsg {
     status: JobStatus;
     vars: string;
+    warp_account_addr?: string | null;
   }
   export interface QueryHydrateMsgsMsg {
     msgs: string;
@@ -576,8 +642,7 @@ export module warp_resolver {
     | {
         query: QueryVariable;
       };
-  export type VariableKind = 'string' | 'uint' | 'int' | 'decimal' | 'timestamp' | 'bool' | 'amount' | 'asset' | 'json';
-  export type UpdateFnValue =
+  export type FnValue =
     | {
         uint: NumValueFor_Uint256And_NumExprOpAnd_IntFnOp;
       }
@@ -595,18 +660,24 @@ export module warp_resolver {
       }
     | {
         bool: string;
+      }
+    | {
+        string: StringValueFor_String;
       };
+  export type VariableKind = 'string' | 'uint' | 'int' | 'decimal' | 'timestamp' | 'bool' | 'amount' | 'asset' | 'json';
   export type Method = 'get' | 'post' | 'put' | 'patch' | 'delete';
   export interface StaticVariable {
     encode: boolean;
+    init_fn: FnValue;
     kind: VariableKind;
     name: string;
+    reinitialize: boolean;
     update_fn?: UpdateFn | null;
-    value: string;
+    value?: string | null;
   }
   export interface UpdateFn {
-    on_error?: UpdateFnValue | null;
-    on_success?: UpdateFnValue | null;
+    on_error?: FnValue | null;
+    on_success?: FnValue | null;
   }
   export interface ExternalVariable {
     encode: boolean;

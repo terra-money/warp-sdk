@@ -13,7 +13,7 @@ interface ContractDefinition {
   address: string;
 }
 
-type ContractNames = 'warp-controller' | 'warp-resolver' | 'warp-templates';
+type ContractNames = 'warp-controller' | 'warp-resolver' | 'warp-templates' | 'warp-account-tracker';
 
 type NetworkConfig = {
   [contract in ContractNames]: ContractDefinition;
@@ -182,6 +182,7 @@ export interface ContractAddresses {
   controller: string;
   resolver: string;
   templates: string;
+  accountTracker: string;
 }
 
 export class ChainModule {
@@ -199,6 +200,7 @@ export class ChainModule {
       controller: contractsConfig['warp-controller'].address,
       resolver: contractsConfig['warp-resolver'].address,
       templates: contractsConfig['warp-templates'].address,
+      accountTracker: contractsConfig['warp-account-tracker'].address,
     };
   }
 
@@ -278,6 +280,8 @@ export class ChainModule {
         return contractDefs['warp-resolver'].address;
       case 'templates':
         return contractDefs['warp-templates'].address;
+      case 'accountTracker':
+        return contractDefs['warp-account-tracker'].address;
     }
   }
 }
