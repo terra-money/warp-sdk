@@ -60,7 +60,7 @@ export class WarpSdk {
     const job = await this.job(jobId);
 
     for (let execution of job.executions) {
-      const isCondActive = this.condition.resolveCond(execution.condition, job);
+      const isCondActive = await this.condition.resolveCond(execution.condition, job);
 
       if (isCondActive) {
         return true;
