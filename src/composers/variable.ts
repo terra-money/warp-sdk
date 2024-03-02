@@ -5,7 +5,7 @@ class StaticVariableComposer {
   private variable: warp_resolver.StaticVariable;
 
   constructor() {
-    this.variable = { kind: 'string', name: '', value: '', encode: false, init_fn: null, reinitialize: false };
+    this.variable = { kind: 'string', name: '', encode: false, init_fn: null, reinitialize: false };
   }
 
   kind(kind: warp_resolver.VariableKind): StaticVariableComposer {

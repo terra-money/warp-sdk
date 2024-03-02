@@ -23,7 +23,11 @@ const nextExecution = variable
   .static()
   .kind('uint')
   .name('next_execution')
-  .value(ts.date(new Date('2023-04-10T12:30:00.000Z')))
+  .onInit({
+    uint: {
+      simple: ts.date(new Date('2023-04-10T12:30:00.000Z')),
+    },
+  })
   .onSuccess(fn.uint(uint.expr(uint.simple(ts.days(1)), 'add', uint.env('time'))))
   .onError(fn.uint(uint.expr(uint.simple(ts.hours(1)), 'add', uint.env('time'))))
   .compose();
