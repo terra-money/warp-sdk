@@ -110,23 +110,31 @@ const estimateJobRewardMsg = job
   .executions(executions)
   .compose();
 
-const reward = await sdk.estimateJobReward(sender, estimateJobRewardMsg);
+const main = async () => {
+  try {
+    const reward = await sdk.estimateJobReward(sender, estimateJobRewardMsg);
 
-const operationalAmount = await sdk.estimateJobFee(sender, estimateJobRewardMsg, reward.amount.toString());
+    const operationalAmount = await sdk.estimateJobFee(sender, estimateJobRewardMsg, reward.amount.toString());
 
-const createJobMsg = job
-  .create()
-  .name('astroport-limit-order')
-  .reward(reward.amount.toString())
-  .operationalAmount(operationalAmount.amount.toString())
-  .recurring(recurring)
-  .description('This job creates an astroport limit order.')
-  .labels([])
-  .vars(vars)
-  .durationDays(durationDays)
-  .executions(executions)
-  .compose();
+    const createJobMsg = job
+      .create()
+      .name('astroport-limit-order')
+      .reward(reward.amount.toString())
+      .operationalAmount(operationalAmount.amount.toString())
+      .recurring(recurring)
+      .description('This job creates an astroport limit order.')
+      .labels([])
+      .vars(vars)
+      .durationDays(durationDays)
+      .executions(executions)
+      .compose();
 
-sdk.createJob(sender, createJobMsg, [operationalAmount]).then((response) => {
-  console.log(response);
-});
+    sdk.createJob(sender, createJobMsg, [operationalAmount]).then((response) => {
+      console.log(response);
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+main();
