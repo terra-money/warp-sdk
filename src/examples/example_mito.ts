@@ -24,7 +24,7 @@ const subaccount_id = variable
   .kind('string')
   .name('subaccount_id')
   .onInit({
-    query: query.smart(vault_contract_addr, { config: {} }),
+    query: query.smart(vault_contract_addr, { base: { config: {} } }),
     selector: '$.config.base.subaccount_id',
   })
   .reinitialize(true)
@@ -68,10 +68,10 @@ const prev_subaccount_available_balance = variable
 
 const next_config = variable
   .query()
-  .kind('json')
+  .kind('string')
   .name('next_config')
   .onInit({
-    query: query.smart(vault_contract_addr, { config: {} }),
+    query: query.smart(vault_contract_addr, { base: { config: {} } }),
     selector: '$.config',
   })
   .reinitialize(true)
@@ -79,7 +79,7 @@ const next_config = variable
 
 const prev_config = variable
   .static()
-  .kind('json')
+  .kind('string')
   .onInit({
     string: {
       simple: '',
@@ -89,7 +89,7 @@ const prev_config = variable
   .reinitialize(false)
   .onSuccess({
     string: {
-      ref: variable.ref(next_subaccount_available_balance),
+      ref: variable.ref(next_config),
     },
   })
   .compose();
