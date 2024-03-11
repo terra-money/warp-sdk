@@ -108,7 +108,7 @@ export class Condition {
     }
 
     if ('ref' in value) {
-      return this.resolveVariable(this.variable(value.ref, job), (v) => String(v));
+      return this.resolveVariable(this.variable(value.ref, job), (v) => String(v), job);
     }
   };
 
@@ -145,7 +145,7 @@ export class Condition {
     }
 
     if ('ref' in value) {
-      return this.resolveVariable(this.variable(value.ref, job), (v) => Big(v));
+      return this.resolveVariable(this.variable(value.ref, job), (v) => Big(v), job);
     }
 
     if ('env' in value) {
@@ -221,15 +221,15 @@ export class Condition {
   public resolveExprBool(ref: string, job: Job): Promise<boolean> {
     const v = this.variable(ref, job);
 
-    return this.resolveVariable(v, (val) => (val === 'true' ? true : false));
+    return this.resolveVariable(v, (val) => (val === 'true' ? true : false), job);
   }
 
-  public async resolveVariable<T>(variable: warp_resolver.Variable, cast: (val: string) => T): Promise<T> {
+  public async resolveVariable<T>(variable: warp_resolver.Variable, cast: (val: string) => T, job: Job): Promise<T> {
     let resp: T;
     let encode: boolean = false;
 
     if ('static' in variable) {
-      resp = cast(variable.static.value);
+      resp = cast(await this.resolveStaticVariable(variable.static, job));
       encode = variable.static.encode;
     }
 
@@ -251,16 +251,65 @@ export class Condition {
   }
 
   public async resolveQueryVariable(query: warp_resolver.QueryVariable): Promise<string> {
+    if (!query.reinitialize && Boolean(query.value)) {
+      return query.value;
+    }
+
     const resp = await contractQuery<
       Extract<warp_resolver.QueryMsg, { simulate_query: {} }>,
       warp_resolver.SimulateResponse
     >(this.wallet.lcd, this.contracts.resolver, { simulate_query: { query: query.init_fn.query } });
+
     const extracted = JSONPath({ path: query.init_fn.selector, json: JSON.parse(resp.response) });
 
     if (extracted[0] === null) {
       return null;
     } else {
-      return String(extracted[0]);
+      return JSON.stringify(extracted[0]);
+    }
+  }
+
+  public async resolveStaticVariable(variable: warp_resolver.StaticVariable, job: Job): Promise<string> {
+    if (!variable.reinitialize && Boolean(variable.value)) {
+      return variable.value;
+    }
+
+    const fnValue = variable.init_fn;
+
+    if ('string' in fnValue) {
+      return this.resolveStringValue(fnValue.string, job);
+    }
+
+    let numResult: Big = null;
+
+    if ('uint' in fnValue) {
+      numResult = await this.resolveNumValue(fnValue.uint, job);
+    }
+
+    if ('int' in fnValue) {
+      numResult = await this.resolveNumValue(fnValue.int, job);
+    }
+
+    if ('decimal' in fnValue) {
+      numResult = await this.resolveNumValue(fnValue.decimal, job);
+    }
+
+    if ('block_height' in fnValue) {
+      numResult = await this.resolveNumValue(fnValue.block_height, job);
+    }
+
+    if ('timestamp' in fnValue) {
+      numResult = await this.resolveNumValue(fnValue.timestamp, job);
+    }
+
+    if (numResult !== null) {
+      return numResult.toString();
+    }
+
+    if ('bool' in fnValue) {
+      const boolResult = this.resolveExprBool(fnValue.bool, job);
+
+      return JSON.stringify(boolResult);
     }
   }
 

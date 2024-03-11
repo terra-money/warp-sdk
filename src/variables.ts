@@ -26,6 +26,10 @@ export const variableName = (v: warp_resolver.Variable): string => {
 };
 
 export const resolveExternalVariable = async (external: warp_resolver.ExternalVariable): Promise<string> => {
+  if (!external.reinitialize && Boolean(external.value)) {
+    return external.value;
+  }
+
   const { init_fn } = external;
   const { body = null, method = 'get', selector, url, headers = {} } = init_fn;
 
