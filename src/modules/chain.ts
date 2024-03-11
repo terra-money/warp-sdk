@@ -43,7 +43,7 @@ const mainnetConfig: Record<string, LCDClientConfig> = {
   },
   'injective-1': {
     chainID: 'injective-1',
-    lcd: 'https://lcd.injective.network',
+    lcd: 'https://sentry.lcd.injective.network',
     gasAdjustment: 1.75,
     gasPrices: {
       inj: 1500000000,
@@ -89,7 +89,7 @@ const testnetConfig: Record<string, LCDClientConfig> = {
   },
   'injective-888': {
     chainID: 'injective-888',
-    lcd: 'https://k8s.testnet.lcd.injective.network',
+    lcd: 'https://testnet.sentry.lcd.injective.network:443',
     gasAdjustment: 1.75,
     gasPrices: {
       inj: 1500000000,
