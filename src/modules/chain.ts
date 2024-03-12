@@ -3,9 +3,10 @@ import refsInjective from '../refs.injective.json';
 import refsNeutron from '../refs.neutron.json';
 import refsNibiru from '../refs.nibiru.json';
 import refsMigaloo from '../refs.migaloo.json';
+import refsOsmosis from '../refs.osmosis.json';
 import { LCDClient, LCDClientConfig } from '@terra-money/feather.js';
 
-export type ChainName = 'terra' | 'injective' | 'neutron' | 'nibiru' | 'migaloo';
+export type ChainName = 'terra' | 'injective' | 'neutron' | 'nibiru' | 'migaloo' | 'osmosis';
 export type NetworkName = 'testnet' | 'mainnet';
 
 interface ContractDefinition {
@@ -77,6 +78,13 @@ const mainnetConfig: Record<string, LCDClientConfig> = {
     },
     prefix: 'migaloo',
   },
+  'osmosis-1': {
+    chainID: 'osmosis-1',
+    lcd: 'https://lcd-osmosis.tfl.foundation',
+    gasAdjustment: 1.5,
+    gasPrices: { uosmo: 0.025 },
+    prefix: 'osmo',
+  },
 };
 
 const testnetConfig: Record<string, LCDClientConfig> = {
@@ -122,6 +130,13 @@ const testnetConfig: Record<string, LCDClientConfig> = {
       uwhale: 0.015,
     },
     prefix: 'migaloo',
+  },
+  'osmo-test-5': {
+    chainID: 'osmo-test-5',
+    lcd: 'https://lcd.osmotest5.osmosis.zone',
+    gasAdjustment: 1.5,
+    gasPrices: { uosmo: 0.025 },
+    prefix: 'osmo',
   },
 };
 
@@ -170,12 +185,22 @@ export const MIGALOO_CHAIN: ChainMetadata = {
   refs: refsMigaloo,
 };
 
+export const OSMOSIS_CHAIN: ChainMetadata = {
+  name: 'osmosis',
+  testnet: 'osmo-test-5',
+  testnetConfig: testnetConfig['osmo-test-5'],
+  mainnet: 'osmosis-1',
+  mainnetConfig: mainnetConfig['osmosis-1'],
+  refs: refsOsmosis,
+};
+
 export const SUPPORTED_CHAINS: ChainMetadata[] = [
   TERRA_CHAIN,
   INJECTIVE_CHAIN,
   NEUTRON_CHAIN,
   NIBIRU_CHAIN,
   MIGALOO_CHAIN,
+  OSMOSIS_CHAIN,
 ];
 
 export interface ContractAddresses {
