@@ -1,0 +1,38 @@
+{
+  "testnet": {
+    "warp-controller": {
+      "codeId": "585",
+      "address": "osmo1ckw5cf9saj6cg83jcqw8vxvjp2kcnrn8qdw8gwgxwv0n50umemmsntpfhs"
+    },
+    "warp-resolver": {
+      "codeId": "586",
+      "address": "osmo19avh24whtxaqrvagkhh3ck270gpsql37m522sx33ykkll43mv9fqxa2xm9"
+    },
+    "warp-templates": {
+      "codeId": "587",
+      "address": "osmo173vt7uu92ycn4vtj5fk3n9mw7rrtdd9nhf8m5ump53uxj3q9czss4qc8km"
+    },
+    "warp-account-tracker": {
+      "codeId": "584",
+      "address": "osmo1g02vtmy60p9w9r9q96m8jf996c4shxzc0q7qqna6ectkamr7zzfszqqkqd"
+    }
+  },
+  "mainnet": {
+    "warp-controller": {
+      "codeId": "585",
+      "address": "osmo1ckw5cf9saj6cg83jcqw8vxvjp2kcnrn8qdw8gwgxwv0n50umemmsntpfhs"
+    },
+    "warp-resolver": {
+      "codeId": "586",
+      "address": "osmo19avh24whtxaqrvagkhh3ck270gpsql37m522sx33ykkll43mv9fqxa2xm9"
+    },
+    "warp-templates": {
+      "codeId": "587",
+      "address": "osmo173vt7uu92ycn4vtj5fk3n9mw7rrtdd9nhf8m5ump53uxj3q9czss4qc8km"
+    },
+    "warp-account-tracker": {
+      "codeId": "584",
+      "address": "osmo1g02vtmy60p9w9r9q96m8jf996c4shxzc0q7qqna6ectkamr7zzfszqqkqd"
+    }
+  }
+}
