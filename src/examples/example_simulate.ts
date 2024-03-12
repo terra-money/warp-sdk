@@ -37,7 +37,17 @@ const condition = cond.uint(uint.env('time'), 'gt', uint.ref(nextExecution));
 const executions = [
   {
     condition,
-    msgs: [msg.execute('terra1kye343r8hl7wm6f3uzynyyzl2zmcm2sqmvvzwzj7et2j5jj7rjkqa2ue88', { harvest: {} })],
+    msgs: [
+      msg.execute('terra1kjv3e7v7m03kk8lrjqr2j604vusxrpxadg6xjz89jucladh5m5gqqag8q7', {
+        execute_simulate_query: {
+          query: {
+            wasm: {
+              contract_info: { contract_addr: 'terra1mmsl3mxq9n8a6dgye05pn0qlup7r24e2vyjkqgpe32pv3ehjgnes0jz5nc' },
+            },
+          },
+        },
+      }),
+    ],
   },
 ];
 
@@ -61,8 +71,8 @@ const main = async () => {
 
     const createJobMsg = job
       .create()
-      .name('eris-harvest')
-      .description('This job harvests rewards for eris protoocl vaults each day.')
+      .name('warp-simulate')
+      .description('This job executes a query simulation for testing purposes.')
       .labels([])
       .recurring(recurring)
       .reward(reward.amount.toString())
@@ -72,11 +82,10 @@ const main = async () => {
       .executions(executions)
       .compose();
 
-    sdk.createJob(sender, createJobMsg, [operationalAmount]).then((response) => {
-      console.log(response);
-    });
+    console.log(JSON.stringify(createJobMsg, null, 2));
   } catch (err) {
     console.log(err);
+    throw err;
   }
 };
 
