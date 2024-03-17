@@ -8,6 +8,13 @@ export const contractQuery = async <QueryMsg extends {}, QueryResponse>(
   return await lcd.wasm.contractQuery<QueryResponse>(contractAddress, msg);
 };
 
+export type IncreaseAllowanceMsg = {
+  increase_allowance: {
+    spender: string;
+    amount: string;
+  };
+};
+
 export type TransferMsg = {
   transfer: {
     recipient: string;
@@ -18,6 +25,13 @@ export type TransferMsg = {
 export type TransferNftMsg = {
   transfer_nft: {
     recipient: string;
+    token_id: string;
+  };
+};
+
+export type ApproveNft = {
+  approve: {
+    spender: string;
     token_id: string;
   };
 };

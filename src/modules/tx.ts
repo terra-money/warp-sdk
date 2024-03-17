@@ -1,5 +1,5 @@
 import { warp_controller, warp_account, warp_resolver, warp_templates } from '../types/contracts';
-import { base64encode, nativeTokenDenom, Token, TransferMsg, TransferNftMsg } from '../utils';
+import { ApproveNft, base64encode, IncreaseAllowanceMsg, nativeTokenDenom, Token, TransferMsg } from '../utils';
 import { Coins, CreateTxOptions } from '@terra-money/feather.js';
 import { TxBuilder } from '../tx';
 import { JobSequenceMsgComposer } from '../composers';
@@ -260,19 +260,19 @@ export class TxModule {
       if ('cw20' in fund) {
         const { amount, contract_addr } = fund.cw20;
 
-        txBuilder = txBuilder.execute<TransferMsg>(sender, contract_addr, {
-          transfer: {
+        txBuilder = txBuilder.execute<IncreaseAllowanceMsg>(sender, contract_addr, {
+          increase_allowance: {
             amount,
-            recipient: this.warpSdk.chain.contracts.controller,
+            spender: this.warpSdk.chain.contracts.controller,
           },
         });
       } else if ('cw721' in fund) {
         const { contract_addr, token_id } = fund.cw721;
 
-        txBuilder = txBuilder.execute<TransferNftMsg>(sender, contract_addr, {
-          transfer_nft: {
+        txBuilder = txBuilder.execute<ApproveNft>(sender, contract_addr, {
+          approve: {
             token_id,
-            recipient: this.warpSdk.chain.contracts.controller,
+            spender: this.warpSdk.chain.contracts.controller,
           },
         });
       }
