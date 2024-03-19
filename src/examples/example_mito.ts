@@ -1,6 +1,6 @@
 import { MnemonicKey, Wallet } from '@terra-money/feather.js';
 import { WarpSdk } from '../sdk';
-import { uint, cond, fn, msg, variable, job, ts, query, string } from '../composers';
+import { cond, msg, variable, job, query, string, decimal } from '../composers';
 import { ChainName, NetworkName } from 'modules';
 import dotenv from 'dotenv';
 import fs from 'fs';
@@ -32,18 +32,20 @@ const subaccount_id = variable
 
 const next_subaccount_available_balance = variable
   .query()
-  .kind('uint')
-  .value('0')
+  .kind('decimal')
   .name('next_subaccount_available_balance')
   .onInit({
     query: {
-      custom: {
-        subaccount_deposit: {
-          subaccount_id: variable.ref(subaccount_id),
-          denom: vault_strategy_denom,
+      custom: JSON.stringify({
+        route: 'exchange',
+        query_data: {
+          subaccount_deposit: {
+            subaccount_id: variable.ref(subaccount_id),
+            denom: vault_strategy_denom,
+          },
         },
-      },
-    } as any,
+      }),
+    },
     selector: '$.deposits.available_balance',
   })
   .reinitialize(true)
@@ -51,16 +53,16 @@ const next_subaccount_available_balance = variable
 
 const prev_subaccount_available_balance = variable
   .static()
-  .kind('uint')
+  .kind('decimal')
   .name('prev_subaccount_available_balance')
   .reinitialize(false)
   .onInit({
-    uint: {
+    decimal: {
       simple: '0',
     },
   })
   .onSuccess({
-    uint: {
+    decimal: {
       ref: variable.ref(next_subaccount_available_balance),
     },
   })
@@ -95,7 +97,7 @@ const prev_config = variable
   .compose();
 
 const condition = cond.or(
-  cond.uint(uint.ref(prev_subaccount_available_balance), 'lt', uint.ref(next_subaccount_available_balance)),
+  cond.decimal(decimal.ref(prev_subaccount_available_balance), 'lt', decimal.ref(next_subaccount_available_balance)),
   cond.string(string.ref(prev_config), 'neq', string.ref(next_config))
 );
 
@@ -110,7 +112,7 @@ const executions = [
   },
 ];
 
-const recurring = true;
+const recurring = false;
 const durationDays = '7';
 // ordered in reference order (left to right, dfs)
 const vars = [
@@ -137,8 +139,8 @@ const main = async () => {
 
     const createJobMsg = job
       .create()
-      .name('mito-market-make')
-      .description('Triggers market making on mito vaults.')
+      .name('mito-market-maker')
+      .description('Automated market maker for mito vaults.')
       .labels([])
       .recurring(recurring)
       .reward(reward.amount.toString())
@@ -148,13 +150,9 @@ const main = async () => {
       .executions(executions)
       .compose();
 
-    const tx = await sdk.tx.createJob(sender, createJobMsg, [operationalAmount]);
+    const resp = await sdk.createJob(sender, createJobMsg, [operationalAmount]);
 
-    console.log(JSON.stringify(tx.msgs, null, 2));
-
-    // sdk.createJob(sender, createJobMsg, [operationalAmount]).then((response) => {
-    //   console.log(response);
-    // });
+    console.log({ resp: JSON.stringify(resp) });
   } catch (err) {
     console.log(err);
   }
