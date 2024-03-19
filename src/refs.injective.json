@@ -1,20 +1,20 @@
 {
   "testnet": {
     "warp-controller": {
-      "codeId": "7743",
-      "address": "inj17gcfj5k690rmuvh7czm4ns0jjkw0h60077vxv3"
+      "codeId": "7967",
+      "address": "inj1u56l96hs08hqznj0c202arftmh9j3c7m9dylpy"
     },
     "warp-resolver": {
-      "codeId": "7744",
-      "address": "inj1afhfhlraevt5peshg0u5h5rxle0n3r0r892mlk"
+      "codeId": "7971",
+      "address": "inj1pku5zgartl3xdlr509u3wjfs48k2lqylpscydf"
     },
     "warp-templates": {
-      "codeId": "7745",
-      "address": "inj1rmpv0suem978hclktmjvtrwl3j5ug0lcvjsp3n"
+      "codeId": "7966",
+      "address": "inj1tgmvl9tehyp4w2uddrgwea5pwvev8whr46ajgv"
     },
     "warp-account-tracker": {
-      "codeId": "7742",
-      "address": "inj1h3ufvxckhr77auvvgd8cnh9weqpfrzatmm6zjr"
+      "codeId": "7968",
+      "address": "inj1gf7dx0yp8dse8jxtg3e7dgjr4n0wq04dcjwd2j"
     }
   },
   "mainnet": {
