@@ -259,12 +259,14 @@ export class Condition {
       Extract<warp_resolver.QueryMsg, { simulate_query: {} }>,
       warp_resolver.SimulateResponse
     >(this.wallet.lcd, this.contracts.resolver, { simulate_query: { query: query.init_fn.query } });
-
     const extracted = JSONPath({ path: query.init_fn.selector, json: JSON.parse(resp.response) });
 
     if (extracted[0] === null) {
       return null;
     } else {
+      if (typeof extracted[0] == 'string') {
+        return extracted[0];
+      }
       return JSON.stringify(extracted[0]);
     }
   }
