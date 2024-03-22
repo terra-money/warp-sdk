@@ -1,6 +1,6 @@
 import { MnemonicKey, Wallet } from '@terra-money/feather.js';
 import { WarpSdk } from '../sdk';
-import { cond, msg, variable, job, query, string, decimal } from '../composers';
+import { cond, msg, variable, job, query, string } from '../composers';
 import { ChainName, NetworkName } from 'modules';
 import dotenv from 'dotenv';
 import fs from 'fs';
@@ -32,7 +32,7 @@ const subaccount_id = variable
 
 const next_subaccount_available_balance = variable
   .query()
-  .kind('decimal')
+  .kind('string')
   .name('next_subaccount_available_balance')
   .onInit({
     query: {
@@ -53,16 +53,16 @@ const next_subaccount_available_balance = variable
 
 const prev_subaccount_available_balance = variable
   .static()
-  .kind('decimal')
+  .kind('string')
   .name('prev_subaccount_available_balance')
   .reinitialize(false)
   .onInit({
-    decimal: {
-      simple: '0',
+    string: {
+      simple: '',
     },
   })
   .onSuccess({
-    decimal: {
+    string: {
       ref: variable.ref(next_subaccount_available_balance),
     },
   })
@@ -97,7 +97,7 @@ const prev_config = variable
   .compose();
 
 const condition = cond.or(
-  cond.decimal(decimal.ref(prev_subaccount_available_balance), 'lt', decimal.ref(next_subaccount_available_balance)),
+  cond.string(string.ref(prev_subaccount_available_balance), 'neq', string.ref(next_subaccount_available_balance)),
   cond.string(string.ref(prev_config), 'neq', string.ref(next_config))
 );
 
@@ -152,10 +152,14 @@ const main = async () => {
 
     const resp = await sdk.createJob(sender, createJobMsg, [operationalAmount]);
 
-    console.log({ resp: JSON.stringify(resp) });
+    log({ resp });
   } catch (err) {
     console.log(err);
   }
 };
 
 main();
+
+const log = (input: object) => {
+  console.log(JSON.stringify(input));
+};
