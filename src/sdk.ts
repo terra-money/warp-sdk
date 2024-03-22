@@ -17,6 +17,7 @@ import { cosmosMsgToCreateTxMsg } from './utils';
 import { warp_templates } from './types/contracts/warp_templates';
 import { Job, parseJob } from './types/job';
 import { warp_account_tracker } from './types/contracts';
+import { cloneDeep } from 'lodash';
 
 const FEE_ADJUSTMENT_FACTOR = 8;
 
@@ -57,7 +58,9 @@ export class WarpSdk {
   }
 
   public async isJobActive(jobId: string): Promise<boolean> {
-    const job = await this.job(jobId);
+    let job = await this.job(jobId);
+
+    job = await this.replaceVariableReferences(job);
 
     for (let execution of job.executions) {
       const isCondActive = await this.condition.resolveCond(execution.condition, job);
@@ -68,6 +71,22 @@ export class WarpSdk {
     }
 
     return false;
+  }
+
+  public async replaceVariableReferences(job: Job): Promise<Job> {
+    let resolvedVars: warp_resolver.Variable[] = [];
+
+    for (const variable of job.vars) {
+      const replacedVariable = await this.replaceReferencesInVariable(variable, resolvedVars);
+
+      const resolvedValue: string = await this.condition.resolveVariable(replacedVariable, (v) => String(v), job);
+
+      this.updateResolvedVars(replacedVariable, resolvedValue, resolvedVars);
+    }
+
+    job.vars = resolvedVars;
+
+    return job;
   }
 
   public async jobs(opts: warp_controller.QueryJobsMsg = {}): Promise<Job[]> {
@@ -462,5 +481,90 @@ export class WarpSdk {
     const txPayload = await this.tx.withdrawFromAccount(sender, account, receiver, token, amount);
 
     return this.wallet.tx(txPayload);
+  }
+
+  // private
+  private async replaceReferencesInVariable(
+    inputVariable: warp_resolver.Variable,
+    resolvedVars: warp_resolver.Variable[]
+  ): Promise<warp_resolver.Variable> {
+    const variable = cloneDeep(inputVariable);
+
+    if ('query' in variable && variable.query.init_fn) {
+      let q = this.replaceReferencesInCustom(variable.query.init_fn.query, resolvedVars);
+
+      variable.query.init_fn.query = this.replaceReferencesInObject(q, resolvedVars);
+    }
+
+    return variable;
+  }
+
+  private replaceReferencesInCustom(
+    q: warp_resolver.QueryRequestFor_String,
+    resolvedVars: warp_resolver.Variable[]
+  ): warp_resolver.QueryRequestFor_String {
+    if ('custom' in q) {
+      let parsed = JSON.parse(q.custom);
+      let replaced = this.replaceReferencesInObject(parsed, resolvedVars);
+
+      return {
+        custom: JSON.stringify(replaced),
+      };
+    }
+
+    return q;
+  }
+
+  private replaceReferencesInObject(query: any, resolvedVars: warp_resolver.Variable[]): any {
+    let jsonString = JSON.stringify(query);
+
+    resolvedVars.forEach((variable) => {
+      const varName = this.extractVariableName(variable);
+      const varValue = this.extractVariableValue(variable);
+      const reference = new RegExp(`\\$warp.variable.${varName}`, 'g');
+
+      jsonString = jsonString.replace(reference, varValue);
+    });
+
+    return JSON.parse(jsonString);
+  }
+
+  private updateResolvedVars(
+    variable: warp_resolver.Variable,
+    resolvedValue: string,
+    resolvedVars: warp_resolver.Variable[]
+  ): void {
+    this.updateVariableValue(variable, resolvedValue);
+    resolvedVars.push(variable);
+  }
+
+  private updateVariableValue(variable: warp_resolver.Variable, value: string): void {
+    if ('static' in variable) {
+      variable.static.value = value;
+    } else if ('external' in variable) {
+      variable.external.value = value;
+    } else if ('query' in variable) {
+      variable.query.value = value;
+    }
+  }
+
+  private extractVariableName(variable: warp_resolver.Variable): string {
+    if ('static' in variable) {
+      return variable.static.name;
+    } else if ('external' in variable) {
+      return variable.external.name;
+    } else if ('query' in variable) {
+      return variable.query.name;
+    }
+  }
+
+  private extractVariableValue(variable: warp_resolver.Variable): string {
+    if ('static' in variable) {
+      return variable.static.value;
+    } else if ('external' in variable) {
+      return variable.external.value;
+    } else if ('query' in variable) {
+      return variable.query.value;
+    }
   }
 }
