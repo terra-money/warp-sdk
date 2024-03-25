@@ -19,11 +19,11 @@
   },
   "mainnet": {
     "warp-controller": {
-      "codeId": "504",
+      "codeId": "645",
       "address": "inj1rnpwwhfg4q82rt3ylr8acyv99hwc57rdrrqnt4"
     },
     "warp-resolver": {
-      "codeId": "505",
+      "codeId": "644",
       "address": "inj14dln7eeucds7skjkkxqgesth46rl09zl7hlrfu"
     },
     "warp-templates": {
@@ -31,7 +31,7 @@
       "address": "inj1872z8v0zldhckg2a2yx7yjf3nmtvfc2x5llxpd"
     },
     "warp-account-tracker": {
-      "codeId": "503",
+      "codeId": "646",
       "address": "inj1ng0hfwuan93cjmkf4xyrp95r589ryk5pk3sze0"
     }
   }
