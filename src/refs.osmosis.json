@@ -19,11 +19,11 @@
   },
   "mainnet": {
     "warp-controller": {
-      "codeId": "585",
+      "codeId": "657",
       "address": "osmo1ckw5cf9saj6cg83jcqw8vxvjp2kcnrn8qdw8gwgxwv0n50umemmsntpfhs"
     },
     "warp-resolver": {
-      "codeId": "586",
+      "codeId": "658",
       "address": "osmo19avh24whtxaqrvagkhh3ck270gpsql37m522sx33ykkll43mv9fqxa2xm9"
     },
     "warp-templates": {
