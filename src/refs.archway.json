@@ -19,20 +19,20 @@
   },
   "mainnet": {
     "warp-controller": {
-      "codeId": "2293",
-      "address": "archway1gu2xn225av3l5z9jd0u7m4vqpmv8hfyd2ksvt3x4z2qmhy8faveqw8zjsl"
+      "codeId": "370",
+      "address": "archway1574ghm4u6ugp3uyt8dphqc778flf85kd5n868cvkud425n2nm06sctlet2"
     },
     "warp-resolver": {
-      "codeId": "2291",
-      "address": "archway1efyxta3zul4r06khp6354lstuwgtwd9m68dayhp3khm50knlchuqwx6a7z"
+      "codeId": "368",
+      "address": "archway1qhv6txrh5hnrmvp0pshme7zd5267y9sj85ek5xlljtkzkmnhlfusq6088w"
     },
     "warp-templates": {
-      "codeId": "2292",
-      "address": "archway14fmggpquzrxmy8azn52mtqmylhhncjcl920c6pv7w93svcwytmkssfu9z6"
+      "codeId": "369",
+      "address": "archway1f66f350s0avh3dapyjv6u2pcwvk9239rgg55wtpkw22lufq60kfq7l7flr"
     },
     "warp-account-tracker": {
-      "codeId": "2294",
-      "address": "archway1fkknrksskxqsfsv8d343dsck4tu4rjpvpjv08tjnk6z6c6h67gjqwvjgwr"
+      "codeId": "371",
+      "address": "archway1c6zg7e9schkd8jmukwk6sumxjgh75s3xdnzp2tn6jd0957e5qypqhzwzqa"
     }
   }
 }
