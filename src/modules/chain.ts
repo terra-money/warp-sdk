@@ -4,9 +4,10 @@ import refsNeutron from '../refs.neutron.json';
 import refsNibiru from '../refs.nibiru.json';
 import refsMigaloo from '../refs.migaloo.json';
 import refsOsmosis from '../refs.osmosis.json';
+import refsArchway from '../refs.archway.json';
 import { LCDClient, LCDClientConfig } from '@terra-money/feather.js';
 
-export type ChainName = 'terra' | 'injective' | 'neutron' | 'nibiru' | 'migaloo' | 'osmosis';
+export type ChainName = 'terra' | 'injective' | 'neutron' | 'nibiru' | 'migaloo' | 'osmosis' | 'archway';
 export type NetworkName = 'testnet' | 'mainnet';
 
 interface ContractDefinition {
@@ -85,6 +86,13 @@ const mainnetConfig: Record<string, LCDClientConfig> = {
     gasPrices: { uosmo: 0.025 },
     prefix: 'osmo',
   },
+  'archway-1': {
+    chainID: 'archway-1',
+    lcd: 'https://lcd-archway.tfl.foundation',
+    gasAdjustment: 1.75,
+    gasPrices: { aarch: 1500000000000 },
+    prefix: 'archway',
+  },
 };
 
 const testnetConfig: Record<string, LCDClientConfig> = {
@@ -137,6 +145,15 @@ const testnetConfig: Record<string, LCDClientConfig> = {
     gasAdjustment: 1.5,
     gasPrices: { uosmo: 0.025 },
     prefix: 'osmo',
+  },
+  'constantine-3': {
+    chainID: 'constantine-3',
+    lcd: 'https://api.constantine.archway.tech',
+    gasAdjustment: 1.75,
+    gasPrices: {
+      aconst: 196000000000,
+    },
+    prefix: 'archway',
   },
 };
 
@@ -194,6 +211,15 @@ export const OSMOSIS_CHAIN: ChainMetadata = {
   refs: refsOsmosis,
 };
 
+export const ARCHWAY_CHAIN: ChainMetadata = {
+  name: 'archway',
+  testnet: 'constantine-3',
+  testnetConfig: testnetConfig['constantine-3'],
+  mainnet: 'archway-1',
+  mainnetConfig: mainnetConfig['archway-1'],
+  refs: refsArchway,
+};
+
 export const SUPPORTED_CHAINS: ChainMetadata[] = [
   TERRA_CHAIN,
   INJECTIVE_CHAIN,
@@ -201,6 +227,7 @@ export const SUPPORTED_CHAINS: ChainMetadata[] = [
   NIBIRU_CHAIN,
   MIGALOO_CHAIN,
   OSMOSIS_CHAIN,
+  ARCHWAY_CHAIN,
 ];
 
 export interface ContractAddresses {

@@ -29,6 +29,7 @@
     "bot-injective": "esbuild src/bot.ts --bundle --platform=node --outdir=dist --outbase=src && node ./dist/bot.js ./config.injective.json",
     "bot-nibiru": "esbuild src/bot.ts --bundle --platform=node --outdir=dist --outbase=src && node ./dist/bot.js ./config.nibiru.json",
     "bot-osmosis": "esbuild src/bot.ts --bundle --platform=node --outdir=dist --outbase=src && node ./dist/bot.js ./config.osmosis.json",
+    "bot-archway": "esbuild src/bot.ts --bundle --platform=node --outdir=dist --outbase=src && node ./dist/bot.js ./config.archway.json",
     "generate-dts": "dts-bundle-generator -o types.d.ts src/index.ts",
     "example-mito": "esbuild src/examples/example_mito.ts --bundle --platform=node --outdir=dist --outbase=src && node ./dist/examples/example_mito.js ./config.injective.json",
     "format": "prettier --write \"src/**/*.{js,ts,tsx}\"",

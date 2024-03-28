@@ -1,0 +1,38 @@
+{
+  "testnet": {
+    "warp-controller": {
+      "codeId": "2285",
+      "address": "archway1zkys84a53r2py9ujq6vretlrrxc2k8hvfpnrc2zt8hynnmfwwteq0glgnt"
+    },
+    "warp-resolver": {
+      "codeId": "2283",
+      "address": "archway1k2j07hjmhz6c9gvfpdceryher3323r4m5mu652e6yn9sqqncxgssgadzc7"
+    },
+    "warp-templates": {
+      "codeId": "2284",
+      "address": "archway12ul8qkannf0t6q4xxpew2ea58nn9h3zy28m7zn0v5dz5azusyllqclnuuv"
+    },
+    "warp-account-tracker": {
+      "codeId": "2286",
+      "address": "archway13g8s0atspgt7glwdpajpn47a35e3amy44y9fqqhd8f7sdl0alx0sv4kz5f"
+    }
+  },
+  "mainnet": {
+    "warp-controller": {
+      "codeId": "2285",
+      "address": "archway1zkys84a53r2py9ujq6vretlrrxc2k8hvfpnrc2zt8hynnmfwwteq0glgnt"
+    },
+    "warp-resolver": {
+      "codeId": "2283",
+      "address": "archway1k2j07hjmhz6c9gvfpdceryher3323r4m5mu652e6yn9sqqncxgssgadzc7"
+    },
+    "warp-templates": {
+      "codeId": "2284",
+      "address": "archway12ul8qkannf0t6q4xxpew2ea58nn9h3zy28m7zn0v5dz5azusyllqclnuuv"
+    },
+    "warp-account-tracker": {
+      "codeId": "2286",
+      "address": "archway13g8s0atspgt7glwdpajpn47a35e3amy44y9fqqhd8f7sdl0alx0sv4kz5f"
+    }
+  }
+}
