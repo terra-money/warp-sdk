@@ -5,9 +5,10 @@ import refsNibiru from '../refs.nibiru.json';
 import refsMigaloo from '../refs.migaloo.json';
 import refsOsmosis from '../refs.osmosis.json';
 import refsArchway from '../refs.archway.json';
+import refsOraichain from '../refs.oraichain.json';
 import { LCDClient, LCDClientConfig } from '@terra-money/feather.js';
 
-export type ChainName = 'terra' | 'injective' | 'neutron' | 'nibiru' | 'migaloo' | 'osmosis' | 'archway';
+export type ChainName = 'terra' | 'injective' | 'neutron' | 'nibiru' | 'migaloo' | 'osmosis' | 'archway' | 'oraichain';
 export type NetworkName = 'testnet' | 'mainnet';
 
 interface ContractDefinition {
@@ -93,6 +94,15 @@ const mainnetConfig: Record<string, LCDClientConfig> = {
     gasPrices: { aarch: 1500000000000 },
     prefix: 'archway',
   },
+  Oraichain: {
+    chainID: 'Oraichain',
+    lcd: 'https://lcd.orai.io',
+    gasAdjustment: 1.5,
+    gasPrices: {
+      orai: 0.005,
+    },
+    prefix: 'orai',
+  },
 };
 
 const testnetConfig: Record<string, LCDClientConfig> = {
@@ -154,6 +164,15 @@ const testnetConfig: Record<string, LCDClientConfig> = {
       aconst: 196000000000,
     },
     prefix: 'archway',
+  },
+  'Oraichain-testnet': {
+    chainID: 'Oraichain-testnet',
+    lcd: 'https://testnet-lcd.orai.io',
+    gasAdjustment: 1.5,
+    gasPrices: {
+      orai: 0.005,
+    },
+    prefix: 'orai',
   },
 };
 
@@ -220,6 +239,15 @@ export const ARCHWAY_CHAIN: ChainMetadata = {
   refs: refsArchway,
 };
 
+export const ORAICHAIN_CHAIN: ChainMetadata = {
+  name: 'oraichain',
+  testnet: 'Oraichain-testnet',
+  testnetConfig: testnetConfig['Oraichain-testnet'],
+  mainnet: 'Oraichain',
+  mainnetConfig: mainnetConfig['Oraichain'],
+  refs: refsOraichain,
+};
+
 export const SUPPORTED_CHAINS: ChainMetadata[] = [
   TERRA_CHAIN,
   INJECTIVE_CHAIN,
@@ -228,6 +256,7 @@ export const SUPPORTED_CHAINS: ChainMetadata[] = [
   MIGALOO_CHAIN,
   OSMOSIS_CHAIN,
   ARCHWAY_CHAIN,
+  ORAICHAIN_CHAIN,
 ];
 
 export interface ContractAddresses {
