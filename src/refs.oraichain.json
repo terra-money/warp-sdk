@@ -19,20 +19,20 @@
   },
   "mainnet": {
     "warp-controller": {
-      "codeId": "6863",
-      "address": "orai1l2xtp9mvy6ze7ay8302pcfcjt4v87xlkcd73cxssfyg0dvpvkayq4fs744"
+      "codeId": "1820",
+      "address": "orai1ztrrxcmujfcvpaa8w4cp62kq84f7zfzygkagr2drtjl24d409q9qnky96h"
     },
     "warp-resolver": {
-      "codeId": "6861",
-      "address": "orai15kntskv38uzamd9v4vgmn24dtf8kdc2632r33p3tnlm34cz7wjvs3pcdu9"
+      "codeId": "1818",
+      "address": "orai1lw8t082nuu0kvvs328zqmk9m8jzteu09f5n73pz04tchfxlq9nfslqz0m2"
     },
     "warp-templates": {
-      "codeId": "6862",
-      "address": "orai1armx2cqu6sexqwywmh6vhx4dvfaf3ez8texytdmujy5vc3x03xaq6z4jgs"
+      "codeId": "1819",
+      "address": "orai1a99xqxpde9cdz7suf734kwwreuhjpyhurjndth6gdjcykshdq2zs4vdqau"
     },
     "warp-account-tracker": {
-      "codeId": "6864",
-      "address": "orai1vje2e5p5gpwvfwv7ygsehrstxtnyt7tsjyasmwnydekg6dym6lgq934x95"
+      "codeId": "1821",
+      "address": "orai188ldtw8wagyjdvye9vw980ntrd83fwqnspkcevuaqtk37n0jztxqnk3a6s"
     }
   }
 }
