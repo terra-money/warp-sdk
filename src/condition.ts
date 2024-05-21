@@ -8,6 +8,7 @@ import { extractVariableName, resolveExternalVariable, variableName } from './va
 import { ContractAddresses } from 'modules/chain';
 import { Job } from './types';
 import { WarpSdk } from 'sdk';
+import deterministicJsonStringify from 'json-stable-stringify';
 
 export class Condition {
   public wallet: Wallet;
@@ -320,6 +321,9 @@ export class Condition {
       return false;
     }
 
+    left = this.orderKeysIfJsonStr(left);
+    right = this.orderKeysIfJsonStr(right);
+
     switch (op) {
       case 'contains':
         return left.includes(right);
@@ -333,6 +337,19 @@ export class Condition {
         return left.startsWith(right);
     }
   };
+
+  private isValidJson(str: string): boolean {
+    try {
+      JSON.parse(str);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  private orderKeysIfJsonStr(str: string): string {
+    return this.isValidJson(str) ? deterministicJsonStringify(JSON.parse(str)) : str;
+  }
 
   public resolveNumOp = async (left: Big, right: Big, op: warp_resolver.NumOp): Promise<boolean> => {
     if (left === null || right === null) {
